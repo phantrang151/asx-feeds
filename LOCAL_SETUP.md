@@ -49,8 +49,20 @@ npm run dev
 
 Open http://localhost:3000 - it redirects to `/signup` if you're not signed in yet.
 
-## Flow
+## Run on localbrowser
+Terminal 1 — backend:
 
+cd d:\Trang\GenAI_Projects\asx-agent
+asx_feed_env\Scripts\activate
+uvicorn app.main:app --reload --port 8000
+Wait for Application startup complete.
+
+Terminal 2 — frontend:
+cd d:\Trang\GenAI_Projects\asx-agent\frontend
+npm run dev
+Then open http://localhost:3000 in your browser.
+
+## Flow
 1. Sign up with email/password
 2. Add a ticker to your watchlist
 3. Create a feed for that ticker (name + description) - this calls the FastAPI backend,

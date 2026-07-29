@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import TickerForm from '../components/TickerForm';
-import TickerList from '../components/TickerList';
 import FeedForm from '../components/FeedForm';
-import FeedList from '../components/FeedList';
+import TickerFeedsList from '../components/TickerFeedsList';
+import AskQuestion from '../components/AskQuestion';
 import { useRequireAuth } from '../hooks/useRequireAuth';
 import { supabase } from '../lib/supabaseClient';
 
@@ -44,16 +44,30 @@ export default function Dashboard() {
       <Navbar />
       <main className="container">
         <section>
-          <h2>Your tickers</h2>
-          <TickerForm onAdded={loadTickers} />
-          <TickerList tickers={tickers} />
+          <h2>Ask a question</h2>
+          <AskQuestion />
         </section>
 
-        <section>
-          <h2>Your feeds</h2>
-          <FeedForm tickers={tickers} onCreated={loadFeeds} />
-          <FeedList feeds={feeds} />
-        </section>
+        <div className="dashboard-grid">
+          <div className="dashboard-col">
+            <section>
+              <h2>Add a ticker</h2>
+              <TickerForm onAdded={loadTickers} />
+            </section>
+
+            <section>
+              <h2>Create a feed</h2>
+              <FeedForm tickers={tickers} onCreated={loadFeeds} />
+            </section>
+          </div>
+
+          <div className="dashboard-col">
+            <section>
+              <h2>Your tickers &amp; feeds</h2>
+              <TickerFeedsList tickers={tickers} feeds={feeds} />
+            </section>
+          </div>
+        </div>
       </main>
     </div>
   );

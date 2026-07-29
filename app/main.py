@@ -1,13 +1,21 @@
 import jwt
 from fastapi import FastAPI, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
+from jwt import PyJWKClient
+from langchain_core.messages import HumanMessage
 from pydantic import BaseModel
 
-from config import SUPABASE_JWT_SECRET
+from config import SUPABASE_URL
 from tools.embeddings import embed
 from db.queries import create_feed
+from agent.chat.graph import graph
 
 app = FastAPI(title="ASX Agent API")
+
+# Supabase now signs session tokens with an asymmetric key (ES256) rather than a shared
+# HS256 secret, so verification uses the project's public JWKS instead of
+# SUPABASE_JWT_SECRET. PyJWKClient caches fetched keys and looks one up by the token's kid.
+_jwks_client = PyJWKClient(f"{SUPABASE_URL}/auth/v1/.well-known/jwks.json")
 
 # Local-only CORS setup: the Next.js dev server runs on :3000, this API on :8000.
 app.add_middleware(
@@ -24,6 +32,11 @@ class FeedCreateRequest(BaseModel):
     feed_description: str
 
 
+class AskRequest(BaseModel):
+    question: str
+    thread_id: str
+
+
 def get_user_id_from_token(authorization: str = Header(...)) -> str:
     """
     Verifies the Supabase-issued JWT the frontend sends (from the user's active session)
@@ -32,13 +45,11 @@ def get_user_id_from_token(authorization: str = Header(...)) -> str:
     the user_id always comes from a verified token, not from a form field a client could
     tamper with.
     """
-    if not SUPABASE_JWT_SECRET:
-        raise HTTPException(status_code=500, detail="SUPABASE_JWT_SECRET is not configured")
-
     token = authorization.replace("Bearer ", "")
     try:
+        signing_key = _jwks_client.get_signing_key_from_jwt(token)
         payload = jwt.decode(
-            token, SUPABASE_JWT_SECRET, algorithms=["HS256"], audience="authenticated"
+            token, signing_key.key, algorithms=["ES256"], audience="authenticated"
         )
     except Exception as e:
         raise HTTPException(status_code=401, detail=f"Invalid or expired token: {e}")
@@ -59,6 +70,24 @@ def create_feed_endpoint(req: FeedCreateRequest, authorization: str = Header(...
     embedding = embed(req.feed_description)
     feed = create_feed(user_id, req.ticker, req.feed_name, req.feed_description, embedding)
     return feed
+
+
+@app.post("/api/ask")
+def ask_endpoint(req: AskRequest, authorization: str = Header(...)):
+    """
+    Runs the chat/analysis agent graph (router -> search_news | conduct_analysis) for the
+    CURRENT logged-in user and returns its final answer. thread_id scopes the LangGraph
+    checkpointer to one chat session, so follow-up questions on the same thread keep
+    conversation context - the frontend generates one id per page load and reuses it.
+    """
+    user_id = get_user_id_from_token(authorization)
+    config = {"configurable": {"thread_id": req.thread_id, "langgraph_user_id": user_id}}
+    response = graph.invoke({"messages": [HumanMessage(content=req.question)]}, config=config)
+    return {
+        "answer": response["messages"][-1].content,
+        "ticker": response.get("ticker"),
+        "category": response.get("category"),
+    }
 
 
 @app.get("/health")

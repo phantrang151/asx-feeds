@@ -10,6 +10,7 @@ __pycache__/
 .venv/
 venv/
 env/
+asx_feed_env/
 
 # Node / Next.js
 frontend/node_modules/
