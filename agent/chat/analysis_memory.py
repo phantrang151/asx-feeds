@@ -2,6 +2,13 @@ import uuid
 
 from agent.chat.persistence import get_store
 
+def _namespace_ticker(ticker: str) -> str:
+    """Namespace labels can't contain '.' (langgraph.store.base._validate_namespace
+    rejects it), but every real ASX ticker does (e.g. 'TLS.AX') - swap it for a dash so
+    ticker-scoped memory namespaces are valid."""
+    return ticker.replace(".", "-")
+
+
 DEFAULT_ANALYSIS_INSTRUCTIONS = (
     "Always check whether profit or price growth is matched by revenue growth. "
     "If growth appears to come from cost-cutting (e.g. headcount reduction) or price "
@@ -42,7 +49,7 @@ def get_episodic_examples(user_id: str, ticker: str, current_question: str, limi
     just "here's how a similar question was handled before".
     """
     store = get_store()
-    namespace = (user_id, ticker, "episodic")
+    namespace = (user_id, _namespace_ticker(ticker), "episodic")
     results = store.search(namespace, query=current_question, limit=limit)
     if not results:
         return "No previous analyses for this ticker yet."
@@ -60,5 +67,5 @@ def store_episodic_example(user_id: str, ticker: str, question: str, insight: st
     episodic memory - it grows with use rather than being fixed at build time.
     """
     store = get_store()
-    namespace = (user_id, ticker, "episodic")
+    namespace = (user_id, _namespace_ticker(ticker), "episodic")
     store.put(namespace, str(uuid.uuid4()), {"question": question, "insight": insight})

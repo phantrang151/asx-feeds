@@ -248,6 +248,44 @@ ul {
   white-space: pre-wrap;
 }
 
+.qa-disclaimer {
+  font-size: 12px;
+  color: #8a6100;
+  background: #fff6e0;
+  border: 1px solid #f0dca0;
+  border-radius: 4px;
+  padding: 6px 10px;
+  margin: 0 0 8px;
+}
+
+.qa-references {
+  margin: 0 0 10px;
+}
+
+.qa-references-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  margin: 0 0 4px;
+}
+
+.qa-references ul {
+  margin: 0;
+  padding-left: 18px;
+  list-style: disc;
+}
+
+.qa-references li {
+  font-size: 12px;
+  color: #555;
+  padding: 2px 0;
+  border-bottom: none;
+}
+
+.qa-references a {
+  color: #2f5233;
+}
+
 .ticker-feeds-list > li {
   padding: 12px 0;
   border-bottom: 1px solid #eee;

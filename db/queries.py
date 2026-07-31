@@ -417,3 +417,91 @@ def insert_common_feed_item(
         on_conflict="common_feed_template_id,ticker,source_url",
         ignore_duplicates=True,
     ).execute()
+
+
+def insert_document(
+    ticker: str,
+    title: str,
+    source_type: str,
+    source_url: Optional[str],
+    uploaded_by: str,
+) -> dict:
+    client = get_client()
+    result = (
+        client.table("documents")
+        .insert(
+            {
+                "ticker": ticker,
+                "title": title,
+                "source_type": source_type,
+                "source_url": source_url,
+                "uploaded_by": uploaded_by,
+                "status": "processing",
+            }
+        )
+        .execute()
+    )
+    return result.data[0]
+
+
+def update_document_storage_path(document_id: str, storage_path: str) -> None:
+    client = get_client()
+    client.table("documents").update({"storage_path": storage_path}).eq("id", document_id).execute()
+
+
+def update_document_status(document_id: str, status: str, error: Optional[str] = None) -> None:
+    client = get_client()
+    client.table("documents").update({"status": status, "error": error}).eq("id", document_id).execute()
+
+
+def insert_document_chunks(
+    document_id: str, ticker: str, chunks: list[str], embeddings: list[list[float]]
+) -> None:
+    if not chunks:
+        return
+    client = get_client()
+    rows = [
+        {
+            "document_id": document_id,
+            "ticker": ticker,
+            "chunk_index": i,
+            "content": chunk,
+            "content_embedding": embedding,
+        }
+        for i, (chunk, embedding) in enumerate(zip(chunks, embeddings))
+    ]
+    client.table("document_chunks").insert(rows).execute()
+
+
+def get_documents_for_ticker(ticker: str) -> list[dict]:
+    client = get_client()
+    return (
+        client.table("documents")
+        .select("*")
+        .eq("ticker", ticker)
+        .order("created_at", desc=True)
+        .execute()
+        .data
+    )
+
+
+def get_document_chunk_counts(ticker: str) -> dict[str, int]:
+    """Calls the get_document_chunk_counts() Postgres function (see schema.sql) - one
+    aggregate query instead of counting per-document one at a time."""
+    client = get_client()
+    result = client.rpc("get_document_chunk_counts", {"doc_ticker": ticker}).execute()
+    return {row["document_id"]: row["chunk_count"] for row in result.data}
+
+
+def match_document_chunks_for_embedding(
+    ticker: str, embedding: list[float], match_count: int = 5
+) -> list[dict]:
+    """Calls the match_document_chunks() Postgres function (see schema.sql) - a pgvector
+    cosine-similarity search over admin-uploaded report chunks for this ticker, used by
+    search_financial_reports_tool. Returns chunks ordered by similarity, highest first."""
+    client = get_client()
+    result = client.rpc(
+        "match_document_chunks",
+        {"query_embedding": embedding, "match_ticker": ticker, "match_count": match_count},
+    ).execute()
+    return result.data

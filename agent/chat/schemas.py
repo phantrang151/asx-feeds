@@ -4,6 +4,15 @@ from langgraph.graph.message import add_messages
 from pydantic import BaseModel, Field
 
 
+class Reference(TypedDict):
+    """One piece of evidence a node used to produce its answer - shown to the user
+    above the answer itself, so they see what it's based on before the conclusion."""
+
+    source: str
+    content: str
+    url: Optional[str]
+
+
 class State(TypedDict):
     """State of the agent, passed through each step of the graph."""
 
@@ -13,6 +22,7 @@ class State(TypedDict):
     # them would fail at runtime. Add each back here once its node exists.
     category: Optional[Literal["search_news", "conduct_analysis"]]
     result: Optional[str]
+    references: Optional[list[Reference]]
 
 
 class Router(BaseModel):

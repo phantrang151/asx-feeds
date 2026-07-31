@@ -4,6 +4,7 @@ import { useRequireAuth } from '../hooks/useRequireAuth';
 import { supabase } from '../lib/supabaseClient';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const ASX_TICKER_PATTERN = /^[A-Z0-9]{1,6}\.AX$/;
 
 async function authedFetch(path, options = {}) {
   const {
@@ -19,6 +20,19 @@ async function authedFetch(path, options = {}) {
   });
 }
 
+async function authedFetchMultipart(path, formData) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  return fetch(`${API_URL}${path}`, {
+    method: 'POST',
+    // No Content-Type here - fetch sets multipart/form-data with the right boundary
+    // itself for a FormData body; authedFetch's hardcoded JSON header would break that.
+    headers: { Authorization: `Bearer ${session.access_token}` },
+    body: formData,
+  });
+}
+
 export default function Admin() {
   const { user, loading } = useRequireAuth();
   const [forbidden, setForbidden] = useState(false);
@@ -27,6 +41,72 @@ export default function Admin() {
   const [triggering, setTriggering] = useState(false);
   const [triggerResult, setTriggerResult] = useState(null);
   const [error, setError] = useState('');
+
+  const [docTicker, setDocTicker] = useState('');
+  const [docTickerError, setDocTickerError] = useState('');
+  const [docFiles, setDocFiles] = useState(null);
+  const [docLinks, setDocLinks] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [uploadResults, setUploadResults] = useState(null);
+  const [documents, setDocuments] = useState(null);
+
+  async function loadDocuments(ticker) {
+    const res = await authedFetch(`/api/admin/documents?ticker=${encodeURIComponent(ticker)}`);
+    if (res.status === 403) {
+      setForbidden(true);
+      return;
+    }
+    setDocuments(await res.json());
+  }
+
+  function handleViewDocuments() {
+    setDocTickerError('');
+    const ticker = docTicker.trim().toUpperCase();
+    if (!ASX_TICKER_PATTERN.test(ticker)) {
+      setDocTickerError('Ticker must be a Yahoo Finance ASX symbol, e.g. TLS.AX.');
+      return;
+    }
+    loadDocuments(ticker);
+  }
+
+  async function handleUploadDocuments(e) {
+    e.preventDefault();
+    setDocTickerError('');
+    setUploadResults(null);
+
+    const ticker = docTicker.trim().toUpperCase();
+    if (!ASX_TICKER_PATTERN.test(ticker)) {
+      setDocTickerError('Ticker must be a Yahoo Finance ASX symbol, e.g. TLS.AX.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('ticker', ticker);
+    formData.append('links', docLinks);
+    for (const file of docFiles || []) {
+      formData.append('files', file);
+    }
+
+    setUploading(true);
+    const res = await authedFetchMultipart('/api/admin/documents/upload', formData);
+    setUploading(false);
+
+    if (res.status === 403) {
+      setForbidden(true);
+      return;
+    }
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      setDocTickerError(body.detail || 'Upload failed.');
+      return;
+    }
+
+    const data = await res.json();
+    setUploadResults(data.results);
+    setDocFiles(null);
+    setDocLinks('');
+    loadDocuments(ticker);
+  }
 
   async function loadRuns() {
     const res = await authedFetch('/api/admin/pipeline/runs');
@@ -122,6 +202,73 @@ export default function Admin() {
                 </li>
               ))}
             </ul>
+          )}
+        </section>
+
+        <section>
+          <h2>Upload financial reports</h2>
+          <form onSubmit={handleUploadDocuments} className="stacked-form">
+            <label>
+              Ticker
+              <input
+                value={docTicker}
+                onChange={(e) => setDocTicker(e.target.value)}
+                placeholder="e.g. TLS.AX"
+                required
+              />
+            </label>
+            <label>
+              Files
+              <input type="file" multiple onChange={(e) => setDocFiles(e.target.files)} />
+            </label>
+            <label>
+              Links (one per line)
+              <textarea
+                value={docLinks}
+                onChange={(e) => setDocLinks(e.target.value)}
+                rows={3}
+                placeholder={'https://example.com/annual-report.pdf'}
+              />
+            </label>
+            <div className="feed-edit-actions">
+              <button type="submit" disabled={uploading}>
+                {uploading ? 'Uploading...' : 'Upload'}
+              </button>
+              <button type="button" onClick={handleViewDocuments}>
+                View documents for this ticker
+              </button>
+            </div>
+            {docTickerError && <p className="error">{docTickerError}</p>}
+          </form>
+
+          {uploadResults && (
+            <ul className="admin-runs">
+              {uploadResults.map((r, i) => (
+                <li key={i}>
+                  <strong>{r.status === 'ready' ? 'Ready' : 'Failed'}</strong> - {r.title}
+                  {r.status === 'ready' ? ` (${r.chunk_count} chunks)` : ` - ${r.error}`}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {documents && (
+            <>
+              <h3>Documents for {docTicker.trim().toUpperCase()}</h3>
+              {documents.length === 0 ? (
+                <p>No documents uploaded for this ticker yet.</p>
+              ) : (
+                <ul className="admin-runs">
+                  {documents.map((d) => (
+                    <li key={d.id}>
+                      <strong>{d.status}</strong> - {d.title} ({d.source_type}, {d.chunk_count} chunks) -{' '}
+                      {new Date(d.created_at).toLocaleString()}
+                      {d.error && ` - ${d.error}`}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </>
           )}
         </section>
 

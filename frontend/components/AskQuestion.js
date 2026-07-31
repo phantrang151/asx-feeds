@@ -3,6 +3,36 @@ import { supabase } from '../lib/supabaseClient';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+function AnswerBlock({ question, answer, references }) {
+  return (
+    <>
+      <p className="qa-question">{question}</p>
+      <p className="qa-disclaimer">
+        ⚠ AI-generated answer - please verify against the references below before relying on it.
+      </p>
+      {references.length > 0 && (
+        <div className="qa-references">
+          <p className="qa-references-title">References used for this answer:</p>
+          <ul>
+            {references.map((ref, i) => (
+              <li key={i}>
+                {ref.url ? (
+                  <a href={ref.url} target="_blank" rel="noreferrer">
+                    {ref.content}
+                  </a>
+                ) : (
+                  ref.content
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <p className="qa-answer">{answer}</p>
+    </>
+  );
+}
+
 export default function AskQuestion() {
   const [threadId] = useState(() => crypto.randomUUID());
   const [question, setQuestion] = useState('');
@@ -47,7 +77,7 @@ export default function AskQuestion() {
 
     const data = await res.json();
     setHistory((h) => (current ? [current, ...h] : h));
-    setCurrent({ question: askedQuestion, answer: data.answer });
+    setCurrent({ question: askedQuestion, answer: data.answer, references: data.references || [] });
     setQuestion('');
   }
 
@@ -70,10 +100,7 @@ export default function AskQuestion() {
         {asking ? (
           <p className="qa-placeholder">Thinking...</p>
         ) : current ? (
-          <>
-            <p className="qa-question">{current.question}</p>
-            <p className="qa-answer">{current.answer}</p>
-          </>
+          <AnswerBlock question={current.question} answer={current.answer} references={current.references} />
         ) : (
           <p className="qa-placeholder">Ask something above - the answer will show up here.</p>
         )}
@@ -85,8 +112,7 @@ export default function AskQuestion() {
           <ul className="qa-list">
             {history.map((qa, i) => (
               <li key={i}>
-                <p className="qa-question">{qa.question}</p>
-                <p className="qa-answer">{qa.answer}</p>
+                <AnswerBlock question={qa.question} answer={qa.answer} references={qa.references} />
               </li>
             ))}
           </ul>

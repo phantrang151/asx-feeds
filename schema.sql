@@ -1,7 +1,6 @@
 -- Run this in the Supabase SQL editor before running scripts/seed_single_user.py.
 -- Covers only what's needed for the single-user news pipeline test.
--- The fuller schema (profiles, watchlist_stocks, feed_templates, documents,
--- document_chunks, financial_records) can be layered on once auth is added.
+-- The fuller schema (profiles, feed_templates) can be layered on once auth is added.
 
 create extension if not exists vector;
 create extension if not exists pgcrypto; -- for gen_random_uuid()
@@ -129,6 +128,78 @@ create table if not exists financial_records (
   created_at timestamptz not null default now()
 );
 
+-- Admin-uploaded source material (files or pasted links) for a ticker, run through
+-- extraction -> chunking -> embedding so a future analysis tool can retrieve report
+-- content instead of only the single-row financial_records summary.
+create table if not exists documents (
+  id uuid primary key default gen_random_uuid(),
+  ticker text not null,
+  title text not null,                 -- original filename, or the pasted URL for links
+  source_type text not null check (source_type in ('file', 'link')),
+  source_url text,                     -- original pasted link when source_type = 'link'
+  storage_path text,                   -- Supabase Storage object path (raw bytes, both types)
+  status text not null default 'processing' check (status in ('processing', 'ready', 'failed')),
+  error text,
+  uploaded_by uuid not null references auth.users(id),
+  created_at timestamptz not null default now()
+);
+
+create table if not exists document_chunks (
+  id uuid primary key default gen_random_uuid(),
+  document_id uuid not null references documents(id) on delete cascade,
+  ticker text not null,                -- denormalized for direct filtering, same as feed_items
+  chunk_index int not null,
+  content text not null,
+  content_embedding vector(384) not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists document_chunks_embedding_idx
+  on document_chunks using ivfflat (content_embedding vector_cosine_ops);
+create index if not exists document_chunks_ticker_idx on document_chunks (ticker);
+create index if not exists documents_ticker_idx on documents (ticker, created_at);
+
+-- Per-document chunk counts for the admin document list, same style as match_feeds().
+create or replace function get_document_chunk_counts(doc_ticker text)
+returns table (document_id uuid, chunk_count bigint)
+language sql stable
+as $$
+  select document_chunks.document_id, count(*) as chunk_count
+  from document_chunks
+  where document_chunks.ticker = doc_ticker
+  group by document_chunks.document_id;
+$$;
+
+-- Returns the closest-matching chunks from admin-uploaded reports for a given ticker +
+-- query embedding - what the chat agent's search_financial_reports_tool calls, so it can
+-- ground answers in actually-uploaded report content instead of only general knowledge.
+create or replace function match_document_chunks(
+  query_embedding vector(384),
+  match_ticker text,
+  match_count int default 5
+)
+returns table (
+  id uuid,
+  document_id uuid,
+  document_title text,
+  content text,
+  similarity float
+)
+language sql stable
+as $$
+  select
+    document_chunks.id,
+    document_chunks.document_id,
+    documents.title as document_title,
+    document_chunks.content,
+    1 - (document_chunks.content_embedding <=> query_embedding) as similarity
+  from document_chunks
+  join documents on documents.id = document_chunks.document_id
+  where document_chunks.ticker = match_ticker
+  order by document_chunks.content_embedding <=> query_embedding
+  limit match_count;
+$$;
+
 create table if not exists ticker_insights (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -155,6 +226,12 @@ create table if not exists pipeline_runs (
 -- authenticated clients get nothing at all - defense in depth even though the frontend
 -- was never going to query this table directly.
 alter table pipeline_runs enable row level security;
+
+-- Same admin-only posture as pipeline_runs above: reachable only through the backend's
+-- service_role key (the admin upload endpoints today, and potentially a future
+-- analysis-tool query, which would also run backend-side with service_role).
+alter table documents enable row level security;
+alter table document_chunks enable row level security;
 
 -- Row Level Security: the frontend talks to Supabase directly using each user's own
 -- session (anon key + their JWT), so RLS is what actually stops user A from seeing or

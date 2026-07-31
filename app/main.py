@@ -4,11 +4,13 @@ from typing import Literal, Optional
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from groq import APIStatusError as GroqAPIStatusError
 from langchain_core.messages import HumanMessage
 from pydantic import BaseModel, field_validator
 
 from tools.embeddings import embed
 from db.queries import create_feed, get_common_feed_template, update_feed, set_feed_needs_rematch
+from db.storage import ensure_documents_bucket
 from agent.chat.graph import graph
 from app.auth import get_user_id_from_token
 from app.admin import router as admin_router
@@ -26,6 +28,27 @@ app.add_middleware(
 )
 
 app.include_router(admin_router)
+
+
+@app.on_event("startup")
+def on_startup():
+    ensure_documents_bucket()
+
+
+@app.exception_handler(GroqAPIStatusError)
+async def groq_error_handler(request: Request, exc: GroqAPIStatusError):
+    """
+    Every LLM call in this app goes through Groq, so its failures are common enough (daily
+    token-quota exhaustion especially, during heavy testing/demo use) to deserve a specific,
+    actionable message instead of falling through to the generic "Internal server error"
+    below - the frontend already just displays whatever `detail` it gets.
+    """
+    logger.warning("Groq API error on %s %s: %s", request.method, request.url.path, exc)
+    if exc.status_code == 429:
+        detail = "The AI model's usage limit has been reached for now - please try again in a bit."
+    else:
+        detail = "The AI model is temporarily unavailable - please try again shortly."
+    return JSONResponse(status_code=503, content={"detail": detail})
 
 
 @app.exception_handler(Exception)
@@ -174,6 +197,9 @@ def ask_endpoint(req: AskRequest, authorization: str = Header(...)):
         "answer": response["messages"][-1].content,
         "ticker": response.get("ticker"),
         "category": response.get("category"),
+        # Shown above the answer in the UI - the user sees what it's based on before
+        # the (AI-generated, may-be-wrong) conclusion itself.
+        "references": response.get("references") or [],
     }
 
 
