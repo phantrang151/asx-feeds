@@ -24,6 +24,9 @@ SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET")
 # which are for the REST client used in db/client.py.
 SUPABASE_DB_URL = os.getenv("SUPABASE_DB_URL")
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
+# Comma-separated allowlist of emails permitted to hit /api/admin/* routes.
+# See app/auth.py:require_admin for why this is demo-grade, not real RBAC.
+ADMIN_EMAILS = os.getenv("ADMIN_EMAILS")
 
 # Single-user testing mode: no auth yet, everything is scoped to this fixed id.
 # Swap this out for the real authenticated user id once auth is wired up.

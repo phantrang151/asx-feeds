@@ -256,8 +256,14 @@ ul {
 .ticker-feeds-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  gap: 8px;
   font-size: 14px;
   margin-bottom: 6px;
+}
+
+.ticker-feeds-header span {
+  flex: 1;
 }
 
 .ticker-feeds-list .feed-list {
@@ -268,4 +274,71 @@ ul {
   padding: 4px 0;
   border-bottom: none;
   font-size: 13px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.feed-main {
+  flex: 1;
+  min-width: 160px;
+}
+
+.feed-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.feed-controls select {
+  font-size: 12px;
+  padding: 2px 4px;
+}
+
+.feed-controls button {
+  padding: 3px 10px;
+  font-size: 12px;
+}
+
+.feed-edit-form {
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.feed-edit-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.delete-button {
+  padding: 3px 10px;
+  font-size: 12px;
+  background: transparent;
+  color: #b3261e;
+  border: 1px solid #b3261e;
+  flex-shrink: 0;
+}
+
+.delete-button:hover {
+  background: #b3261e;
+  color: white;
+}
+
+.feed-type-toggle {
+  display: flex;
+  gap: 16px;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-size: 14px;
+}
+
+.feed-type-toggle label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: normal;
 }

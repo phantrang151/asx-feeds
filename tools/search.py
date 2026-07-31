@@ -29,9 +29,9 @@ def search_news(ticker: str, max_results: int = 5) -> list[dict]:
 
             canonical_url = content.get("canonicalUrl")
             if isinstance(canonical_url, dict):
-                link = canonical_url.get("url", "")
+                link = canonical_url.get("url") or None
             else:
-                link = content.get("link", "")
+                link = content.get("link") or None
 
             published = content.get("pubDate") or content.get("providerPublishTime", "")
 

@@ -9,6 +9,7 @@ psycopg-pool
 fastapi
 uvicorn
 pyjwt
+langsmith
 yfinance
 sentence-transformers
 supabase

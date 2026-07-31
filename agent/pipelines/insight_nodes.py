@@ -31,7 +31,15 @@ def planner_node(state):
 
 
 def execute_step_node(state):
-    """Executes the next un-run step of the plan: pulls stored feed_items for that feed."""
+    """Executes the next un-run step of the plan: pulls stored feed_items for that feed.
+
+    Known gap: get_feed_items() only reads feed_items, so a feed_type='common' feed
+    (see schema.sql) always contributes zero evidence here, since common-feed
+    classifications live in common_feed_items instead. Not fixed yet because this graph
+    is currently dormant (only invoked from scripts/seed_single_user.py, not wired to
+    any FastAPI route) - fix by reading from the user_feed_items view instead of
+    get_feed_items() directly once insight generation is actually wired up.
+    """
     step_index = len(state["step_results"])
     feed_name = state["plan"][step_index]
 

@@ -64,7 +64,16 @@ export default function Dashboard() {
           <div className="dashboard-col">
             <section>
               <h2>Your tickers &amp; feeds</h2>
-              <TickerFeedsList tickers={tickers} feeds={feeds} />
+              <TickerFeedsList
+                tickers={tickers}
+                feeds={feeds}
+                onFeedDeleted={loadFeeds}
+                onFeedUpdated={loadFeeds}
+                onTickerDeleted={() => {
+                  loadTickers();
+                  loadFeeds();
+                }}
+              />
             </section>
           </div>
         </div>

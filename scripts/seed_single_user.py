@@ -6,10 +6,12 @@ Usage:
     python -m scripts.seed_single_user
 """
 
+from datetime import datetime, timezone
+
 from config import TEST_USER_ID
 from tools.embeddings import embed
 from db.queries import get_feeds_for_user, create_feed, get_feed_items
-from agent.pipelines.news_ingestion_graph import news_ingestion_graph
+from agent.pipelines.news_ingestion_graph import news_fetch_and_cache_graph, feed_classification_graph
 from agent.pipelines.insight_graph import insight_graph
 
 TICKER = "TLS.AX"
@@ -55,11 +57,20 @@ def seed_feeds():
 
 
 def run_ingestion():
-    result = news_ingestion_graph.invoke(
+    fetch_result = news_fetch_and_cache_graph.invoke(
+        {"ticker": TICKER, "articles_cached": 0, "common_classified_count": 0}
+    )
+    print(
+        f"Cached {fetch_result['articles_cached']} articles, "
+        f"classified {fetch_result['common_classified_count']} into common feeds."
+    )
+
+    run_cutoff = datetime.now(timezone.utc).isoformat()
+    result = feed_classification_graph.invoke(
         {
             "user_id": TEST_USER_ID,
             "ticker": TICKER,
-            "raw_articles": [],
+            "run_cutoff": run_cutoff,
             "classified_count": 0,
             "skipped_count": 0,
         }

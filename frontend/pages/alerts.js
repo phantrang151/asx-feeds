@@ -21,9 +21,13 @@ export default function Alerts() {
   useEffect(() => {
     if (!user) return;
 
+    // user_feed_items is a view unioning per-user feed_items (custom feeds) with the
+    // shared common_feed_items (common feeds) - see schema.sql. It has no FK for
+    // PostgREST to embed through, so feed_name/ticker come back as flat columns here
+    // instead of a nested `feeds` relation.
     supabase
-      .from('feed_items')
-      .select('*, feeds(feed_name, ticker)')
+      .from('user_feed_items')
+      .select('*')
       .order('created_at', { ascending: false })
       .then(({ data, error }) => {
         if (!error) setItems(data);
@@ -32,7 +36,7 @@ export default function Alerts() {
   }, [user]);
 
   const tickers = useMemo(() => {
-    const set = new Set(items.map((i) => i.feeds?.ticker).filter(Boolean));
+    const set = new Set(items.map((i) => i.ticker).filter(Boolean));
     return Array.from(set).sort();
   }, [items]);
 
@@ -43,7 +47,7 @@ export default function Alerts() {
 
   const filtered = useMemo(() => {
     return items.filter((item) => {
-      if (ticker !== 'all' && item.feeds?.ticker !== ticker) return false;
+      if (ticker !== 'all' && item.ticker !== ticker) return false;
 
       const created = new Date(item.created_at);
 
@@ -63,7 +67,7 @@ export default function Alerts() {
   const grouped = useMemo(() => {
     const map = new Map();
     for (const item of filtered) {
-      const key = item.feeds?.ticker || 'Unknown';
+      const key = item.ticker || 'Unknown';
       if (!map.has(key)) map.set(key, []);
       map.get(key).push(item);
     }
@@ -146,7 +150,7 @@ export default function Alerts() {
                 <ul className="alerts-list">
                   {tickerItems.map((item) => (
                     <li key={item.id}>
-                      <span className="alert-feed">{item.feeds?.feed_name}</span>
+                      <span className="alert-feed">{item.feed_name}</span>
                       <span className="alert-date">
                         {new Date(item.created_at).toLocaleDateString()}
                       </span>

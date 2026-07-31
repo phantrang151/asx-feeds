@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 
 export default function Navbar() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const router = useRouter();
 
   async function handleSignOut() {
@@ -17,6 +17,7 @@ export default function Navbar() {
       <div className="nav-links">
         <Link href="/dashboard">Dashboard</Link>
         <Link href="/alerts">Alerts</Link>
+        {isAdmin && <Link href="/admin">Admin</Link>}
       </div>
       {user && (
         <div className="nav-user">
