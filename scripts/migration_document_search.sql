@@ -15,19 +15,37 @@ returns table (
   document_id uuid,
   document_title text,
   content text,
-  similarity float
+  similarity float,
+  source_type text,
+  source_url text,
+  storage_path text
 )
 language sql stable
 as $$
+  -- "materialized" forces this ticker filter to run BEFORE the vector ordering below.
+  -- Without it, Postgres orders by content_embedding first using the ivfflat index -
+  -- an approximate search over the WHOLE table's index lists (default probes=1) - then
+  -- filters by ticker, so a ticker's chunks that aren't well-represented in the one
+  -- probed list can be almost entirely invisible even with hundreds of rows in the
+  -- table. Materializing first limits the ordering step to just this ticker's chunks
+  -- (a few hundred to a few thousand rows), which is small enough for an exact sort -
+  -- no ANN index involved, no missed matches.
+  with ticker_chunks as materialized (
+    select id, document_id, content, content_embedding
+    from document_chunks
+    where ticker = match_ticker
+  )
   select
-    document_chunks.id,
-    document_chunks.document_id,
+    ticker_chunks.id,
+    ticker_chunks.document_id,
     documents.title as document_title,
-    document_chunks.content,
-    1 - (document_chunks.content_embedding <=> query_embedding) as similarity
-  from document_chunks
-  join documents on documents.id = document_chunks.document_id
-  where document_chunks.ticker = match_ticker
-  order by document_chunks.content_embedding <=> query_embedding
+    ticker_chunks.content,
+    1 - (ticker_chunks.content_embedding <=> query_embedding) as similarity,
+    documents.source_type,
+    documents.source_url,
+    documents.storage_path
+  from ticker_chunks
+  join documents on documents.id = ticker_chunks.document_id
+  order by ticker_chunks.content_embedding <=> query_embedding
   limit match_count;
 $$;

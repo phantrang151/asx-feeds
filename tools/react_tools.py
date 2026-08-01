@@ -2,15 +2,29 @@ from langchain_core.tools import tool
 
 from tools.search import search_news as _search_news
 from tools.price import get_latest_price as _get_latest_price
-from tools.financials import get_financial_summary as _get_financial_summary
 from tools.embeddings import embed
+from db.client import get_client
 from db.queries import match_document_chunks_for_embedding
+from db.storage import DOCUMENTS_BUCKET
 
-# How much of a chunk's text shows up in the user-facing reference list - the model
-# itself still reasons over the full chunk via the tool's plain-text content, this only
-# trims the reference *preview* so one bullet point doesn't become a 1000-char wall of
-# text in the UI.
-_REFERENCE_PREVIEW_LEN = 240
+# How long a signed link to an uploaded report file stays valid. References aren't
+# persisted server-side (only kept in the frontend's in-memory chat history), so this
+# just needs to outlive a browser session, not be permanent.
+_DOCUMENT_LINK_EXPIRY_SECONDS = 24 * 60 * 60
+
+
+def _document_url(source_type: str, source_url: str | None, storage_path: str | None) -> str | None:
+    """A pasted link cites its own URL directly. An uploaded file has no public URL -
+    the documents bucket is private (see db/storage.py) - so it needs a signed URL
+    minted on demand instead."""
+    if source_type == "link":
+        return source_url
+    if not storage_path:
+        return None
+    signed = get_client().storage.from_(DOCUMENTS_BUCKET).create_signed_url(
+        storage_path, _DOCUMENT_LINK_EXPIRY_SECONDS
+    )
+    return signed.get("signedURL")
 
 
 @tool(response_format="content_and_artifact")
@@ -37,12 +51,6 @@ def get_latest_price_tool(ticker: str) -> str:
     return _get_latest_price(ticker)
 
 
-@tool
-def get_financial_summary_tool(ticker: str) -> str:
-    """Get the latest stored financial record (revenue, profit, headcount) for an ASX ticker."""
-    return _get_financial_summary(ticker)
-
-
 @tool(response_format="content_and_artifact")
 def search_financial_reports_tool(ticker: str, query: str):
     """Search previously admin-uploaded financial report documents (annual/half-year
@@ -53,11 +61,13 @@ def search_financial_reports_tool(ticker: str, query: str):
     if not matches:
         return f"No uploaded financial report content found for {ticker}.", []
     content = "\n\n".join(f"[{m['document_title']}] {m['content']}" for m in matches)
-    references = [
-        {
-            "content": f"[{m['document_title']}] {m['content'][:_REFERENCE_PREVIEW_LEN]}...",
-            "url": None,
-        }
-        for m in matches
-    ]
+    # One signed URL per document, not per chunk - several chunks routinely come from
+    # the same report.
+    urls_by_document = {}
+    references = []
+    for m in matches:
+        doc_id = m["document_id"]
+        if doc_id not in urls_by_document:
+            urls_by_document[doc_id] = _document_url(m["source_type"], m["source_url"], m["storage_path"])
+        references.append({"content": m["document_title"], "url": urls_by_document[doc_id]})
     return content, references

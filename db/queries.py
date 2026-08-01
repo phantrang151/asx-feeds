@@ -179,19 +179,6 @@ def get_feed_items(feed_id: str) -> list[dict]:
     )
 
 
-def get_latest_financial_record(ticker: str) -> Optional[dict]:
-    client = get_client()
-    result = (
-        client.table("financial_records")
-        .select("*")
-        .eq("ticker", ticker)
-        .order("period", desc=True)
-        .limit(1)
-        .execute()
-    )
-    return result.data[0] if result.data else None
-
-
 def insert_ticker_insight(
     user_id: str, ticker: str, insight_text: str, based_on_feed_item_ids: list[str]
 ) -> dict:

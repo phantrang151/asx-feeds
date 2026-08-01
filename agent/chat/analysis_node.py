@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from groq import BadRequestError as GroqBadRequestError
 from langchain_groq import ChatGroq
 from langchain_core.messages import AIMessage
 from langgraph.prebuilt import create_react_agent
@@ -19,12 +20,22 @@ from agent.shared.synthesize import synthesize_insight
 from tools.react_tools import (
     search_news_tool,
     get_latest_price_tool,
-    get_financial_summary_tool,
     search_financial_reports_tool,
 )
 
-_llm = ChatGroq(model=MODEL, api_key=GROQ_API_KEY)
+# temperature=0: this model's tool-calling is noticeably less reliable at the default
+# temperature - Groq's llama-3.3-70b-versatile occasionally emits a malformed
+# "<function=...>" text blob instead of a real tool call (surfaces as a 400
+# 'tool_use_failed' from Groq), and a near-zero temperature measurably cuts how often
+# that happens. See the retry in conduct_analysis_node for the cases it still doesn't.
+_llm = ChatGroq(model=MODEL, api_key=GROQ_API_KEY, temperature=0)
 _store = get_store()
+
+# How many times to retry the whole ReAct loop when Groq rejects a malformed tool call -
+# this is sampling noise (retrying the identical request often just succeeds), not a bug
+# to fix by catching/ignoring; give up and let it surface as the standard Groq-error 503
+# after this many attempts.
+_TOOL_USE_FAILED_RETRIES = 2
 
 
 def _build_prompt(state, config, store):
@@ -78,7 +89,6 @@ def _make_react_agent(ticker: str):
         tools=[
             search_news_tool,
             get_latest_price_tool,
-            get_financial_summary_tool,
             search_financial_reports_tool,
             *semantic_tools,
         ],
@@ -105,7 +115,15 @@ def conduct_analysis_node(state, config):
     # "messages"), so it's threaded through config instead - _build_prompt reads it back
     # out of config["configurable"] rather than state.
     sub_config = {**config, "configurable": {**config["configurable"], "ticker": ticker}}
-    result = react_agent.invoke({"messages": state["messages"]}, config=sub_config)
+
+    for attempt in range(_TOOL_USE_FAILED_RETRIES + 1):
+        try:
+            result = react_agent.invoke({"messages": state["messages"]}, config=sub_config)
+            break
+        except GroqBadRequestError as e:
+            is_tool_use_failed = getattr(e, "body", None) and e.body.get("error", {}).get("code") == "tool_use_failed"
+            if not is_tool_use_failed or attempt == _TOOL_USE_FAILED_RETRIES:
+                raise
 
     evidence = _extract_tool_evidence(result["messages"])
     insight = synthesize_insight(ticker, evidence)
@@ -116,7 +134,19 @@ def conduct_analysis_node(state, config):
     # raw store keys/namespaces/scores the user has no way to independently check, unlike
     # a news article's link. They stay in `evidence` for synthesis (still useful context
     # for the model) but are filtered out of what's actually shown to the user.
-    references = [e for e in evidence if e["source"] not in ("manage_memory", "search_memory")]
+    references = []
+    seen = set()
+    for e in evidence:
+        if e["source"] in ("manage_memory", "search_memory"):
+            continue
+        # The ReAct loop can call the same retrieval tool more than once (e.g. two
+        # different sub-queries against search_financial_reports_tool) and get back the
+        # same chunk both times - dedupe so the user doesn't see the same bullet twice.
+        key = (e["content"], e["url"])
+        if key in seen:
+            continue
+        seen.add(key)
+        references.append(e)
 
     return Command(
         update={"result": insight, "references": references, "messages": [AIMessage(content=insight)]}

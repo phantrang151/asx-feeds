@@ -51,6 +51,12 @@ export default function AskQuestion() {
       data: { session },
     } = await supabase.auth.getSession();
 
+    if (!session) {
+      setAsking(false);
+      setError('Your session has expired - please sign in again.');
+      return;
+    }
+
     let res;
     try {
       res = await fetch(`${API_URL}/api/ask`, {
