@@ -13,6 +13,8 @@ from tools.embeddings import embed
 from db.queries import create_feed, get_common_feed_template, update_feed, set_feed_needs_rematch
 from db.storage import ensure_documents_bucket
 from agent.chat.graph import graph
+from agent.guardrails.rate_limit import enforce_rate_limit
+from agent.guardrails.citations import filter_reachable_references
 from app.auth import get_user_id_from_token
 from app.admin import router as admin_router
 
@@ -68,8 +70,15 @@ async def groq_error_handler(request: Request, exc: GroqAPIStatusError):
     (not the bare Exception class), so it stays in ExceptionMiddleware, inside CORSMiddleware.
     """
     logger.warning("Groq API error on %s %s: %s", request.method, request.url.path, exc)
+    error_code = exc.body.get("error", {}).get("code") if isinstance(exc.body, dict) else None
     if exc.status_code == 429:
         detail = "The AI model's usage limit has been reached for now - please try again in a bit."
+    elif error_code == "tool_use_failed":
+        # Not an outage - Groq accepted the request but the model (usually the smaller
+        # JUDGE_MODEL doing forced structured output, e.g. the advice-avoidance check)
+        # emitted a malformed function call. Transient and retry-safe, but a distinct
+        # cause from "model unreachable" - worth telling apart when debugging failures.
+        detail = "The AI model produced a malformed response while judging the output - please try again."
     else:
         detail = "The AI model is temporarily unavailable - please try again shortly."
     return JSONResponse(status_code=503, content={"detail": detail})
@@ -201,15 +210,20 @@ def ask_endpoint(req: AskRequest, authorization: str = Header(...)):
     conversation context - the frontend generates one id per page load and reuses it.
     """
     user_id = get_user_id_from_token(authorization)
+    enforce_rate_limit(user_id)
     config = {"configurable": {"thread_id": req.thread_id, "langgraph_user_id": user_id}}
     response = graph.invoke({"messages": [HumanMessage(content=req.question)]}, config=config)
+    # One choke point for references regardless of which node produced them (search_news
+    # vs conduct_analysis) - nulls out `url` for anything unreachable so the frontend
+    # never shows a dead link as a clickable source.
+    references = filter_reachable_references(response.get("references") or [])
     return {
         "answer": response["messages"][-1].content,
         "ticker": response.get("ticker"),
         "category": response.get("category"),
         # Shown above the answer in the UI - the user sees what it's based on before
         # the (AI-generated, may-be-wrong) conclusion itself.
-        "references": response.get("references") or [],
+        "references": references,
     }
 
 

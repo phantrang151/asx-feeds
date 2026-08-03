@@ -128,6 +128,18 @@ create table if not exists financial_records (
   created_at timestamptz not null default now()
 );
 
+-- Real ASX-listed companies, seeded from Wikipedia's S&P/ASX 200 table (see
+-- scripts/seed_companies.py) - used by the chat agent's ticker-validation guardrail to
+-- reject/clarify a hallucinated ticker before it reaches any live tool call. Only covers
+-- the ~200 largest listed companies (the official ASX CSV is blocked by a WAF from a
+-- server environment) - a ticker NOT in this table isn't necessarily fake, see
+-- agent/guardrails/tickers.py's live-yfinance fallback for anything outside the seed.
+create table if not exists companies (
+  ticker text primary key,          -- Yahoo Finance ASX format, e.g. 'TLS.AX'
+  company_name text not null,
+  created_at timestamptz not null default now()
+);
+
 -- Admin-uploaded source material (files or pasted links) for a ticker, run through
 -- extraction -> chunking -> embedding so a future analysis tool can retrieve report
 -- content instead of only the single-row financial_records summary.
@@ -227,6 +239,18 @@ create table if not exists ticker_insights (
   created_at timestamptz not null default now()
 );
 
+-- One row per eval run (see eval/score_classification.py, eval/run_generation_eval.py)
+-- - what the admin page's Evaluation section reads to show quality metrics over time,
+-- same "one row per run" shape as pipeline_runs below. `summary` holds whatever each
+-- eval type's own summarize()/score() output looks like (see each script) rather than
+-- a fixed schema, since the two eval types measure fundamentally different things.
+create table if not exists eval_runs (
+  id uuid primary key default gen_random_uuid(),
+  eval_type text not null check (eval_type in ('classification', 'generation')),
+  summary jsonb not null,
+  created_at timestamptz not null default now()
+);
+
 create table if not exists pipeline_runs (
   id uuid primary key default gen_random_uuid(),
   started_at timestamptz not null default now(),
@@ -239,17 +263,35 @@ create table if not exists pipeline_runs (
   errors jsonb not null default '[]'::jsonb
 );
 
+-- One row per accepted /api/ask call, per user - what the rate-limit guardrail
+-- (agent/guardrails/rate_limit.py::enforce_rate_limit) counts over a trailing window
+-- (config.RATE_LIMIT_WINDOW_MINUTES/MAX_REQUESTS). A log, not a running counter, so the
+-- window size can change later without a migration.
+create table if not exists api_request_log (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+create index if not exists api_request_log_user_time_idx on api_request_log (user_id, created_at);
+
 -- Admin-only data, never queried directly from the frontend (only via the /api/admin
 -- routes, which use the service_role key). RLS is enabled with no policies, so anon and
 -- authenticated clients get nothing at all - defense in depth even though the frontend
 -- was never going to query this table directly.
 alter table pipeline_runs enable row level security;
 
+-- Same posture as pipeline_runs above.
+alter table eval_runs enable row level security;
+
 -- Same admin-only posture as pipeline_runs above: reachable only through the backend's
 -- service_role key (the admin upload endpoints today, and potentially a future
 -- analysis-tool query, which would also run backend-side with service_role).
 alter table documents enable row level security;
 alter table document_chunks enable row level security;
+
+-- Same posture again: only ever written/read by the backend's rate-limit guardrail via
+-- the service_role key, never by the frontend directly.
+alter table api_request_log enable row level security;
 
 -- Row Level Security: the frontend talks to Supabase directly using each user's own
 -- session (anon key + their JWT), so RLS is what actually stops user A from seeing or
@@ -284,6 +326,9 @@ create policy "select own insights" on ticker_insights for select using (auth.ui
 
 -- financial_records is intentionally NOT row-level-secured: it holds shared, public
 -- company data (see the earlier design discussion), not per-user data.
+
+-- companies is the same posture as financial_records above - shared, public reference
+-- data (real ASX ticker/name pairs), not per-user data.
 
 -- ticker_news and common_feed_items are also shared, not user-owned data - unlike
 -- financial_records, though, they ARE reachable directly by the frontend (via the

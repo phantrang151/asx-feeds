@@ -492,3 +492,82 @@ def match_document_chunks_for_embedding(
         {"query_embedding": embedding, "match_ticker": ticker, "match_count": match_count},
     ).execute()
     return result.data
+
+
+def upsert_companies(rows: list[dict]) -> None:
+    """Bulk upsert for scripts/seed_companies.py - safe to re-run, rows are
+    {"ticker", "company_name"} pairs keyed on ticker."""
+    if not rows:
+        return
+    client = get_client()
+    client.table("companies").upsert(rows, on_conflict="ticker").execute()
+
+
+def get_company(ticker: str) -> Optional[dict]:
+    """Looked up by the chat agent's ticker-validation guardrail
+    (agent/guardrails/tickers.py) before trusting an LLM-proposed ticker."""
+    client = get_client()
+    result = client.table("companies").select("*").eq("ticker", ticker).limit(1).execute()
+    return result.data[0] if result.data else None
+
+
+def count_recent_requests(user_id: str, since: str) -> int:
+    """Number of /api/ask calls this user has made since `since` (ISO timestamp) -
+    what the rate-limit guardrail (agent/guardrails/rate_limit.py) compares against
+    config.RATE_LIMIT_MAX_REQUESTS."""
+    client = get_client()
+    result = (
+        client.table("api_request_log")
+        .select("id", count="exact")
+        .eq("user_id", user_id)
+        .gte("created_at", since)
+        .execute()
+    )
+    return result.count or 0
+
+
+def log_ask_request(user_id: str) -> None:
+    """Records one accepted /api/ask call - what count_recent_requests() above counts
+    on the next request from this user."""
+    client = get_client()
+    client.table("api_request_log").insert({"user_id": user_id}).execute()
+
+
+def get_classified_ticker_news_sample(limit: int) -> list[dict]:
+    """Recent ticker_news rows already evaluated against common_feed_templates - the
+    pool eval/export_labels.py samples from to build a classification-quality labeling
+    worksheet (see match_common_feed_template_for_embedding for how each row's
+    candidate feed match is computed)."""
+    client = get_client()
+    return (
+        client.table("ticker_news")
+        .select("*")
+        .not_.is_("common_classified_at", "null")
+        .order("created_at", desc=True)
+        .limit(limit)
+        .execute()
+        .data
+    )
+
+
+def insert_eval_run(eval_type: str, summary: dict) -> dict:
+    """Logs one eval run - called by eval/score_classification.py (eval_type=
+    'classification') and eval/run_generation_eval.py (eval_type='generation') after
+    they finish scoring, so the admin page's Evaluation section has something to read.
+    `summary` is whatever shape that eval type's own output looks like - see each
+    script - not a fixed schema, since the two eval types measure different things."""
+    client = get_client()
+    result = (
+        client.table("eval_runs").insert({"eval_type": eval_type, "summary": summary}).execute()
+    )
+    return result.data[0]
+
+
+def get_recent_eval_runs(eval_type: Optional[str] = None, limit: int = 20) -> list[dict]:
+    """Recent eval runs, newest first - what the admin page's Evaluation section
+    renders. Filtered to one eval_type if given, otherwise both types interleaved."""
+    client = get_client()
+    query = client.table("eval_runs").select("*")
+    if eval_type:
+        query = query.eq("eval_type", eval_type)
+    return query.order("created_at", desc=True).limit(limit).execute().data

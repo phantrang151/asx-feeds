@@ -20,9 +20,16 @@ def _get_pool() -> ConnectionPool:
     # autocommit + prepare_threshold=0: Supabase's pooled connection runs pgbouncer in
     # transaction mode, which doesn't support server-side prepared statements - this avoids
     # psycopg trying to use them.
+    # check=check_connection: Supabase's pgbouncer closes idle connections server-side on
+    # its own timeout, shorter than this pool's own idle recycling - without this, a
+    # connection that's gone stale between requests gets handed out anyway and fails with
+    # "server closed the connection unexpectedly" on first use. This validates (and
+    # transparently replaces) a connection before handing it out, at the cost of one extra
+    # round-trip per checkout.
     return ConnectionPool(
         conninfo=SUPABASE_DB_URL,
         max_size=10,
+        check=ConnectionPool.check_connection,
         kwargs={"autocommit": True, "row_factory": dict_row, "prepare_threshold": 0},
     )
 

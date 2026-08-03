@@ -1,4 +1,5 @@
 import re
+from typing import Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 
@@ -14,10 +15,14 @@ from db.queries import (
     insert_document_chunks,
     get_documents_for_ticker,
     get_document_chunk_counts,
+    get_recent_eval_runs,
 )
+from eval.run_generation_eval import run_generation_eval
 from monitoring.langsmith_summary import get_langsmith_summary
 from tools.documents import extract_text, chunk_text, fetch_link
 from tools.embeddings import embed_batch
+
+DEFAULT_GENERATION_EVAL_FIXTURE = "eval/fixtures/qa_test_set.json"
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
@@ -52,10 +57,31 @@ def list_pipeline_runs(admin_user_id: str = Depends(require_admin)):
 
 @router.get("/langsmith/summary")
 def langsmith_summary(admin_user_id: str = Depends(require_admin)):
-    """Cost/latency/error summary over the last 24h of traced LLM calls. Model QUALITY
-    metrics (accuracy, relevance, groundedness, etc.) are intentionally not included here
-    yet - those need to be defined first (see the note in the admin page)."""
+    """Cost/latency/error summary over the last 24h of traced LLM calls - operational
+    cost/latency/error only. Model QUALITY metrics (groundedness, relevance,
+    advice-avoidance, classification precision/recall) live in the Evaluation section
+    instead, backed by eval_runs - see the /eval/runs routes below."""
     return get_langsmith_summary()
+
+
+@router.get("/eval/runs")
+def list_eval_runs(eval_type: Optional[str] = None, admin_user_id: str = Depends(require_admin)):
+    """Recent eval run history - what the admin page's Evaluation section renders.
+    Populated by eval/score_classification.py (run manually, needs a hand-labeled CSV -
+    see eval/export_labels.py) and eval/run_generation_eval.py (run manually or via the
+    trigger route below, no hand-labeling needed)."""
+    return get_recent_eval_runs(eval_type=eval_type, limit=20)
+
+
+@router.post("/eval/generation/trigger")
+def trigger_generation_eval(admin_user_id: str = Depends(require_admin)):
+    """Runs the generation-quality eval (groundedness/relevance/advice-avoidance judged
+    by JUDGE_MODEL) against the default fixture set right now, synchronously, and
+    returns the summary - same "blocking for now" posture as /pipeline/trigger. Unlike
+    the classification eval, this needs no hand-labeled input, so it's safe to trigger
+    on demand. Makes real, live Groq calls for every fixture question - not free, not
+    instant, and subject to the same daily token quota as normal chat traffic."""
+    return run_generation_eval(DEFAULT_GENERATION_EVAL_FIXTURE)["summary"]
 
 
 def _safe_storage_name(title: str) -> str:

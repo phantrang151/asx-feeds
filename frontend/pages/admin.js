@@ -42,6 +42,11 @@ export default function Admin() {
   const [triggerResult, setTriggerResult] = useState(null);
   const [error, setError] = useState('');
 
+  const [generationRuns, setGenerationRuns] = useState([]);
+  const [classificationRuns, setClassificationRuns] = useState([]);
+  const [triggeringEval, setTriggeringEval] = useState(false);
+  const [evalError, setEvalError] = useState('');
+
   const [docTicker, setDocTicker] = useState('');
   const [docTickerError, setDocTickerError] = useState('');
   const [docFiles, setDocFiles] = useState(null);
@@ -126,6 +131,37 @@ export default function Admin() {
     setSummary(await res.json());
   }
 
+  async function loadEvalRuns() {
+    const [genRes, classRes] = await Promise.all([
+      authedFetch('/api/admin/eval/runs?eval_type=generation'),
+      authedFetch('/api/admin/eval/runs?eval_type=classification'),
+    ]);
+    if (genRes.status === 403 || classRes.status === 403) {
+      setForbidden(true);
+      return;
+    }
+    setGenerationRuns(await genRes.json());
+    setClassificationRuns(await classRes.json());
+  }
+
+  async function handleTriggerGenerationEval() {
+    setTriggeringEval(true);
+    setEvalError('');
+    const res = await authedFetch('/api/admin/eval/generation/trigger', { method: 'POST' });
+    setTriggeringEval(false);
+
+    if (res.status === 403) {
+      setForbidden(true);
+      return;
+    }
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      setEvalError(body.detail || 'Failed to run the generation eval.');
+      return;
+    }
+    loadEvalRuns();
+  }
+
   async function handleTrigger() {
     setTriggering(true);
     setError('');
@@ -148,6 +184,7 @@ export default function Admin() {
     if (user) {
       loadRuns();
       loadSummary();
+      loadEvalRuns();
     }
   }, [user]);
 
@@ -294,9 +331,68 @@ export default function Admin() {
             </ul>
           )}
           <p className="info">
-            Model quality metrics (accuracy, relevance, groundedness, etc.) aren&apos;t defined
-            yet - this section covers cost/latency/error rate only until those are decided.
+            Cost/latency/error rate only - model quality metrics (groundedness, relevance,
+            advice-avoidance, classification precision/recall) are in the Evaluation section below.
           </p>
+        </section>
+
+        <section>
+          <h2>Evaluation</h2>
+
+          <h3>Generation quality (LLM-judge)</h3>
+          <p className="info">
+            Judges conduct_analysis answers on a fixed question set for groundedness (is every
+            claim backed by the evidence?), relevance, and advice-avoidance. Makes real, live LLM
+            calls - not free, not instant, and subject to the same daily model quota as normal chat
+            traffic.
+          </p>
+          <button onClick={handleTriggerGenerationEval} disabled={triggeringEval}>
+            {triggeringEval ? 'Running generation eval...' : 'Run generation eval now'}
+          </button>
+          {evalError && <p className="error">{evalError}</p>}
+
+          {generationRuns.length === 0 ? (
+            <p>No generation eval runs yet.</p>
+          ) : (
+            <ul className="admin-runs">
+              {generationRuns.map((r) => (
+                <li key={r.id}>
+                  {new Date(r.created_at).toLocaleString()} - avg relevance{' '}
+                  {r.summary.summary.avg_relevance ?? 'n/a'}/5, {r.summary.summary.pct_grounded ?? 'n/a'}%
+                  grounded, {r.summary.summary.pct_advice_avoidance_passed ?? 'n/a'}% advice-avoidance
+                  pass ({r.summary.summary.n_judged}/{r.summary.summary.n_total} judged)
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <h3>Classification quality (news &rarr; feed)</h3>
+          <p className="info">
+            Measures precision/recall/false-skip-rate of common-feed classification against a
+            hand-labeled sample - not triggerable from here, since it needs a human to label real
+            examples first: run <code>python -m eval.export_labels</code>, fill in the
+            <code>correct_feed</code> column, then{' '}
+            <code>python -m eval.score_classification --labels &lt;file&gt;</code> to add a run here.
+          </p>
+          {classificationRuns.length === 0 ? (
+            <p>No classification eval runs yet.</p>
+          ) : (
+            <ul className="admin-runs">
+              {classificationRuns.map((r) => (
+                <li key={r.id}>
+                  {new Date(r.created_at).toLocaleString()}
+                  <ul>
+                    {r.summary.results.map((res, i) => (
+                      <li key={i}>
+                        threshold {res.threshold} (n={res.n}): precision {res.precision ?? 'n/a'}, recall{' '}
+                        {res.recall ?? 'n/a'}, false-skip rate {res.false_skip_rate ?? 'n/a'}
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
       </main>
     </div>
