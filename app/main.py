@@ -50,6 +50,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "https://orange-tree-0cfeca100.7.azurestaticapps.net",
+        "https://asx-feed.trang-phan.com",
     ],
     allow_methods=["*"],
     allow_headers=["*"],
