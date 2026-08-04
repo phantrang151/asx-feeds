@@ -26,9 +26,14 @@ jobs:
             --image "backend:${{ github.sha }}" \
             .
 
+      - name: Look up registry login server
+        id: acr
+        run: |
+          echo "login_server=$(az acr show --name "${{ secrets.ACR_NAME }}" --query loginServer -o tsv)" >> "$GITHUB_OUTPUT"
+
       - name: Deploy new image to Container App
         run: |
           az containerapp update \
             --name "${{ secrets.CONTAINER_APP_NAME }}" \
             --resource-group "${{ secrets.RESOURCE_GROUP }}" \
-            --image "${{ secrets.ACR_NAME }}.azurecr.io/backend:${{ github.sha }}"
+            --image "${{ steps.acr.outputs.login_server }}/backend:${{ github.sha }}"
