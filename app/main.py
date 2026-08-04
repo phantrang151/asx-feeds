@@ -44,10 +44,13 @@ class UnhandledExceptionMiddleware(BaseHTTPMiddleware):
 
 app.add_middleware(UnhandledExceptionMiddleware)
 
-# Local-only CORS setup: the Next.js dev server runs on :3000, this API on :8000.
+# Local Next.js dev server (:3000) and the deployed frontend on Azure Static Web Apps.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:3000",
+        "https://orange-tree-0cfeca100.7.azurestaticapps.net",
+    ],
     allow_methods=["*"],
     allow_headers=["*"],
 )
