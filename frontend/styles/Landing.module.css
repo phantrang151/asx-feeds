@@ -1,0 +1,604 @@
+/*
+  Design tokens live on .landing itself (not :root) - Next's CSS Modules loader
+  rejects any fully-global rule, and scoping the tokens to .landing rather than the
+  document root is more correct anyway: they cascade to every descendant exactly the
+  same way, without ever touching the rest of the app.
+*/
+.landing {
+  --paper: #EDEEE7;
+  --paper-raised: #FFFFFF;
+  --paper-sunken: #E4E5DD;
+  --ink: #171A20;
+  --ink-soft: #4B505A;
+  --ink-faint: #82868E;
+  --accent: #B8791E;
+  --accent-deep: #8C5A16;
+  --accent-soft: rgba(184, 121, 30, 0.13);
+  --rule: #CACCC2;
+  --rule-strong: #A9ACA0;
+  --shadow: rgba(23, 26, 32, 0.1);
+  --up: #3F7855;
+  --down: #A8432E;
+  --mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, "Roboto Mono", monospace;
+  --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  .landing {
+    --paper: #15161B;
+    --paper-raised: #1D1F26;
+    --paper-sunken: #101116;
+    --ink: #ECE9E0;
+    --ink-soft: #ABAEB8;
+    --ink-faint: #767A84;
+    --accent: #E3A94A;
+    --accent-deep: #F0BE6E;
+    --accent-soft: rgba(227, 169, 74, 0.16);
+    --rule: #33353D;
+    --rule-strong: #45474F;
+    --shadow: rgba(0, 0, 0, 0.45);
+    --up: #6FAE85;
+    --down: #D97C63;
+  }
+}
+
+/* ---------- base ---------- */
+.landing,
+.landing * {
+  box-sizing: border-box;
+}
+.landing {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+.landing h1,
+.landing h2,
+.landing h3,
+.landing .mono {
+  font-family: var(--mono);
+}
+.landing h1,
+.landing h2,
+.landing h3 {
+  text-wrap: balance;
+  margin: 0;
+  font-weight: 600;
+}
+.landing p {
+  text-wrap: pretty;
+}
+.landing a {
+  color: inherit;
+}
+.landing img,
+.landing svg {
+  max-width: 100%;
+  display: block;
+}
+.landing ::selection {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+.landing :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.tag {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* ---------- shared layout ---------- */
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+.prose {
+  max-width: 62ch;
+}
+.landing section {
+  padding: 88px 0;
+  border-bottom: 1px solid var(--rule);
+  /* neutralize globals.css's bare `section { background/border-radius/box-shadow }` */
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+.landing section:last-of-type {
+  border-bottom: none;
+}
+
+.topbar {
+  padding: 22px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.topbar .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.wordmark {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+.wordmark .dot {
+  color: var(--accent);
+}
+.topbar nav {
+  display: flex;
+  gap: 22px;
+  align-items: center;
+}
+.topbar nav a,
+.topbar nav span {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.topbar nav a:hover {
+  color: var(--accent-deep);
+}
+
+/* ---------- ticker tape ---------- */
+.tickerTape {
+  border-bottom: 1px solid var(--rule);
+  background: var(--paper-sunken);
+  overflow: hidden;
+}
+.tickerTape .wrap {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 9px 32px;
+}
+.exchangeBadge {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: var(--paper);
+  background: var(--ink);
+  border-radius: 2px;
+  padding: 2px 7px;
+}
+.tapeTrack {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+}
+.tapeTrack ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 26px;
+  width: max-content;
+}
+.tapeTrack li {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  white-space: nowrap;
+  color: var(--ink-soft);
+}
+.sym {
+  color: var(--ink);
+  font-weight: 600;
+}
+.up {
+  color: var(--up);
+}
+.down {
+  color: var(--down);
+}
+.finePrint {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.02em;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tapeTrack ul {
+    animation: tapeScroll 34s linear infinite;
+  }
+  .tapeTrack:hover ul {
+    animation-play-state: paused;
+  }
+}
+@keyframes tapeScroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (max-width: 640px) {
+  .finePrint {
+    display: none;
+  }
+}
+
+/* ---------- buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  padding: 13px 22px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.btnPrimary {
+  background: var(--accent);
+  color: #17130a;
+}
+.btnPrimary:hover {
+  background: var(--accent-deep);
+}
+/* ---------- hero ---------- */
+.hero {
+  padding-top: 76px;
+  padding-bottom: 76px;
+}
+.hero h1 {
+  font-size: clamp(2.15rem, 4.6vw, 3.25rem);
+  line-height: 1.14;
+  letter-spacing: -0.01em;
+  margin-top: 18px;
+}
+.hero h1 .accentLine {
+  color: var(--accent);
+}
+.subhead {
+  font-size: 1.12rem;
+  color: var(--ink-soft);
+  margin-top: 26px;
+  max-width: 60ch;
+}
+.ctas {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 34px;
+  flex-wrap: wrap;
+}
+.ctas .secondaryLink {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  text-decoration: underline;
+  text-decoration-color: var(--rule-strong);
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+/* ---------- value props ---------- */
+.valueGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin-top: 40px;
+}
+.valueCard {
+  background: var(--paper);
+  padding: 30px 26px 34px;
+}
+.valueCard .tag {
+  display: inline-block;
+  border: 1px solid var(--accent);
+  border-radius: 2px;
+  padding: 3px 8px;
+}
+.valueCard h3 {
+  font-size: 1.12rem;
+  margin-top: 16px;
+  line-height: 1.3;
+}
+.valueCard p {
+  color: var(--ink-soft);
+  font-size: 0.98rem;
+  margin-top: 12px;
+}
+@media (max-width: 760px) {
+  .valueGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- screenshot strip ---------- */
+.shotStrip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  margin-top: 40px;
+}
+.shot {
+  border: 1px dashed var(--rule-strong);
+  background: var(--paper-sunken);
+  aspect-ratio: 4 / 3;
+  border-radius: 4px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.shot .exhibit {
+  position: absolute;
+  top: 12px;
+  left: 14px;
+}
+.shot svg {
+  width: 46px;
+  height: 46px;
+  color: var(--ink-faint);
+}
+.shotCap {
+  margin-top: 14px;
+  font-size: 0.92rem;
+  font-style: italic;
+  color: var(--ink-soft);
+  text-align: center;
+}
+@media (max-width: 760px) {
+  .shotStrip {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- disclaimer / footer ---------- */
+.disclaimer {
+  background: var(--paper-sunken);
+  padding: 30px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.disclaimer p {
+  font-style: italic;
+  color: var(--ink-faint);
+  font-size: 0.88rem;
+  max-width: 72ch;
+}
+.landing footer.siteFooter {
+  padding: 28px 0 60px;
+  border-bottom: none;
+}
+.siteFooter .wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.siteFooter nav {
+  display: flex;
+  gap: 20px;
+}
+.siteFooter a,
+.siteFooter span {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+  text-decoration: none;
+  cursor: pointer;
+}
+.siteFooter a:hover {
+  color: var(--accent-deep);
+}
+.siteFooter .copy {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  cursor: default;
+}
+
+/* ================= technical page ================= */
+.tpage .wrap {
+  max-width: 900px;
+}
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  text-decoration: none;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+}
+.backLink:hover {
+  color: var(--accent-deep);
+}
+
+.techHero {
+  padding-top: 48px;
+  padding-bottom: 56px;
+}
+.techHero h1 {
+  font-size: clamp(1.8rem, 3.6vw, 2.5rem);
+  margin-top: 14px;
+  line-height: 1.2;
+}
+.techHero .subhead {
+  color: var(--ink-soft);
+  font-size: 1.06rem;
+  margin-top: 18px;
+  max-width: 66ch;
+}
+
+.pullquote {
+  border-left: 3px solid var(--accent);
+  padding: 4px 0 4px 22px;
+  margin: 30px 0 0;
+  font-size: 1.08rem;
+  color: var(--ink);
+}
+
+.diagramFigure {
+  margin: 40px 0 0;
+}
+.diagramFigure svg {
+  width: 100%;
+  height: auto;
+}
+.diagramFigure figcaption {
+  margin-top: 12px;
+  font-size: 0.86rem;
+  color: var(--ink-faint);
+  font-style: italic;
+}
+.diagramScroll {
+  overflow-x: auto;
+}
+
+.landing dl.stackList {
+  margin-top: 32px;
+  display: grid;
+  gap: 18px;
+}
+.stackList > div {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--rule);
+}
+.stackList dt {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--accent-deep);
+  padding-top: 2px;
+}
+.stackList dd {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.96rem;
+}
+.stackList dd b {
+  color: var(--ink);
+  font-weight: 600;
+}
+@media (max-width: 620px) {
+  .stackList > div {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
+
+.decisionList {
+  margin-top: 32px;
+  display: grid;
+  gap: 24px;
+}
+.decision {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 20px;
+}
+.decision .tag {
+  border: 1px solid var(--accent);
+  border-radius: 2px;
+  padding: 3px 8px;
+  display: inline-block;
+  height: fit-content;
+  white-space: nowrap;
+}
+.decision p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+.decision p b {
+  color: var(--ink);
+  font-weight: 600;
+}
+@media (max-width: 620px) {
+  .decision {
+    grid-template-columns: 1fr;
+  }
+}
+
+.compare {
+  margin-top: 32px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+}
+.compare .col {
+  background: var(--paper);
+  padding: 24px 26px;
+}
+.compare .col h4 {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.03em;
+}
+.compare .col.mine h4 {
+  color: var(--accent-deep);
+}
+.compare .col p {
+  color: var(--ink-soft);
+  font-size: 0.93rem;
+  margin-top: 10px;
+}
+@media (max-width: 620px) {
+  .compare {
+    grid-template-columns: 1fr;
+  }
+}
+
+.linksRow {
+  margin-top: 32px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.linkChip {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 3px;
+  padding: 10px 16px;
+  color: var(--ink-faint);
+}
+.linkChip .status {
+  display: block;
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-top: 3px;
+  color: var(--ink-faint);
+}
