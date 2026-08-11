@@ -1,7 +1,68 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import styles from '../styles/Landing.module.css';
+
+const SCREENSHOTS = [
+  {
+    src: '/screenshots/fig-1-define.png',
+    alt: "Dashboard showing the 'Add a ticker' and 'Create a feed' forms next to a list of configured feeds for TPG.AX, including Customer Growth - Customer Churn, Network Quality & Customer Service, and Revenue Trend",
+    caption: 'Define exactly what you want tracked',
+  },
+  {
+    src: '/screenshots/fig-2-alerts.png',
+    alt: 'Alerts page listing dated, sourced news items for TPG.AX classified under feeds like Network Quality & Customer Service and Revenue Trend',
+    caption: 'Daily evidence, classified and sourced',
+  },
+  {
+    src: '/screenshots/fig-3-ask.png',
+    alt: "Ask a question page showing an AI-generated, cited answer to 'Why is Telstra's profit increasing?' with a list of source references",
+    caption: 'Ask anything, get a cited answer',
+  },
+];
+
+function ExpandIcon() {
+  return (
+    <svg className={styles.expandIcon} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M9 3H3v6M15 3h6v6M21 15v6h-6M3 15v6h6"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function Lightbox({ shot, onClose }) {
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [onClose]);
+
+  return (
+    <div className={styles.lightboxOverlay} onClick={onClose} role="dialog" aria-modal="true" aria-label={shot.alt}>
+      <button type="button" className={styles.lightboxClose} onClick={onClose} aria-label="Close">
+        ×
+      </button>
+      <img
+        className={styles.lightboxImg}
+        src={shot.src}
+        alt={shot.alt}
+        onClick={(e) => e.stopPropagation()}
+      />
+    </div>
+  );
+}
 
 const TICKERS = [
   { sym: 'BHP.AX', delta: '+1.2%', dir: 'up' },
@@ -39,6 +100,7 @@ function TickerTape() {
 
 export default function Home() {
   const { user } = useAuth();
+  const [lightboxIndex, setLightboxIndex] = useState(null);
 
   return (
     <div className={styles.landing}>
@@ -131,44 +193,27 @@ export default function Home() {
         <div className={styles.wrap}>
           <div className={styles.eyebrow}>THE PRODUCT, IN THREE SCREENS</div>
           <div className={styles.shotStrip}>
-            <div>
-              <div className={styles.shot}>
-                <span className={`${styles.exhibit} ${styles.tag}`}>[Fig. 1]</span>
-                <svg viewBox="0 0 48 48" fill="none" role="img" aria-label="Crosshair icon representing defining a thesis">
-                  <circle cx="24" cy="24" r="15" stroke="currentColor" strokeWidth="1.6" />
-                  <circle cx="24" cy="24" r="3" fill="currentColor" />
-                  <line x1="24" y1="2" x2="24" y2="11" stroke="currentColor" strokeWidth="1.6" />
-                  <line x1="24" y1="37" x2="24" y2="46" stroke="currentColor" strokeWidth="1.6" />
-                  <line x1="2" y1="24" x2="11" y2="24" stroke="currentColor" strokeWidth="1.6" />
-                  <line x1="37" y1="24" x2="46" y2="24" stroke="currentColor" strokeWidth="1.6" />
-                </svg>
+            {SCREENSHOTS.map((shot, i) => (
+              <div key={shot.src}>
+                <button
+                  type="button"
+                  className={styles.shot}
+                  onClick={() => setLightboxIndex(i)}
+                  aria-label={`View full size: ${shot.caption}`}
+                >
+                  <img src={shot.src} alt={shot.alt} loading="lazy" />
+                  <ExpandIcon />
+                </button>
+                <p className={styles.shotCap}>{shot.caption}</p>
               </div>
-              <p className={styles.shotCap}>Define exactly what you want tracked</p>
-            </div>
-            <div>
-              <div className={styles.shot}>
-                <span className={`${styles.exhibit} ${styles.tag}`}>[Fig. 2]</span>
-                <svg viewBox="0 0 48 48" fill="none" role="img" aria-label="Stacked cards icon representing classified daily evidence">
-                  <rect x="10" y="6" width="28" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.6" />
-                  <rect x="10" y="19" width="28" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.6" />
-                  <rect x="10" y="32" width="28" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.6" />
-                </svg>
-              </div>
-              <p className={styles.shotCap}>Daily evidence, classified and sourced</p>
-            </div>
-            <div>
-              <div className={styles.shot}>
-                <span className={`${styles.exhibit} ${styles.tag}`}>[Fig. 3]</span>
-                <svg viewBox="0 0 48 48" fill="none" role="img" aria-label="Speech bubble with citation mark representing sourced answers">
-                  <path d="M6 10h36v22H20l-8 8v-8H6z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-                  <text x="24" y="26" textAnchor="middle" fontSize="12" fill="currentColor" fontFamily="var(--mono)">[1]</text>
-                </svg>
-              </div>
-              <p className={styles.shotCap}>Ask anything, get a cited answer</p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
+
+      {lightboxIndex !== null && (
+        <Lightbox shot={SCREENSHOTS[lightboxIndex]} onClose={() => setLightboxIndex(null)} />
+      )}
 
       <div className={styles.disclaimer}>
         <div className={styles.wrap}>
