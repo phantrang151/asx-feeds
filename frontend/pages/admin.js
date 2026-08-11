@@ -47,6 +47,17 @@ export default function Admin() {
   const [triggeringEval, setTriggeringEval] = useState(false);
   const [evalError, setEvalError] = useState('');
 
+  const [guardrailRuns, setGuardrailRuns] = useState([]);
+  const [triggeringGuardrailEval, setTriggeringGuardrailEval] = useState(false);
+  const [guardrailEvalError, setGuardrailEvalError] = useState('');
+
+  const [liveSampleRuns, setLiveSampleRuns] = useState([]);
+  const [triggeringLiveSampleEval, setTriggeringLiveSampleEval] = useState(false);
+  const [liveSampleEvalError, setLiveSampleEvalError] = useState('');
+
+  const [efficiency, setEfficiency] = useState(null);
+  const [alerts, setAlerts] = useState([]);
+
   const [docTicker, setDocTicker] = useState('');
   const [docTickerError, setDocTickerError] = useState('');
   const [docFiles, setDocFiles] = useState(null);
@@ -132,16 +143,38 @@ export default function Admin() {
   }
 
   async function loadEvalRuns() {
-    const [genRes, classRes] = await Promise.all([
+    const [genRes, classRes, guardrailRes, liveSampleRes] = await Promise.all([
       authedFetch('/api/admin/eval/runs?eval_type=generation'),
       authedFetch('/api/admin/eval/runs?eval_type=classification'),
+      authedFetch('/api/admin/eval/runs?eval_type=guardrails'),
+      authedFetch('/api/admin/eval/runs?eval_type=live_sample'),
     ]);
-    if (genRes.status === 403 || classRes.status === 403) {
+    if ([genRes, classRes, guardrailRes, liveSampleRes].some((r) => r.status === 403)) {
       setForbidden(true);
       return;
     }
     setGenerationRuns(await genRes.json());
     setClassificationRuns(await classRes.json());
+    setGuardrailRuns(await guardrailRes.json());
+    setLiveSampleRuns(await liveSampleRes.json());
+  }
+
+  async function loadEfficiency() {
+    const res = await authedFetch('/api/admin/efficiency/summary');
+    if (res.status === 403) {
+      setForbidden(true);
+      return;
+    }
+    setEfficiency(await res.json());
+  }
+
+  async function loadAlerts() {
+    const res = await authedFetch('/api/admin/alerts/recent');
+    if (res.status === 403) {
+      setForbidden(true);
+      return;
+    }
+    setAlerts(await res.json());
   }
 
   async function handleTriggerGenerationEval() {
@@ -157,6 +190,42 @@ export default function Admin() {
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
       setEvalError(body.detail || 'Failed to run the generation eval.');
+      return;
+    }
+    loadEvalRuns();
+  }
+
+  async function handleTriggerGuardrailEval() {
+    setTriggeringGuardrailEval(true);
+    setGuardrailEvalError('');
+    const res = await authedFetch('/api/admin/eval/guardrails/trigger', { method: 'POST' });
+    setTriggeringGuardrailEval(false);
+
+    if (res.status === 403) {
+      setForbidden(true);
+      return;
+    }
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      setGuardrailEvalError(body.detail || 'Failed to run the guardrail eval.');
+      return;
+    }
+    loadEvalRuns();
+  }
+
+  async function handleTriggerLiveSampleEval() {
+    setTriggeringLiveSampleEval(true);
+    setLiveSampleEvalError('');
+    const res = await authedFetch('/api/admin/eval/live-sample/trigger', { method: 'POST' });
+    setTriggeringLiveSampleEval(false);
+
+    if (res.status === 403) {
+      setForbidden(true);
+      return;
+    }
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      setLiveSampleEvalError(body.detail || 'Failed to run the live-sample eval.');
       return;
     }
     loadEvalRuns();
@@ -185,6 +254,8 @@ export default function Admin() {
       loadRuns();
       loadSummary();
       loadEvalRuns();
+      loadEfficiency();
+      loadAlerts();
     }
   }, [user]);
 
@@ -360,7 +431,8 @@ export default function Admin() {
                   {new Date(r.created_at).toLocaleString()} - avg relevance{' '}
                   {r.summary.summary.avg_relevance ?? 'n/a'}/5, {r.summary.summary.pct_grounded ?? 'n/a'}%
                   grounded, {r.summary.summary.pct_advice_avoidance_passed ?? 'n/a'}% advice-avoidance
-                  pass ({r.summary.summary.n_judged}/{r.summary.summary.n_total} judged)
+                  pass, {r.summary.summary.pct_answer_found ?? 'n/a'}% answer found (recall) (
+                  {r.summary.summary.n_judged}/{r.summary.summary.n_total} judged)
                 </li>
               ))}
             </ul>
@@ -389,6 +461,123 @@ export default function Admin() {
                       </li>
                     ))}
                   </ul>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <h3>Guardrail effectiveness (input &amp; output, per layer)</h3>
+          <p className="info">
+            True-positive rate (catches real bad questions/answers) and false-positive rate (wrongly
+            blocks legitimate ones), scored independently for each guardrail&apos;s regex layer and LLM
+            layer against a small hand-labeled test set - shows whether the cheap regex layer is
+            pulling its weight or the LLM layer is doing all the real work. Grow{' '}
+            <code>eval/fixtures/input_guardrail_test_set.json</code> and{' '}
+            <code>output_guardrail_test_set.json</code> over time, the same way the classification
+            worksheet grows.
+          </p>
+          <button onClick={handleTriggerGuardrailEval} disabled={triggeringGuardrailEval}>
+            {triggeringGuardrailEval ? 'Running guardrail eval...' : 'Run guardrail eval now'}
+          </button>
+          {guardrailEvalError && <p className="error">{guardrailEvalError}</p>}
+
+          {guardrailRuns.length === 0 ? (
+            <p>No guardrail eval runs yet.</p>
+          ) : (
+            <ul className="admin-runs">
+              {guardrailRuns.map((r) => (
+                <li key={r.id}>
+                  {new Date(r.created_at).toLocaleString()}
+                  <ul>
+                    <li>
+                      Input guardrail - regex: TPR {r.summary.summary.input_guardrail.regex_layer.true_positive_rate ?? 'n/a'},
+                      FPR {r.summary.summary.input_guardrail.regex_layer.false_positive_rate ?? 'n/a'}; llm: TPR{' '}
+                      {r.summary.summary.input_guardrail.llm_layer.true_positive_rate ?? 'n/a'}, FPR{' '}
+                      {r.summary.summary.input_guardrail.llm_layer.false_positive_rate ?? 'n/a'}
+                    </li>
+                    <li>
+                      Output guardrail - regex: TPR {r.summary.summary.output_guardrail.regex_layer.true_positive_rate ?? 'n/a'},
+                      FPR {r.summary.summary.output_guardrail.regex_layer.false_positive_rate ?? 'n/a'}; llm: TPR{' '}
+                      {r.summary.summary.output_guardrail.llm_layer.true_positive_rate ?? 'n/a'}, FPR{' '}
+                      {r.summary.summary.output_guardrail.llm_layer.false_positive_rate ?? 'n/a'}
+                    </li>
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <h3>Continuous monitoring (random live-traffic sample)</h3>
+          <p className="info">
+            Judges a random sample of real recent conduct_analysis requests (not a fixed fixture set)
+            for groundedness, relevance, and answer-discovery - a small fixed sample size (10/day by
+            default) keeps judging cost predictable regardless of how much real traffic there is.
+          </p>
+          <button onClick={handleTriggerLiveSampleEval} disabled={triggeringLiveSampleEval}>
+            {triggeringLiveSampleEval ? 'Running live-sample eval...' : 'Run live-sample eval now'}
+          </button>
+          {liveSampleEvalError && <p className="error">{liveSampleEvalError}</p>}
+
+          {liveSampleRuns.length === 0 ? (
+            <p>No live-sample eval runs yet.</p>
+          ) : (
+            <ul className="admin-runs">
+              {liveSampleRuns.map((r) => (
+                <li key={r.id}>
+                  {new Date(r.created_at).toLocaleString()} - sampled {r.summary.summary.n_sampled}, avg
+                  relevance {r.summary.summary.avg_relevance ?? 'n/a'}/5, {r.summary.summary.pct_grounded ?? 'n/a'}%
+                  grounded, {r.summary.summary.pct_answer_found ?? 'n/a'}% answer found
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <h3>Efficiency &amp; cost (last 7 days)</h3>
+          <p className="info">
+            Steps/tokens/latency percentiles across recent requests - what config.py&apos;s guardrail
+            ceilings (REACT_RECURSION_LIMIT, TOKEN_CEILING_PER_REQUEST) should eventually be retuned
+            against, once there&apos;s a real p95/max to look at instead of a placeholder.
+          </p>
+          <button onClick={loadEfficiency}>Refresh</button>
+          {!efficiency ? (
+            <p>Loading...</p>
+          ) : efficiency.n === 0 ? (
+            <p>No requests in this window yet.</p>
+          ) : (
+            <ul className="admin-runs">
+              <li>Requests: {efficiency.n}</li>
+              <li>
+                Steps (tool calls) - p50 {efficiency.steps.p50 ?? 'n/a'}, p95 {efficiency.steps.p95 ?? 'n/a'}, max{' '}
+                {efficiency.steps.max ?? 'n/a'}
+              </li>
+              <li>
+                Tokens - p50 {efficiency.tokens.p50 ?? 'n/a'}, p95 {efficiency.tokens.p95 ?? 'n/a'}, max{' '}
+                {efficiency.tokens.max ?? 'n/a'}
+              </li>
+              <li>
+                Latency (ms) - p50 {efficiency.duration_ms.p50 ?? 'n/a'}, p95 {efficiency.duration_ms.p95 ?? 'n/a'}, max{' '}
+                {efficiency.duration_ms.max ?? 'n/a'}
+              </li>
+              <li>Recursion-limit hit rate: {efficiency.recursion_limit_hit_rate ?? 'n/a'}</li>
+            </ul>
+          )}
+
+          <h3>Alerts</h3>
+          <p className="info">
+            Fires when a request&apos;s cost, latency, or step count crosses a configured threshold (see
+            config.py&apos;s ALERT_* constants) - cost/step-count alerts fire at the same value their
+            matching hard guardrail already blocks at; latency (&gt;30s) has no matching guardrail, so
+            it&apos;s a pure early-warning signal.
+          </p>
+          <button onClick={loadAlerts}>Refresh</button>
+          {alerts.length === 0 ? (
+            <p>No alerts yet.</p>
+          ) : (
+            <ul className="admin-runs">
+              {alerts.map((a) => (
+                <li key={a.id}>
+                  {new Date(a.created_at).toLocaleString()} - <strong>{a.alert_type}</strong>: {a.actual_value} (threshold{' '}
+                  {a.threshold})
                 </li>
               ))}
             </ul>

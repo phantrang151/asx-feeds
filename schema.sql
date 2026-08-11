@@ -239,14 +239,18 @@ create table if not exists ticker_insights (
   created_at timestamptz not null default now()
 );
 
--- One row per eval run (see eval/score_classification.py, eval/run_generation_eval.py)
--- - what the admin page's Evaluation section reads to show quality metrics over time,
--- same "one row per run" shape as pipeline_runs below. `summary` holds whatever each
--- eval type's own summarize()/score() output looks like (see each script) rather than
--- a fixed schema, since the two eval types measure fundamentally different things.
+-- One row per eval run (see eval/score_classification.py, eval/run_generation_eval.py,
+-- eval/score_guardrails.py, eval/run_live_sample_eval.py) - what the admin page's
+-- Evaluation section reads to show quality metrics over time, same "one row per run"
+-- shape as pipeline_runs below. `summary` holds whatever each eval type's own
+-- summarize()/score() output looks like (see each script) rather than a fixed schema,
+-- since each eval type measures something fundamentally different. 'guardrails' =
+-- per-layer TP/FP against a labeled adversarial+quality set (eval/score_guardrails.py).
+-- 'live_sample' = the daily N-sample judge audit against real recent traffic
+-- (eval/run_live_sample_eval.py), as opposed to 'generation''s fixed fixture set.
 create table if not exists eval_runs (
   id uuid primary key default gen_random_uuid(),
-  eval_type text not null check (eval_type in ('classification', 'generation')),
+  eval_type text not null check (eval_type in ('classification', 'generation', 'guardrails', 'live_sample')),
   summary jsonb not null,
   created_at timestamptz not null default now()
 );
@@ -274,6 +278,109 @@ create table if not exists api_request_log (
 );
 create index if not exists api_request_log_user_time_idx on api_request_log (user_id, created_at);
 
+-- One row per /api/ask request, per user - total tokens that request spent across
+-- every Groq call it made (router classification, conduct_analysis's ReAct loop +
+-- synthesis, advice-avoidance judge). What the daily token-budget guardrail
+-- (agent/guardrails/daily_token_budget.py::enforce_daily_token_budget) sums over a
+-- trailing window (config.TOKEN_CEILING_PER_USER_PER_DAY/TOKEN_CEILING_WINDOW_HOURS).
+-- A log, not a running counter, same reasoning as api_request_log above - the window
+-- size can change later without a migration. Requests that never call an LLM (e.g.
+-- declined by a pre-LLM guardrail) aren't logged - zero tokens spent, nothing to add.
+create table if not exists llm_token_usage_log (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  tokens int not null,
+  created_at timestamptz not null default now()
+);
+create index if not exists llm_token_usage_log_user_time_idx on llm_token_usage_log (user_id, created_at);
+
+-- One row per /api/ask request - the full observability trace: router decision, both
+-- guardrail layers' verdicts, and aggregate timing/token/step counts. Complements
+-- llm_token_usage_log above (which stays as-is - the daily-budget guardrail's own
+-- lightweight bookkeeping table, summed on the hot path of every request, and
+-- shouldn't get slower as this fuller trace grows) and eval_runs (offline judge scores
+-- against a fixture set or labeled worksheet, not live traffic). What the admin page's
+-- Evaluation section's efficiency/guardrail-trip metrics query against (see
+-- agent/guardrails/tracer.py::RequestTracer, which builds one of these per request).
+create table if not exists request_trace (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  thread_id text not null,
+  question text not null,
+  -- Final answer text + the evidence it was synthesized from - stored so
+  -- eval/run_live_sample_eval.py can re-judge groundedness/relevance/answer-discovery
+  -- against REAL past requests after the fact, not just eval/run_generation_eval.py's
+  -- fixed fixture set. Same "already storing user content for debugging" posture as
+  -- `question` above - deliberately NOT duplicated onto ops_alerts, which stays
+  -- content-free (see that table's own comment).
+  answer text,
+  evidence jsonb,
+  ticker text,
+  category text,           -- router's chosen category: search_news | conduct_analysis | declined
+  status text not null,    -- completed | declined | error
+  decline_reason text,     -- set when status = 'declined'/'error' - which guardrail/limit tripped
+
+  input_guardrail_regex_matched boolean,    -- keyword_scan_advice_seeking hit, pre-router
+  input_guardrail_llm_is_advice boolean,    -- router's own is_advice_seeking judgment
+  output_guardrail_regex_matched boolean,   -- keyword_scan hit on the final insight
+  output_guardrail_llm_is_advice boolean,   -- llm_judge_advice_check verdict (only reached if regex above was clean)
+
+  evidence_count int,       -- len(evidence) conduct_analysis_node gathered - free structural
+                             -- proxy for "did the system find anything" (see judge_answer_found
+                             -- in eval/judge.py for the fuller offline/sampled version of this)
+  step_count int not null default 0,        -- tool calls made in the ReAct loop - what the cost
+                             -- guardrail (REACT_RECURSION_LIMIT) bounds; each tool call is ~2 of
+                             -- that limit's LangGraph super-steps, so this isn't the same unit as
+                             -- REACT_RECURSION_LIMIT itself, just proportional to it
+  total_tokens int,                         -- denormalized copy of the sum already tracked in llm_token_usage_log
+  total_duration_ms int not null,
+
+  created_at timestamptz not null default now()
+);
+create index if not exists request_trace_user_time_idx on request_trace (user_id, created_at);
+create index if not exists request_trace_category_idx on request_trace (category, created_at);
+
+-- One row per step inside a request_trace - the router call, each individual ReAct
+-- tool call, each guardrail check, synthesis. Child table (not a jsonb array on
+-- request_trace) because "avg duration per step type" / "which step is slowest" are
+-- aggregate, GROUP-BY queries you want indexed, not values pulled out of jsonb every
+-- time. Populated in one bulk insert per request from RequestTracer.steps.
+create table if not exists request_trace_steps (
+  id uuid primary key default gen_random_uuid(),
+  request_trace_id uuid not null references request_trace(id) on delete cascade,
+  step_index int not null,     -- order within the request
+  step_name text not null,     -- 'router' | 'input_guardrail_regex' | 'tool:search_news_tool' | 'output_guardrail_regex' | 'output_guardrail_llm' | 'synthesis' | ...
+  step_type text not null,     -- 'guardrail' | 'llm' | 'tool'
+  duration_ms int not null,
+  tokens int,                  -- null for non-LLM steps (guardrail regex, tool calls)
+  result jsonb,                -- flexible per step_type: matched keywords, judge reasoning, error detail
+  created_at timestamptz not null default now()
+);
+create index if not exists request_trace_steps_trace_idx on request_trace_steps (request_trace_id, step_index);
+
+-- Fires when a single request or a user's trailing-day usage crosses an ALERT
+-- threshold - reuses the existing hard guardrail ceilings (TOKEN_CEILING_PER_REQUEST,
+-- TOKEN_CEILING_PER_USER_PER_DAY, REACT_RECURSION_LIMIT) plus the new
+-- ALERT_LATENCY_MS, all in config.py. These fire at the SAME value their matching
+-- guardrail trips at (a deliberate choice - see agent/guardrails/alerts.py), turning
+-- what was only ever an ephemeral logger.warning into a queryable, persisted row.
+-- Carries no question/answer content, only ids and numbers - keeps this within the
+-- admin's existing operational-visibility scope (see project_admin_privacy_scope
+-- memory) even though request_trace itself stores the question text for debugging.
+create table if not exists ops_alerts (
+  id uuid primary key default gen_random_uuid(),
+  request_trace_id uuid not null references request_trace(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  alert_type text not null check (alert_type in (
+    'cost_per_request', 'cost_per_user_per_day', 'latency', 'step_count'
+  )),
+  threshold numeric not null,     -- the configured limit at the time this fired
+  actual_value numeric not null,  -- tokens, milliseconds, or step count - whichever crossed it
+  created_at timestamptz not null default now()
+);
+create index if not exists ops_alerts_type_time_idx on ops_alerts (alert_type, created_at);
+create index if not exists ops_alerts_user_time_idx on ops_alerts (user_id, created_at);
+
 -- Admin-only data, never queried directly from the frontend (only via the /api/admin
 -- routes, which use the service_role key). RLS is enabled with no policies, so anon and
 -- authenticated clients get nothing at all - defense in depth even though the frontend
@@ -283,11 +390,20 @@ alter table pipeline_runs enable row level security;
 -- Same posture as pipeline_runs above.
 alter table eval_runs enable row level security;
 
+-- Same posture again: only ever written/read by the backend's daily token-budget
+-- guardrail via the service_role key, never by the frontend directly.
+alter table llm_token_usage_log enable row level security;
+
 -- Same admin-only posture as pipeline_runs above: reachable only through the backend's
 -- service_role key (the admin upload endpoints today, and potentially a future
 -- analysis-tool query, which would also run backend-side with service_role).
 alter table documents enable row level security;
 alter table document_chunks enable row level security;
+
+-- Same posture as pipeline_runs/eval_runs above - admin-only, backend service_role key only.
+alter table request_trace enable row level security;
+alter table request_trace_steps enable row level security;
+alter table ops_alerts enable row level security;
 
 -- Same posture again: only ever written/read by the backend's rate-limit guardrail via
 -- the service_role key, never by the frontend directly.

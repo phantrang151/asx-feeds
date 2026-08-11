@@ -1,8 +1,8 @@
 """Pure-logic tests for the keyword layer only - no network/DB. The LLM-judge layer
-(llm_judge_advice_check) needs a live GROQ_API_KEY and is exercised by the live smoke
-tests instead, not here."""
+(llm_judge_advice_check) needs a live ANTHROPIC_API_KEY and is exercised by the live
+smoke tests instead, not here."""
 
-from agent.guardrails.advice_check import keyword_scan
+from agent.guardrails.advice_check import keyword_scan, keyword_scan_advice_seeking
 
 
 def test_keyword_scan_clean_analytical_text():
@@ -28,3 +28,23 @@ def test_keyword_scan_does_not_flag_unrelated_buy_sell_mentions():
     # the keyword layer is deliberately narrow so it doesn't false-positive on this.
     text = "The company sold its logistics arm last quarter as customers kept buying more mobile plans."
     assert keyword_scan(text) == []
+
+
+def test_keyword_scan_advice_seeking_catches_should_i_buy():
+    assert keyword_scan_advice_seeking("Should I buy TLS.AX?") != []
+
+
+def test_keyword_scan_advice_seeking_catches_good_time_to_buy_question():
+    assert keyword_scan_advice_seeking("Is now a good time to buy TPG?") != []
+
+
+def test_keyword_scan_advice_seeking_catches_good_investment_question():
+    assert keyword_scan_advice_seeking("Is TPG.AX a good investment right now?") != []
+
+
+def test_keyword_scan_advice_seeking_does_not_flag_why_questions():
+    # Mirrors router_node's own is_advice_seeking examples: asking what happened or why
+    # (even mentioning price/valuation) is not a trade question and must stay clean.
+    assert keyword_scan_advice_seeking("Why is TLS.AX's profit increasing?") == []
+    assert keyword_scan_advice_seeking("Is TLS.AX overvalued?") == []
+    assert keyword_scan_advice_seeking("What happened to TPG's share price?") == []

@@ -20,7 +20,7 @@ FastAPI server) and the Next.js frontend.
 
 ```
 cp .env.example .env
-# fill in GROQ_API_KEY, SUPABASE_URL, SUPABASE_KEY (service_role), SUPABASE_DB_URL,
+# fill in ANTHROPIC_API_KEY, SUPABASE_URL, SUPABASE_KEY (service_role), SUPABASE_DB_URL,
 # SUPABASE_JWT_SECRET
 
 pip install -r requirements.txt

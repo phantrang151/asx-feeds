@@ -32,6 +32,22 @@ class State(TypedDict):
     # from outside the node.
     evidence: Optional[list[dict]]
 
+    # Both guardrail layers' verdicts, surfaced on State purely so app/main.py's
+    # ask_endpoint can read them back into request_trace after graph.invoke() returns -
+    # nothing inside the graph itself reads these back. input_guardrail_llm_is_advice
+    # is router_node's own is_advice_seeking field (not a separate LLM call - see
+    # RequestTracer's docstring on why "input guardrail LLM layer" and "router" share
+    # one traced step). None wherever a request never reached that layer (e.g. declined
+    # by an earlier guardrail, or search_news requests never reach the output layer).
+    input_guardrail_regex_matched: Optional[bool]
+    input_guardrail_llm_is_advice: Optional[bool]
+    output_guardrail_regex_matched: Optional[bool]
+    output_guardrail_llm_is_advice: Optional[bool]
+    # len(evidence) - free structural proxy for "did conduct_analysis find anything"
+    # (see request_trace.evidence_count in schema.sql). None for search_news/declined
+    # requests, which never populate `evidence` at all.
+    evidence_count: Optional[int]
+
 
 class Router(BaseModel):
     """Decide the type of request based on user input."""

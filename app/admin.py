@@ -16,13 +16,19 @@ from db.queries import (
     get_documents_for_ticker,
     get_document_chunk_counts,
     get_recent_eval_runs,
+    get_efficiency_summary,
+    get_recent_ops_alerts,
 )
 from eval.run_generation_eval import run_generation_eval
+from eval.score_guardrails import run_guardrail_eval
+from eval.run_live_sample_eval import run_live_sample_eval
 from monitoring.langsmith_summary import get_langsmith_summary
 from tools.documents import extract_text, chunk_text, fetch_link
 from tools.embeddings import embed_batch
 
 DEFAULT_GENERATION_EVAL_FIXTURE = "eval/fixtures/qa_test_set.json"
+DEFAULT_INPUT_GUARDRAIL_FIXTURE = "eval/fixtures/input_guardrail_test_set.json"
+DEFAULT_OUTPUT_GUARDRAIL_FIXTURE = "eval/fixtures/output_guardrail_test_set.json"
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
@@ -68,20 +74,62 @@ def langsmith_summary(admin_user_id: str = Depends(require_admin)):
 def list_eval_runs(eval_type: Optional[str] = None, admin_user_id: str = Depends(require_admin)):
     """Recent eval run history - what the admin page's Evaluation section renders.
     Populated by eval/score_classification.py (run manually, needs a hand-labeled CSV -
-    see eval/export_labels.py) and eval/run_generation_eval.py (run manually or via the
-    trigger route below, no hand-labeling needed)."""
+    see eval/export_labels.py), eval/run_generation_eval.py, eval/score_guardrails.py,
+    and eval/run_live_sample_eval.py (the latter three all triggerable from here, no
+    hand-labeling needed beyond the small starter guardrail fixture sets)."""
     return get_recent_eval_runs(eval_type=eval_type, limit=20)
 
 
 @router.post("/eval/generation/trigger")
 def trigger_generation_eval(admin_user_id: str = Depends(require_admin)):
-    """Runs the generation-quality eval (groundedness/relevance/advice-avoidance judged
-    by JUDGE_MODEL) against the default fixture set right now, synchronously, and
-    returns the summary - same "blocking for now" posture as /pipeline/trigger. Unlike
-    the classification eval, this needs no hand-labeled input, so it's safe to trigger
-    on demand. Makes real, live Groq calls for every fixture question - not free, not
-    instant, and subject to the same daily token quota as normal chat traffic."""
+    """Runs the generation-quality eval (groundedness/relevance/advice-avoidance/
+    answer-discovery judged by JUDGE_MODEL) against the default fixture set right now,
+    synchronously, and returns the summary - same "blocking for now" posture as
+    /pipeline/trigger. Unlike the classification eval, this needs no hand-labeled
+    input, so it's safe to trigger on demand. Makes real, live Claude calls for every
+    fixture question - not free, not instant, and subject to the same daily token
+    quota as normal chat traffic."""
     return run_generation_eval(DEFAULT_GENERATION_EVAL_FIXTURE)["summary"]
+
+
+@router.post("/eval/guardrails/trigger")
+def trigger_guardrail_eval(admin_user_id: str = Depends(require_admin)):
+    """Runs per-layer TP/FP scoring for both guardrails (regex + LLM layer,
+    independently) against the hand-labeled adversarial+quality test sets right now,
+    synchronously, and returns the summary. Small, fixed-size fixture sets (see
+    eval/fixtures/*_guardrail_test_set.json) - grow these over time the same way
+    eval/export_labels.py's classification worksheet grows, especially with real
+    production near-misses once there's traffic. Makes real, live Groq calls for the
+    LLM-layer half of the scoring."""
+    return run_guardrail_eval(DEFAULT_INPUT_GUARDRAIL_FIXTURE, DEFAULT_OUTPUT_GUARDRAIL_FIXTURE)
+
+
+@router.post("/eval/live-sample/trigger")
+def trigger_live_sample_eval(n: int = 10, hours: int = 24, admin_user_id: str = Depends(require_admin)):
+    """Samples up to `n` random completed conduct_analysis requests from the last
+    `hours` of REAL traffic and judges each for groundedness/relevance/answer-discovery
+    - continuous quality monitoring at a predictable cost, as opposed to
+    /eval/generation/trigger's fixed fixture set. `n` defaults to 10/day scale
+    deliberately - see eval/run_live_sample_eval.py's own docstring for why judging
+    every request live would get expensive fast."""
+    return run_live_sample_eval(n=n, hours=hours)["summary"]
+
+
+@router.get("/efficiency/summary")
+def efficiency_summary(hours: int = 24 * 7, admin_user_id: str = Depends(require_admin)):
+    """Percentile (p50/p95/max) steps/tokens/latency across recent request_trace rows,
+    plus the recursion-limit hit rate - what the admin page's Efficiency subsection
+    renders. See db.queries.get_efficiency_summary for why these are percentiles, not
+    just the single average LangSmith's summary above already gives."""
+    return get_efficiency_summary(hours=hours)
+
+
+@router.get("/alerts/recent")
+def recent_alerts(admin_user_id: str = Depends(require_admin)):
+    """Recent ops_alerts rows (cost/latency/step-count threshold trips), newest first -
+    what the admin page's Alerts subsection renders. No question/answer content in
+    these rows at all - see ops_alerts in schema.sql."""
+    return get_recent_ops_alerts()
 
 
 def _safe_storage_name(title: str) -> str:

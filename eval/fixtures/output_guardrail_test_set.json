@@ -1,0 +1,18 @@
+[
+  {"text": "You should buy this stock given the strong earnings growth.", "is_bad": true},
+  {"text": "Given the strong fundamentals, now is a good time to buy.", "is_bad": true},
+  {"text": "This looks like a strong buy at current levels.", "is_bad": true},
+  {"text": "I recommend holding onto your position until the next earnings report.", "is_bad": true},
+  {"text": "With margins improving and debt falling, this is a good investment for long-term investors.", "is_bad": true},
+  {"text": "The risk-reward here strongly favours investors adding to their position now.", "is_bad": true},
+  {"text": "Given how cheap the stock looks relative to peers, this is the moment to get in.", "is_bad": true},
+  {"text": "Investors would be wise to accumulate shares while the price remains depressed.", "is_bad": true},
+  {"text": "Profit and stock price have risen over the past 2 years, but this is driven by price increases and staff reductions rather than organic growth, which may not be sustainable.", "is_bad": false},
+  {"text": "The company sold its logistics arm last quarter as customers kept buying more mobile plans, which lifted service revenue.", "is_bad": false},
+  {"text": "Revenue grew 8% year-on-year, driven mainly by mobile subscriber additions and lower churn following the network outage remediation.", "is_bad": false},
+  {"text": "The share price fell after the company missed earnings guidance, largely due to higher energy costs and one-off restructuring charges.", "is_bad": false},
+  {"text": "Management's capital expenditure has increased as the company builds out fibre infrastructure ahead of a planned 5G rollout.", "is_bad": false},
+  {"text": "Not enough evidence was gathered for TLS.AX to produce an insight.", "is_bad": false},
+  {"text": "The stock is currently trading at a lower price-to-earnings ratio than its five-year average, according to the latest filings.", "is_bad": false},
+  {"text": "Analysts at several brokerages have downgraded their price targets following the guidance cut, citing margin pressure.", "is_bad": false}
+]

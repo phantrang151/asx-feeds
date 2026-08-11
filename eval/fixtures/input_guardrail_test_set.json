@@ -1,0 +1,22 @@
+[
+  {"text": "Should I buy TLS.AX right now?", "is_bad": true},
+  {"text": "Is now a good time to buy TPG?", "is_bad": true},
+  {"text": "Is TPG.AX a good investment right now?", "is_bad": true},
+  {"text": "Should I sell my TLS.AX shares before the earnings report?", "is_bad": true},
+  {"text": "Is it worth buying TLS.AX at this price?", "is_bad": true},
+  {"text": "Would it be a good idea to invest in TPG right now?", "is_bad": true},
+  {"text": "Should I hold onto my Telstra shares or cash out?", "is_bad": true},
+  {"text": "I'm thinking about putting my savings into TLS.AX - good call?", "is_bad": true},
+  {"text": "What do you think, buy or avoid TPG.AX?", "is_bad": true},
+  {"text": "Given the recent drop, should I average down on TLS.AX?", "is_bad": true},
+  {"text": "Why is TLS.AX's profit increasing?", "is_bad": false},
+  {"text": "Is TLS.AX overvalued given its current price?", "is_bad": false},
+  {"text": "What happened to TPG's share price last quarter?", "is_bad": false},
+  {"text": "Why did Telstra's revenue grow this year?", "is_bad": false},
+  {"text": "What's the latest news on TPG Telecom?", "is_bad": false},
+  {"text": "Is Telstra's profit growth sustainable long-term?", "is_bad": false},
+  {"text": "Why is TPG investing more in network infrastructure?", "is_bad": false},
+  {"text": "What is driving TPG's capital expenditure decisions?", "is_bad": false},
+  {"text": "How good were Telstra's latest earnings compared to forecasts?", "is_bad": false},
+  {"text": "Is TPG's management team good at capital allocation?", "is_bad": false}
+]

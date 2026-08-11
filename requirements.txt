@@ -1,5 +1,4 @@
-groq
-langchain-groq
+langchain-anthropic
 langgraph
 langchain-core
 langmem

@@ -1,14 +1,14 @@
 import logging
 from functools import lru_cache
 
-from langchain_groq import ChatGroq
+from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import AIMessage
 from langgraph.errors import GraphRecursionError
 from langgraph.prebuilt import create_react_agent
 from langgraph.types import Command
 from langmem import create_manage_memory_tool, create_search_memory_tool
 
-from config import MODEL, GROQ_API_KEY, REACT_RECURSION_LIMIT, TOKEN_CEILING_PER_REQUEST
+from config import ANALYSIS_MODEL, ANTHROPIC_API_KEY, REACT_RECURSION_LIMIT, TOKEN_CEILING_PER_REQUEST
 from . import decline_messages
 from .prompts import ANALYSIS_PROMPT
 from .persistence import get_store
@@ -20,7 +20,6 @@ from .analysis_memory import (
 )
 from agent.guardrails.advice_check import check_advice_avoidance
 from agent.guardrails.token_budget import TokenBudgetCallback, TokenBudgetExceededError
-from agent.shared.groq_retry import call_with_tool_use_retry
 from agent.shared.synthesize import synthesize_insight
 from tools.react_tools import (
     search_news_tool,
@@ -30,12 +29,7 @@ from tools.react_tools import (
 
 logger = logging.getLogger(__name__)
 
-# temperature=0: this model's tool-calling is noticeably less reliable at the default
-# temperature - Groq's llama-3.3-70b-versatile occasionally emits a malformed
-# "<function=...>" text blob instead of a real tool call (surfaces as a 400
-# 'tool_use_failed' from Groq), and a near-zero temperature measurably cuts how often
-# that happens. See the retry in conduct_analysis_node for the cases it still doesn't.
-_llm = ChatGroq(model=MODEL, api_key=GROQ_API_KEY, temperature=0)
+_llm = ChatAnthropic(model=ANALYSIS_MODEL, api_key=ANTHROPIC_API_KEY)
 _store = get_store()
 
 
@@ -116,6 +110,18 @@ def conduct_analysis_node(state, config):
     # corrupt each other's cumulative token counts. Passed into both the ReAct loop
     # below AND synthesize_insight, so the ceiling covers the whole request.
     budget_cb = TokenBudgetCallback(TOKEN_CEILING_PER_REQUEST)
+    # Per-user daily budget (see agent/guardrails/daily_token_budget.py) - one instance
+    # per /api/ask request, shared with router_node via configurable (set in
+    # app/main.py::ask_endpoint), attached here too so it also covers this node's calls.
+    # Unlike budget_cb above, a trip here is NOT caught by the except clause below -
+    # DailyTokenBudgetExceededError propagates up to ask_endpoint and becomes a 429.
+    # .get(), not [...]: not set when this graph is invoked directly (see router_node's
+    # matching comment) - falls back to only the per-request ceiling in that case.
+    daily_cb = config["configurable"].get("daily_token_cb")
+    # Same .get() reasoning as daily_cb - only set by app/main.py::ask_endpoint, absent
+    # for eval/direct-invoke callers, which don't need step tracing.
+    tracer = config["configurable"].get("tracer")
+    react_callbacks = [c for c in (budget_cb, daily_cb, tracer) if c]
     # ticker isn't part of the prebuilt react agent's own state schema (it only tracks
     # "messages"), so it's threaded through config instead - _build_prompt reads it back
     # out of config["configurable"] rather than state.
@@ -123,15 +129,17 @@ def conduct_analysis_node(state, config):
         **config,
         "configurable": {**config["configurable"], "ticker": ticker},
         "recursion_limit": REACT_RECURSION_LIMIT,
-        "callbacks": [budget_cb],
+        "callbacks": react_callbacks,
+        # Labels every LLM call INSIDE the ReAct loop that isn't otherwise tagged
+        # (its own reasoning turns between tool calls) - actual tool calls still get
+        # their real tool name from RequestTracer.on_tool_start regardless of this.
+        "metadata": {"step_name": "conduct_analysis_reasoning"},
     }
 
     try:
-        result = call_with_tool_use_retry(
-            lambda: react_agent.invoke({"messages": state["messages"]}, config=sub_config)
-        )
+        result = react_agent.invoke({"messages": state["messages"]}, config=sub_config)
         evidence = _extract_tool_evidence(result["messages"])
-        insight = synthesize_insight(ticker, evidence, callbacks=[budget_cb])
+        insight = synthesize_insight(ticker, evidence, callbacks=react_callbacks)
     except (GraphRecursionError, TokenBudgetExceededError) as e:
         # Cost/runaway-loop guardrails: no partial answer on abort - the react agent has
         # no checkpointer of its own between invoke calls, so there's nothing reliably
@@ -173,7 +181,9 @@ def conduct_analysis_node(state, config):
     # Compliance-critical output gate: run AFTER synthesis, BEFORE the insight is written
     # into episodic memory - a flagged insight must never become a future few-shot
     # example, or it poisons later retrieval for this ticker.
-    passed, matched_keywords, reasoning = check_advice_avoidance(insight)
+    passed, matched_keywords, reasoning = check_advice_avoidance(
+        insight, callbacks=[daily_cb] if daily_cb else None, tracer=tracer,
+    )
     if not passed:
         logger.warning(
             "conduct_analysis advice-avoidance check failed for %s: keywords=%s reasoning=%s",
@@ -185,6 +195,13 @@ def conduct_analysis_node(state, config):
                 "result": decline_messages.ADVICE_LANGUAGE_DETECTED,
                 "references": [],
                 "evidence": evidence,
+                "evidence_count": len(evidence),
+                "output_guardrail_regex_matched": bool(matched_keywords),
+                # None (not False) when matched_keywords is non-empty - the LLM layer
+                # is never reached once the regex layer alone fails (see
+                # check_advice_avoidance's fail-fast), so "did the LLM call it advice"
+                # is genuinely unknown in that case, not "no".
+                "output_guardrail_llm_is_advice": True if not matched_keywords else None,
                 "messages": [AIMessage(content=decline_messages.ADVICE_LANGUAGE_DETECTED)],
             }
         )
@@ -196,6 +213,9 @@ def conduct_analysis_node(state, config):
             "result": insight,
             "references": references,
             "evidence": evidence,
+            "evidence_count": len(evidence),
+            "output_guardrail_regex_matched": False,
+            "output_guardrail_llm_is_advice": False,
             "messages": [AIMessage(content=insight)],
         }
     )

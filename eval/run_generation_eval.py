@@ -23,10 +23,10 @@ from agent.chat.graph import graph
 from agent.guardrails.advice_check import check_advice_avoidance
 from config import TEST_USER_ID
 from db.queries import insert_eval_run
-from eval.judge import judge_groundedness, judge_relevance
+from eval.judge import judge_groundedness, judge_relevance, judge_answer_found
 
 
-def run_one(ticker: str, question: str) -> dict:
+def run_one(ticker: str, question: str, genuinely_answerable: bool = True) -> dict:
     print(f"Running: {question!r}")
     config = {
         "configurable": {"thread_id": str(uuid.uuid4()), "langgraph_user_id": TEST_USER_ID}
@@ -52,6 +52,7 @@ def run_one(ticker: str, question: str) -> dict:
         result["groundedness"] = None
         result["relevance"] = None
         result["advice_avoidance_passed"] = None
+        result["answer_found"] = None
         return result
 
     groundedness = judge_groundedness(answer, evidence)
@@ -65,12 +66,24 @@ def run_one(ticker: str, question: str) -> dict:
     result["relevance"] = {"score": relevance.score, "reasoning": relevance.reasoning}
     result["advice_avoidance_passed"] = passed
     result["advice_avoidance_detail"] = {"matched_keywords": matched_keywords, "reasoning": reasoning}
+
+    # Context recall / answer-discovery rate: only meaningful on questions the fixture
+    # marks as genuinely answerable - the whole point of this metric is "did the
+    # system wrongly decline on a question with a real answer", not "did it correctly
+    # decline on one without" (a different failure mode - fabrication - that
+    # groundedness above already covers).
+    if genuinely_answerable:
+        found = judge_answer_found(question, answer)
+        result["answer_found"] = {"found_answer": found.found_answer, "reasoning": found.reasoning}
+    else:
+        result["answer_found"] = None
     return result
 
 
 def summarize(results: list[dict]) -> dict:
     judged = [r for r in results if r["category"] == "conduct_analysis"]
     n_judged = len(judged)
+    discovery_judged = [r for r in judged if r["answer_found"] is not None]
     return {
         "n_total": len(results),
         "n_judged": n_judged,
@@ -88,6 +101,11 @@ def summarize(results: list[dict]) -> dict:
             if n_judged
             else None
         ),
+        "pct_answer_found": (
+            round(100 * sum(1 for r in discovery_judged if r["answer_found"]["found_answer"]) / len(discovery_judged), 1)
+            if discovery_judged
+            else None
+        ),
     }
 
 
@@ -98,6 +116,7 @@ def _print_summary(summary: dict) -> None:
     print(f"Avg relevance (1-5):      {summary['avg_relevance']}")
     print(f"% grounded:               {summary['pct_grounded']}")
     print(f"% advice-avoidance pass:  {summary['pct_advice_avoidance_passed']}")
+    print(f"% answer found (recall):  {summary['pct_answer_found']}")
 
 
 def run_generation_eval(fixture_path: str, persist: bool = True) -> dict:
@@ -105,11 +124,11 @@ def run_generation_eval(fixture_path: str, persist: bool = True) -> dict:
     both this script's __main__ block AND the admin-triggered
     POST /api/admin/eval/generation/trigger route call, so there's a single
     implementation rather than the API duplicating the CLI's loop. Makes real, live
-    Groq calls (MODEL for the agent, JUDGE_MODEL for judging) - not free, not instant."""
+    Claude calls (ANALYSIS_MODEL for the agent, JUDGE_MODEL for judging) - not free, not instant."""
     with open(fixture_path, encoding="utf-8") as f:
         pairs = json.load(f)
 
-    results = [run_one(pair["ticker"], pair["question"]) for pair in pairs]
+    results = [run_one(pair["ticker"], pair["question"], pair.get("genuinely_answerable", True)) for pair in pairs]
     summary = summarize(results)
 
     if persist:

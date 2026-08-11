@@ -1,20 +1,37 @@
 import logging
+import time
+from datetime import datetime, timedelta, timezone
 from typing import Literal, Optional
 
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from groq import APIStatusError as GroqAPIStatusError
+from anthropic import APIStatusError as AnthropicAPIStatusError
 from langchain_core.messages import HumanMessage
 from pydantic import BaseModel, field_validator
 from starlette.middleware.base import BaseHTTPMiddleware
 
+from config import TOKEN_CEILING_WINDOW_HOURS
 from tools.embeddings import embed
-from db.queries import create_feed, get_common_feed_template, update_feed, set_feed_needs_rematch
+from db.queries import (
+    create_feed,
+    get_common_feed_template,
+    update_feed,
+    set_feed_needs_rematch,
+    log_token_usage,
+    sum_recent_token_usage,
+    insert_request_trace,
+    insert_request_trace_steps,
+    insert_ops_alert,
+)
 from db.storage import ensure_documents_bucket
 from agent.chat.graph import graph
 from agent.guardrails.rate_limit import enforce_rate_limit
+from agent.guardrails.daily_token_budget import enforce_daily_token_budget, DAILY_BUDGET_MESSAGE
+from agent.guardrails.token_budget import DailyTokenBudgetExceededError
 from agent.guardrails.citations import filter_reachable_references
+from agent.guardrails.tracer import RequestTracer
+from agent.guardrails.alerts import evaluate_alerts
 from app.auth import get_user_id_from_token
 from app.admin import router as admin_router
 
@@ -64,25 +81,20 @@ def on_startup():
     ensure_documents_bucket()
 
 
-@app.exception_handler(GroqAPIStatusError)
-async def groq_error_handler(request: Request, exc: GroqAPIStatusError):
+@app.exception_handler(AnthropicAPIStatusError)
+async def anthropic_error_handler(request: Request, exc: AnthropicAPIStatusError):
     """
-    Every LLM call in this app goes through Groq, so its failures are common enough (daily
+    Every LLM call in this app goes through Claude, so its failures are common enough (daily
     token-quota exhaustion especially, during heavy testing/demo use) to deserve a specific,
     actionable message instead of falling through to the generic "Internal server error"
     below - the frontend already just displays whatever `detail` it gets. Registered by type
     (not the bare Exception class), so it stays in ExceptionMiddleware, inside CORSMiddleware.
     """
-    logger.warning("Groq API error on %s %s: %s", request.method, request.url.path, exc)
-    error_code = exc.body.get("error", {}).get("code") if isinstance(exc.body, dict) else None
+    logger.warning("Anthropic API error on %s %s: %s", request.method, request.url.path, exc)
     if exc.status_code == 429:
         detail = "The AI model's usage limit has been reached for now - please try again in a bit."
-    elif error_code == "tool_use_failed":
-        # Not an outage - Groq accepted the request but the model (usually the smaller
-        # JUDGE_MODEL doing forced structured output, e.g. the advice-avoidance check)
-        # emitted a malformed function call. Transient and retry-safe, but a distinct
-        # cause from "model unreachable" - worth telling apart when debugging failures.
-        detail = "The AI model produced a malformed response while judging the output - please try again."
+    elif exc.type == "overloaded_error":
+        detail = "The AI model is temporarily overloaded - please try again shortly."
     else:
         detail = "The AI model is temporarily unavailable - please try again shortly."
     return JSONResponse(status_code=503, content={"detail": detail})
@@ -215,8 +227,94 @@ def ask_endpoint(req: AskRequest, authorization: str = Header(...)):
     """
     user_id = get_user_id_from_token(authorization)
     enforce_rate_limit(user_id)
-    config = {"configurable": {"thread_id": req.thread_id, "langgraph_user_id": user_id}}
-    response = graph.invoke({"messages": [HumanMessage(content=req.question)]}, config=config)
+    # Raises 429 up front if this user has already used up today's token budget;
+    # otherwise a fresh callback seeded with today's REMAINING allowance, shared via
+    # configurable with every node that calls an LLM (router, conduct_analysis, and its
+    # advice-check judge) so it also trips mid-request if this request alone would
+    # cross the daily line (see agent/guardrails/daily_token_budget.py).
+    daily_cb = enforce_daily_token_budget(user_id)
+    # One RequestTracer per request (see agent/guardrails/tracer.py) - records every
+    # LLM/tool call's timing/tokens automatically via the callback hooks, plus the two
+    # regex guardrail checks manually - and is bulk-written to request_trace_steps
+    # below regardless of how the request ends.
+    tracer = RequestTracer()
+    request_start = time.monotonic()
+    config = {
+        "configurable": {
+            "thread_id": req.thread_id,
+            "langgraph_user_id": user_id,
+            "daily_token_cb": daily_cb,
+            "tracer": tracer,
+        }
+    }
+
+    response = None
+    status = "completed"
+    decline_reason = None
+    daily_budget_exceeded = False
+    try:
+        response = graph.invoke({"messages": [HumanMessage(content=req.question)]}, config=config)
+        if response.get("category") == "declined":
+            status = "declined"
+            decline_reason = response.get("result")
+    except DailyTokenBudgetExceededError:
+        status = "error"
+        decline_reason = "daily_token_budget_exceeded"
+        daily_budget_exceeded = True
+    except Exception:
+        # Still recorded below (whatever the tracer captured before the crash) before
+        # re-raising for UnhandledExceptionMiddleware to turn into the standard 500 -
+        # an unexpected failure shouldn't also mean losing its trace.
+        status = "error"
+        decline_reason = "unhandled_exception"
+        raise
+    finally:
+        total_duration_ms = round((time.monotonic() - request_start) * 1000)
+        # Logged regardless of outcome (success, in-graph decline, or the 429 above) so
+        # tokens actually spent before an abort still count against today's total - Groq
+        # already billed for them even if the request didn't finish.
+        if daily_cb.total_tokens:
+            log_token_usage(user_id, daily_cb.total_tokens)
+
+        trace_row = insert_request_trace(
+            user_id=user_id,
+            thread_id=req.thread_id,
+            question=req.question,
+            ticker=response.get("ticker") if response else None,
+            category=response.get("category") if response else None,
+            status=status,
+            decline_reason=decline_reason,
+            input_guardrail_regex_matched=response.get("input_guardrail_regex_matched") if response else None,
+            input_guardrail_llm_is_advice=response.get("input_guardrail_llm_is_advice") if response else None,
+            output_guardrail_regex_matched=response.get("output_guardrail_regex_matched") if response else None,
+            output_guardrail_llm_is_advice=response.get("output_guardrail_llm_is_advice") if response else None,
+            evidence_count=response.get("evidence_count") if response else None,
+            step_count=tracer.step_count,
+            total_tokens=daily_cb.total_tokens or None,
+            total_duration_ms=total_duration_ms,
+            # Only meaningful for a completed conduct_analysis request - what
+            # eval/run_live_sample_eval.py re-judges later against real traffic.
+            answer=response["messages"][-1].content if response and status == "completed" else None,
+            evidence=response.get("evidence") if response and status == "completed" else None,
+        )
+        insert_request_trace_steps(trace_row["id"], tracer.steps)
+
+        # Trailing-day total AFTER this request's own usage was just logged above - what
+        # this user's NEXT request would be checked against by enforce_daily_token_budget.
+        since = (datetime.now(timezone.utc) - timedelta(hours=TOKEN_CEILING_WINDOW_HOURS)).isoformat()
+        daily_tokens_after = sum_recent_token_usage(user_id, since)
+        alerts = evaluate_alerts(
+            request_tokens=daily_cb.total_tokens or None,
+            daily_tokens_after=daily_tokens_after or None,
+            step_count=tracer.step_count,
+            duration_ms=total_duration_ms,
+        )
+        for alert in alerts:
+            insert_ops_alert(trace_row["id"], user_id, **alert)
+
+    if daily_budget_exceeded:
+        raise HTTPException(status_code=429, detail=DAILY_BUDGET_MESSAGE)
+
     # One choke point for references regardless of which node produced them (search_news
     # vs conduct_analysis) - nulls out `url` for anything unreachable so the frontend
     # never shows a dead link as a clickable source.

@@ -1,5 +1,6 @@
+import statistics
 from typing import Optional
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from db.client import get_client
 
@@ -533,6 +534,30 @@ def log_ask_request(user_id: str) -> None:
     client.table("api_request_log").insert({"user_id": user_id}).execute()
 
 
+def sum_recent_token_usage(user_id: str, since: str) -> int:
+    """Total tokens this user's /api/ask requests have logged since `since` (ISO
+    timestamp) - what the daily token-budget guardrail
+    (agent/guardrails/daily_token_budget.py) compares against
+    config.TOKEN_CEILING_PER_USER_PER_DAY. Summed in Python rather than a DB-side SUM -
+    same demo-grade scale as count_recent_requests() above."""
+    client = get_client()
+    result = (
+        client.table("llm_token_usage_log")
+        .select("tokens")
+        .eq("user_id", user_id)
+        .gte("created_at", since)
+        .execute()
+    )
+    return sum(row["tokens"] for row in result.data) if result.data else 0
+
+
+def log_token_usage(user_id: str, tokens: int) -> None:
+    """Records the total tokens one /api/ask request spent across every Groq call it
+    made - what sum_recent_token_usage() above sums on this user's next request."""
+    client = get_client()
+    client.table("llm_token_usage_log").insert({"user_id": user_id, "tokens": tokens}).execute()
+
+
 def get_classified_ticker_news_sample(limit: int) -> list[dict]:
     """Recent ticker_news rows already evaluated against common_feed_templates - the
     pool eval/export_labels.py samples from to build a classification-quality labeling
@@ -571,3 +596,181 @@ def get_recent_eval_runs(eval_type: Optional[str] = None, limit: int = 20) -> li
     if eval_type:
         query = query.eq("eval_type", eval_type)
     return query.order("created_at", desc=True).limit(limit).execute().data
+
+
+def insert_request_trace(
+    user_id: str,
+    thread_id: str,
+    question: str,
+    ticker: Optional[str],
+    category: Optional[str],
+    status: str,
+    decline_reason: Optional[str],
+    input_guardrail_regex_matched: Optional[bool],
+    input_guardrail_llm_is_advice: Optional[bool],
+    output_guardrail_regex_matched: Optional[bool],
+    output_guardrail_llm_is_advice: Optional[bool],
+    evidence_count: Optional[int],
+    step_count: int,
+    total_tokens: Optional[int],
+    total_duration_ms: int,
+    answer: Optional[str] = None,
+    evidence: Optional[list[dict]] = None,
+) -> dict:
+    """One row per /api/ask request - see request_trace in schema.sql. Called once,
+    from app/main.py::ask_endpoint's finally block, after graph.invoke() returns (or
+    raises) - so this fires on every outcome (completed, declined, or error), not just
+    success. `answer`/`evidence` are only meaningful for a completed conduct_analysis
+    request - what eval/run_live_sample_eval.py re-judges later; left None otherwise."""
+    client = get_client()
+    result = (
+        client.table("request_trace")
+        .insert(
+            {
+                "user_id": user_id,
+                "thread_id": thread_id,
+                "question": question,
+                "answer": answer,
+                "evidence": evidence,
+                "ticker": ticker,
+                "category": category,
+                "status": status,
+                "decline_reason": decline_reason,
+                "input_guardrail_regex_matched": input_guardrail_regex_matched,
+                "input_guardrail_llm_is_advice": input_guardrail_llm_is_advice,
+                "output_guardrail_regex_matched": output_guardrail_regex_matched,
+                "output_guardrail_llm_is_advice": output_guardrail_llm_is_advice,
+                "evidence_count": evidence_count,
+                "step_count": step_count,
+                "total_tokens": total_tokens,
+                "total_duration_ms": total_duration_ms,
+            }
+        )
+        .execute()
+    )
+    return result.data[0]
+
+
+def insert_request_trace_steps(request_trace_id: str, steps: list[dict]) -> None:
+    """Bulk-inserts every step a RequestTracer recorded (see
+    agent/guardrails/tracer.py) for one request, in order - one call, one round trip,
+    rather than one insert per step. No-op for a request with no steps (e.g. declined
+    before anything traceable ran, like the input regex gate on its own)."""
+    if not steps:
+        return
+    client = get_client()
+    rows = [
+        {
+            "request_trace_id": request_trace_id,
+            "step_index": i,
+            "step_name": s["step_name"],
+            "step_type": s["step_type"],
+            "duration_ms": s["duration_ms"],
+            "tokens": s.get("tokens"),
+            "result": s.get("result"),
+        }
+        for i, s in enumerate(steps)
+    ]
+    client.table("request_trace_steps").insert(rows).execute()
+
+
+def insert_ops_alert(request_trace_id: str, user_id: str, alert_type: str, threshold: float, actual_value: float) -> dict:
+    """One row per tripped ALERT_* threshold (see agent/guardrails/alerts.py) -
+    persists what was previously only an ephemeral logger.warning when the matching
+    hard guardrail aborted a request."""
+    client = get_client()
+    result = (
+        client.table("ops_alerts")
+        .insert(
+            {
+                "request_trace_id": request_trace_id,
+                "user_id": user_id,
+                "alert_type": alert_type,
+                "threshold": threshold,
+                "actual_value": actual_value,
+            }
+        )
+        .execute()
+    )
+    return result.data[0]
+
+
+def get_recent_ops_alerts(limit: int = 50) -> list[dict]:
+    """Recent alerts across every user, newest first - what the admin page's Alerts
+    subsection renders. No question/answer content here (see ops_alerts in schema.sql),
+    only ids and numbers - stays within the admin's operational-visibility scope."""
+    client = get_client()
+    return (
+        client.table("ops_alerts").select("*").order("created_at", desc=True).limit(limit).execute().data
+    )
+
+
+def get_efficiency_summary(hours: int = 24 * 7, sample_limit: int = 1000) -> dict:
+    """Percentile summary (p50/p95/max) of steps/tokens/latency across recent
+    request_trace rows, plus the recursion-limit hit rate - what the admin page's
+    Efficiency subsection renders, and what config.py's own placeholder comments on
+    REACT_RECURSION_LIMIT/TOKEN_CEILING_PER_REQUEST ask for ("check real trace depth...
+    a p95/max, not just an average") once there's real traffic. Percentiles computed in
+    Python over a bounded recent sample, not a DB-side aggregate - same demo-grade
+    tradeoff as sum_recent_token_usage() above."""
+    client = get_client()
+    since = (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat()
+    rows = (
+        client.table("request_trace")
+        .select("step_count, total_tokens, total_duration_ms, decline_reason")
+        .gte("created_at", since)
+        .order("created_at", desc=True)
+        .limit(sample_limit)
+        .execute()
+        .data
+    )
+
+    def _percentiles(values: list[float]) -> dict:
+        if not values:
+            return {"p50": None, "p95": None, "max": None}
+        values = sorted(values)
+        quantiles = statistics.quantiles(values, n=100, method="inclusive") if len(values) > 1 else [values[0]] * 99
+        return {"p50": quantiles[49], "p95": quantiles[94], "max": values[-1]}
+
+    # Imported here, not at module level, to avoid db/ importing from agent/ as a
+    # standing dependency direction - this is the one place that needs the exact
+    # decline copy to detect which guardrail fired.
+    from agent.chat.decline_messages import RECURSION_LIMIT_REACHED
+
+    steps = [r["step_count"] for r in rows if r["step_count"] is not None]
+    tokens = [r["total_tokens"] for r in rows if r["total_tokens"] is not None]
+    durations = [r["total_duration_ms"] for r in rows if r["total_duration_ms"] is not None]
+    recursion_hits = sum(1 for r in rows if r["decline_reason"] == RECURSION_LIMIT_REACHED)
+
+    return {
+        "window_hours": hours,
+        "n": len(rows),
+        "steps": _percentiles(steps),
+        "tokens": _percentiles(tokens),
+        "duration_ms": _percentiles(durations),
+        "recursion_limit_hit_rate": round(recursion_hits / len(rows), 4) if rows else None,
+    }
+
+
+def sample_recent_request_traces(n: int, hours: int = 24) -> list[dict]:
+    """Random sample of up to `n` completed conduct_analysis requests from the last
+    `hours` - what eval/run_live_sample_eval.py judges for groundedness/relevance/
+    answer-discovery against REAL traffic, not just eval/run_generation_eval.py's fixed
+    fixture set. Random, not most-recent-N: most-recent would just re-judge whatever
+    happened to come in right before the audit ran, biasing toward one time-of-day/one
+    user's traffic pattern. Sampled in Python from a bounded pull, not a DB-side
+    TABLESAMPLE/random() - same demo-grade tradeoff as get_efficiency_summary above."""
+    import random
+
+    client = get_client()
+    rows = (
+        client.table("request_trace")
+        .select("id, question, answer, evidence")
+        .eq("category", "conduct_analysis")
+        .eq("status", "completed")
+        .gte("created_at", (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat())
+        .limit(500)
+        .execute()
+        .data
+    )
+    return random.sample(rows, min(n, len(rows)))

@@ -1,7 +1,7 @@
-from langchain_groq import ChatGroq
+from langchain_anthropic import ChatAnthropic
 from langgraph.types import Command
 
-from config import MODEL, GROQ_API_KEY
+from config import ANALYSIS_MODEL, ANTHROPIC_API_KEY
 from db.queries import get_feeds_for_user, get_feed_items, insert_ticker_insight
 from agent.shared.synthesize import synthesize_insight
 
@@ -21,7 +21,7 @@ def planner_node(state):
     if not feed_names:
         return Command(goto="synthesize", update={"plan": [], "step_results": []})
 
-    llm = ChatGroq(model=MODEL, api_key=GROQ_API_KEY)
+    llm = ChatAnthropic(model=ANALYSIS_MODEL, api_key=ANTHROPIC_API_KEY)
     plan = llm.with_structured_output(Plan).invoke(
         f"Given these feeds for {state['ticker']}: {feed_names}, produce an ordered list "
         "using those same feed names, in the order they should be reviewed to build a "

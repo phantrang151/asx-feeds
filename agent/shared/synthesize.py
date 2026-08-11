@@ -1,8 +1,8 @@
 from typing import Optional
 
-from langchain_groq import ChatGroq
+from langchain_anthropic import ChatAnthropic
 
-from config import MODEL, GROQ_API_KEY
+from config import ANALYSIS_MODEL, ANTHROPIC_API_KEY
 
 SYNTHESIS_PROMPT = """You are a financial analyst. You are given evidence gathered about a stock -
 this may include recent news, financial figures, and price movements.
@@ -26,9 +26,11 @@ def synthesize_insight(ticker: str, evidence: list[dict], callbacks: Optional[li
       - synthesize_insight pipeline node (Plan-Execute): evidence gathered via a fixed plan
     Each `evidence` item is expected to look like {"source": str, "content": str}.
 
-    `callbacks`, if given, is passed straight into this call's config - conduct_analysis_node
-    passes the same TokenBudgetCallback instance used for its ReAct loop, so the per-request
-    token ceiling covers this call too, not just the tool loop.
+    `callbacks`, if given, is passed straight into this call's config, tagged with
+    metadata={"step_name": "synthesis"} for RequestTracer (see
+    agent/guardrails/tracer.py) - conduct_analysis_node passes the same
+    TokenBudgetCallback instance used for its ReAct loop, so the per-request token
+    ceiling covers this call too, not just the tool loop.
     """
     if not evidence:
         return f"Not enough evidence was gathered for {ticker} to produce an insight."
@@ -37,7 +39,8 @@ def synthesize_insight(ticker: str, evidence: list[dict], callbacks: Optional[li
         f"[{item.get('source', 'unknown')}] {item.get('content')}" for item in evidence
     )
 
-    llm = ChatGroq(model=MODEL, api_key=GROQ_API_KEY)
+    llm = ChatAnthropic(model=ANALYSIS_MODEL, api_key=ANTHROPIC_API_KEY)
     prompt = f"{SYNTHESIS_PROMPT}\n\nTicker: {ticker}\n\nEvidence:\n{evidence_text}"
-    response = llm.invoke(prompt, config={"callbacks": callbacks} if callbacks else None)
+    config = {"callbacks": callbacks, "metadata": {"step_name": "synthesis"}} if callbacks else None
+    response = llm.invoke(prompt, config=config)
     return response.content.strip()

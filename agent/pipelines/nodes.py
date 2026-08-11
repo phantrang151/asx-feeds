@@ -1,9 +1,9 @@
 from datetime import datetime, timezone
 
-from langchain_groq import ChatGroq
+from langchain_anthropic import ChatAnthropic
 from langgraph.types import Command
 
-from config import MODEL, GROQ_API_KEY
+from config import ROUTER_MODEL, ANTHROPIC_API_KEY
 from tools.search import search_news
 from tools.embeddings import embed_batch
 from db.queries import (
@@ -164,7 +164,7 @@ def classify_and_store_node(state: ClassifyState):
 def _summarize_for_feed(article: dict, feed_name: str, feed_description: str) -> str:
     """One LLM call per matched article - only for items that already cleared the
     vector-similarity threshold, to keep token usage low."""
-    llm = ChatGroq(model=MODEL, api_key=GROQ_API_KEY)
+    llm = ChatAnthropic(model=ROUTER_MODEL, api_key=ANTHROPIC_API_KEY)
     prompt = (
         f"Feed: {feed_name} ({feed_description})\n"
         f"News title: {article.get('title')}\n"
