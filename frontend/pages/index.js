@@ -7,13 +7,13 @@ import styles from '../styles/Landing.module.css';
 const SCREENSHOTS = [
   {
     src: '/screenshots/fig-1-define.png',
-    alt: "Dashboard showing the 'Add a ticker' and 'Create a feed' forms next to a list of configured feeds for TPG.AX, including Customer Growth - Customer Churn, Network Quality & Customer Service, and Revenue Trend",
+    alt: "Dashboard showing the 'Add a ticker' and 'Create a feed' forms next to a list of configured feeds for TLS.AX and ANZ.AX, including Network Stability, Revenue Trend, Red Flags, and Business Strategy",
     caption: 'Define exactly what you want tracked',
   },
   {
     src: '/screenshots/fig-2-alerts.png',
-    alt: 'Alerts page listing dated, sourced news items for TPG.AX classified under feeds like Network Quality & Customer Service and Revenue Trend',
-    caption: 'Daily evidence, classified and sourced',
+    alt: "Alerts page for TLS.AX showing a synthesized cross-feed insight above dated, sourced news items classified under feeds like Business Strategy and Revenue Trend",
+    caption: 'One insight, built across every feed',
   },
   {
     src: '/screenshots/fig-3-ask.png',
@@ -131,8 +131,9 @@ export default function Home() {
           </h1>
           <p className={styles.subhead}>
             Googling a company gives you every article about it, in no particular order. TickerThesis
-            sorts that same news into the categories you define — Revenue Trend, Network Quality,
-            Customer Churn, anything else — automatically.
+            sorts that news into the categories you define, then synthesizes what it finds into one
+            connected insight. One place to see what&apos;s actually going on, not a stack of articles
+            to read yourself.
           </p>
           <div className={styles.ctas}>
             <button
@@ -167,6 +168,15 @@ export default function Home() {
                 something fully custom, like &quot;is customer growth being offset by churn.&quot; News gets
                 sorted into the right thesis automatically. No scrolling through everything to find what&apos;s
                 relevant to you.
+              </p>
+            </div>
+            <div className={styles.valueCard}>
+              <span className={styles.tag}>[Track]</span>
+              <h3>One connected insight, not a pile of articles</h3>
+              <p>
+                Every time new evidence lands, TickerThesis synthesizes what your feeds add up to together —
+                is growth coming from revenue or from cost-cutting, is a scandal outweighing the upside —
+                refreshed automatically, not something you have to piece together yourself.
               </p>
             </div>
             <div className={styles.valueCard}>

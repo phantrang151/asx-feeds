@@ -9,7 +9,7 @@ function ArchitectureDiagram() {
         <svg
           viewBox="0 0 680 260"
           role="img"
-          aria-label="Frontend talks directly to Supabase for reads and for writes that need no server-side compute, under Row Level Security. The backend is only in the loop for writes that need compute: generating a feed's embedding, or running the ask-a-question agent. It reads evidence back from Supabase and calls the Groq LLM to classify and reason, writing results back to Supabase."
+          aria-label="Frontend talks directly to Supabase for reads and for writes that need no server-side compute, under Row Level Security. The backend is only in the loop for writes that need compute: generating a feed's embedding, or running the ask-a-question agent. It reads evidence back from Supabase and calls Claude to classify and reason, writing results back to Supabase."
         >
           <defs>
             <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -31,8 +31,8 @@ function ArchitectureDiagram() {
             <text x="585" y="70" textAnchor="middle" fontSize="9" opacity="0.65">FastAPI · Container Apps</text>
 
             <rect x="510" y="150" width="150" height="56" rx="3" fill="none" stroke="currentColor" strokeWidth="1.4" />
-            <text x="585" y="174" textAnchor="middle">Groq LLM</text>
-            <text x="585" y="190" textAnchor="middle" fontSize="9" opacity="0.65">Llama 3.3 70B</text>
+            <text x="585" y="174" textAnchor="middle">Claude</text>
+            <text x="585" y="190" textAnchor="middle" fontSize="9" opacity="0.65">Haiku · Sonnet · Opus</text>
 
             <path d="M110 86 L280 150" stroke="currentColor" strokeWidth="1.8" fill="none" markerEnd="url(#arrow)" markerStart="url(#arrow)" />
             <text x="118" y="120" fontSize="9.5">reads / writes</text>
@@ -64,46 +64,76 @@ function OrchestrationDiagram() {
     <figure className={styles.diagramFigure}>
       <div className={styles.diagramScroll}>
         <svg
-          viewBox="0 0 680 224"
+          viewBox="0 0 700 300"
           role="img"
-          aria-label="Requests are classified by shape first. Router/dispatch handles a plain news lookup on its own, formatting a list with no LLM synthesis. ReAct and Plan-Execute both gather evidence differently but converge on one shared synthesize_insight function."
+          aria-label="Two separate triggers, not one decision point. A user's chat question hits Router/dispatch: a known-shape lookup like 'news on TLS.AX' returns a formatted list with no LLM involved, an open question like 'why is profit rising' goes to ReAct instead. Separately, with no user waiting, an ingestion pipeline run triggers Plan-Execute, which plans which feeds to review then works through each one. ReAct and Plan-Execute gather evidence completely differently, but both hand off to the same shared synthesize_insight function - Router/dispatch's list path never does."
         >
           <defs>
             <marker id="arrow2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
               <path d="M0,0 L10,5 L0,10 z" fill="currentColor" />
             </marker>
           </defs>
-          <g fontFamily="var(--mono)" fontSize="11" fill="currentColor">
-            <rect x="10" y="14" width="190" height="58" rx="3" fill="none" stroke="currentColor" strokeWidth="1.4" />
-            <text x="105" y="36" textAnchor="middle">Router / dispatch</text>
-            <text x="105" y="52" textAnchor="middle" fontSize="9" opacity="0.65">known shape → news lookup</text>
 
-            <rect x="245" y="14" width="190" height="58" rx="3" fill="none" stroke="currentColor" strokeWidth="1.4" />
-            <text x="340" y="36" textAnchor="middle">ReAct</text>
-            <text x="340" y="52" textAnchor="middle" fontSize="9" opacity="0.65">tool order unknown → Q&amp;A</text>
+          <g fontFamily="var(--mono)" fill="currentColor">
+            {/* lane headers */}
+            <text x="175" y="18" textAnchor="middle" fontSize="10" letterSpacing="0.04em" opacity="0.7">
+              TRIGGER · user asks a question
+            </text>
+            <text x="525" y="18" textAnchor="middle" fontSize="10" letterSpacing="0.04em" opacity="0.7">
+              TRIGGER · ingestion pipeline run
+            </text>
 
-            <rect x="480" y="14" width="190" height="58" rx="3" fill="none" stroke="currentColor" strokeWidth="1.4" />
-            <text x="575" y="36" textAnchor="middle">Plan-Execute</text>
-            <text x="575" y="52" textAnchor="middle" fontSize="9" opacity="0.65">steps known → scheduled synthesis*</text>
+            {/* lanes */}
+            <rect x="10" y="28" width="330" height="180" rx="4" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="2 3" opacity="0.4" />
+            <rect x="360" y="28" width="330" height="180" rx="4" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="2 3" opacity="0.4" />
 
-            <rect x="10" y="152" width="190" height="46" rx="3" fill="none" stroke="currentColor" strokeWidth="1.2" strokeDasharray="3 3" opacity="0.75" />
-            <text x="105" y="171" textAnchor="middle" fontSize="10">Formatted list</text>
-            <text x="105" y="184" textAnchor="middle" fontSize="8.5" opacity="0.65">no LLM synthesis</text>
+            {/* left lane: router splits into two */}
+            <rect x="60" y="42" width="230" height="46" rx="3" fill="none" stroke="currentColor" strokeWidth="1.4" />
+            <text x="175" y="61" textAnchor="middle" fontSize="11">Router / dispatch</text>
+            <text x="175" y="76" textAnchor="middle" fontSize="9" opacity="0.65">classifies the question&apos;s shape</text>
 
-            <rect x="245" y="152" width="425" height="46" rx="3" fill="none" stroke="var(--accent)" strokeWidth="1.8" />
-            <text x="457" y="180" textAnchor="middle" fill="var(--accent)">synthesize_insight()</text>
+            <rect x="30" y="140" width="130" height="58" rx="3" fill="none" stroke="currentColor" strokeWidth="1.2" strokeDasharray="3 3" opacity="0.8" />
+            <text x="95" y="161" textAnchor="middle" fontSize="10.5">Formatted list</text>
+            <text x="95" y="175" textAnchor="middle" fontSize="8.5" opacity="0.65">no LLM synthesis</text>
+            <text x="95" y="188" textAnchor="middle" fontSize="8" opacity="0.5">&quot;news on TLS.AX?&quot;</text>
 
-            <path d="M105 72 L105 152" stroke="currentColor" strokeWidth="1.2" fill="none" markerEnd="url(#arrow2)" />
-            <path d="M340 72 L340 152" stroke="currentColor" strokeWidth="1.2" fill="none" markerEnd="url(#arrow2)" />
-            <path d="M575 72 L575 152" stroke="currentColor" strokeWidth="1.2" fill="none" markerEnd="url(#arrow2)" />
+            <rect x="180" y="140" width="130" height="58" rx="3" fill="none" stroke="currentColor" strokeWidth="1.4" />
+            <text x="245" y="161" textAnchor="middle" fontSize="10.5">ReAct</text>
+            <text x="245" y="175" textAnchor="middle" fontSize="8.5" opacity="0.65">evidence, tool by tool</text>
+            <text x="245" y="188" textAnchor="middle" fontSize="8" opacity="0.5">&quot;why is profit rising?&quot;</text>
+
+            <path d="M175,88 L100,140" stroke="currentColor" strokeWidth="1.2" fill="none" markerEnd="url(#arrow2)" />
+            <text x="120" y="112" textAnchor="middle" fontSize="8" opacity="0.6">known shape</text>
+            <path d="M175,88 L245,140" stroke="currentColor" strokeWidth="1.2" fill="none" markerEnd="url(#arrow2)" />
+            <text x="228" y="112" textAnchor="middle" fontSize="8" opacity="0.6">open question</text>
+
+            {/* right lane: plan then execute */}
+            <rect x="410" y="42" width="230" height="46" rx="3" fill="none" stroke="currentColor" strokeWidth="1.4" />
+            <text x="525" y="61" textAnchor="middle" fontSize="11">Plan</text>
+            <text x="525" y="76" textAnchor="middle" fontSize="9" opacity="0.65">picks which feeds, and in what order</text>
+
+            <path d="M525,88 L525,140" stroke="currentColor" strokeWidth="1.2" fill="none" markerEnd="url(#arrow2)" />
+
+            <rect x="410" y="140" width="230" height="58" rx="3" fill="none" stroke="currentColor" strokeWidth="1.4" />
+            <text x="525" y="161" textAnchor="middle" fontSize="10.5">Execute steps</text>
+            <text x="525" y="175" textAnchor="middle" fontSize="8.5" opacity="0.65">pulls each feed&apos;s items in turn</text>
+            <text x="525" y="188" textAnchor="middle" fontSize="8" opacity="0.5">repeats once per feed</text>
+
+            {/* convergence */}
+            <path d="M245,198 L270,232" stroke="currentColor" strokeWidth="1.2" fill="none" markerEnd="url(#arrow2)" />
+            <path d="M525,198 L430,232" stroke="currentColor" strokeWidth="1.2" fill="none" markerEnd="url(#arrow2)" />
+
+            <rect x="170" y="232" width="360" height="50" rx="3" fill="none" stroke="var(--accent)" strokeWidth="1.8" />
+            <text x="350" y="262" textAnchor="middle" fill="var(--accent)" fontSize="12">synthesize_insight()</text>
           </g>
         </svg>
       </div>
       <figcaption>
-        Router/dispatch peels off on its own — a plain lookup formatted into a list, no LLM synthesis. ReAct and
-        Plan-Execute gather evidence differently but both feed the same shared reasoning core.
-        *Plan-Execute exists in the codebase but isn&apos;t wired to the live scheduler yet — currently reachable
-        only via a seed script, not the production ingestion path.
+        Two separate triggers, not one decision point. A chat question hits Router/dispatch first — a known-shape
+        lookup gets a formatted list with no LLM involved, anything open-ended goes to ReAct. An ingestion pipeline
+        run triggers Plan-Execute instead, with no user waiting on it. ReAct and Plan-Execute gather evidence
+        completely differently, but both hand off to the same shared <code>synthesize_insight()</code> reasoning
+        core — Router/dispatch&apos;s list path never does.
       </figcaption>
     </figure>
   );
@@ -145,13 +175,33 @@ export default function Technical() {
       <section>
         <div className={styles.wrap}>
           <div className={styles.eyebrow}>PROBLEM FRAMING</div>
-          <p className={styles.prose} style={{ marginTop: 16 }}>
-            Searching for a company&apos;s news is a solved problem — anyone can Google it. The harder problem
-            is organizing that unstructured firehose around what a specific person actually cares about,
-            consistently, every day, without manual triage. This project builds an agent that classifies daily
-            news against user-defined theses automatically, and answers follow-up questions using only retrieved
-            evidence — every claim traceable to a source, nothing asserted beyond what the articles actually
-            support.
+          <p style={{ marginTop: 16 }}>
+            Searching for a company&apos;s news is a solved problem — anyone can Google it. The harder
+            problems sit underneath that:
+          </p>
+
+          <div className={styles.decisionList} style={{ marginTop: 20 }}>
+            <div className={styles.decision}>
+              <span className={styles.tag}>Organize</span>
+              <p>
+                Organizing that unstructured firehose around what a specific person actually cares about,
+                consistently, every day, without manual triage.
+              </p>
+            </div>
+            <div className={styles.decision}>
+              <span className={styles.tag}>Synthesize</span>
+              <p>
+                Turning a pile of individually-classified articles into an actual picture of what&apos;s
+                going on, without overstating what the evidence supports.
+              </p>
+            </div>
+          </div>
+
+          <p style={{ marginTop: 24 }}>
+            This project builds an agent that classifies daily news against user-defined theses,
+            synthesizes a connected insight across each ticker&apos;s theses, and answers follow-up
+            questions — every claim traceable to a source, and every synthesis willing to say plainly
+            when the evidence isn&apos;t enough to draw a conclusion, rather than forcing one.
           </p>
         </div>
       </section>
@@ -184,17 +234,19 @@ export default function Technical() {
             <div>
               <dt>LLM</dt>
               <dd>
-                Groq, two models used deliberately: <b>Llama 3.3 70B</b> for routing, classification summaries,
-                and reasoning/synthesis, and a separate, stronger <b>gpt-oss-120B</b> used only as an LLM judge —
-                for the advice-avoidance compliance check and eval scoring — so results aren&apos;t the same
-                model grading its own homework.
+                Claude, three tiers used deliberately, cheapest to strongest: <b>Haiku 4.5</b> for routing and
+                other high-volume, low-complexity calls; <b>Sonnet 5</b> for the actual reasoning work — ReAct,
+                cross-evidence synthesis, insight planning; and a separate, stronger <b>Opus 5</b> used only as
+                an LLM judge — for the advice-avoidance compliance check and eval scoring — so results
+                aren&apos;t the same model grading its own homework.
               </dd>
             </div>
             <div>
               <dt>Orchestration</dt>
               <dd>
                 LangGraph — three deliberately different patterns, chosen per task rather than defaulted. See
-                diagrams above. (Plan-Execute is implemented but not yet wired to the live scheduler.)
+                diagrams above. Plan-Execute runs inside the ingestion pipeline, synthesizing each user&apos;s
+                cross-feed insight right after their feeds are classified.
               </dd>
             </div>
             <div>
@@ -252,8 +304,8 @@ export default function Technical() {
               <p>
                 <b>Shared reasoning core.</b> ReAct and Plan-Execute converge on one{' '}
                 <code>synthesize_insight()</code> function — they differ only in how evidence is gathered, not
-                in how it&apos;s reasoned over. (Plan-Execute itself isn&apos;t wired to the scheduler yet — see
-                the diagram above.)
+                in how it&apos;s reasoned over. ReAct runs live, per user question; Plan-Execute runs as the
+                ingestion pipeline&apos;s own insight-synthesis phase — see the diagram above.
               </p>
             </div>
             <div className={styles.decision}>
