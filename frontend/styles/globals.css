@@ -1,3 +1,12 @@
+:root {
+  /* Matches the landing page's button color (Landing.module.css --accent) so the
+     signed-in app and the marketing page read as the same product. */
+  --accent: #b8791e;
+  --accent-text: #fdfaf5;
+  --accent-soft: rgba(184, 121, 30, 0.1);
+  --accent-border: rgba(184, 121, 30, 0.35);
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: #f7f7f5;
@@ -40,8 +49,8 @@ button {
   padding: 8px 16px;
   border: none;
   border-radius: 4px;
-  background: #2f5233;
-  color: white;
+  background: var(--accent);
+  color: var(--accent-text);
   font-size: 14px;
   cursor: pointer;
 }
@@ -57,7 +66,7 @@ button:disabled {
 }
 
 .info {
-  color: #2f5233;
+  color: var(--accent);
   font-size: 13px;
 }
 
@@ -153,7 +162,7 @@ ul {
 .alerts-list .alert-feed {
   font-weight: 600;
   font-size: 13px;
-  color: #2f5233;
+  color: var(--accent);
   display: block;
 }
 
@@ -194,8 +203,133 @@ ul {
 
 .alerts-group h3 {
   font-size: 15px;
-  color: #2f5233;
+  color: var(--accent);
   margin: 0 0 4px;
+}
+
+.insight-card {
+  position: relative;
+  margin-bottom: 12px;
+  padding: 15px 16px 14px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-border);
+  border-radius: 8px;
+}
+
+.insight-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 8px 0 0 8px;
+}
+
+.insight-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.insight-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.insight-badge svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+.insight-meta {
+  font-size: 11.5px;
+  color: #888;
+  white-space: nowrap;
+}
+
+.insight-text {
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0 0 12px;
+  white-space: pre-wrap;
+}
+
+.insight-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.insight-foot .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.insight-foot .tag {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  background: white;
+  border: 1px solid #ccc;
+  color: #222;
+}
+
+.insight-foot .tag.muted {
+  color: #888;
+  border-style: dashed;
+}
+
+.insight-sources summary {
+  cursor: pointer;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--accent);
+  list-style: none;
+}
+
+.insight-sources summary::-webkit-details-marker {
+  display: none;
+}
+
+.insight-sources summary::after {
+  content: "\203A";
+  display: inline-block;
+  margin-left: 3px;
+  transition: transform 0.15s ease;
+}
+
+.insight-sources[open] summary::after {
+  transform: rotate(90deg);
+}
+
+.insight-sources ul {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.insight-sources li {
+  font-size: 12px;
+  color: #888;
+}
+
+.insight-sources a {
+  color: #222;
 }
 
 .inline-form input {
@@ -223,7 +357,7 @@ ul {
 .qa-history summary {
   cursor: pointer;
   font-size: 14px;
-  color: #2f5233;
+  color: var(--accent);
 }
 
 .qa-history .qa-list {
@@ -283,7 +417,7 @@ ul {
 }
 
 .qa-references a {
-  color: #2f5233;
+  color: var(--accent);
 }
 
 .ticker-feeds-list > li {

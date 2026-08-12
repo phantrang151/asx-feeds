@@ -264,8 +264,13 @@ create table if not exists pipeline_runs (
   feeds_classified int not null default 0,
   common_items_classified int not null default 0,
   items_skipped int not null default 0,
+  insights_generated int not null default 0,
   errors jsonb not null default '[]'::jsonb
 );
+-- Safe to re-run against a database created before insight_graph was wired into the
+-- orchestrator - `create table if not exists` above is a no-op there, so the column
+-- needs adding separately.
+alter table pipeline_runs add column if not exists insights_generated int not null default 0;
 
 -- One row per accepted /api/ask call, per user - what the rate-limit guardrail
 -- (agent/guardrails/rate_limit.py::enforce_rate_limit) counts over a trailing window

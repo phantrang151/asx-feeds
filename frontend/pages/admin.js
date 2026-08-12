@@ -290,7 +290,8 @@ export default function Admin() {
             <p className="info">
               Run finished: {triggerResult.status} - {triggerResult.feeds_classified} custom,{' '}
               {triggerResult.common_items_classified} common classified,{' '}
-              {triggerResult.items_skipped} skipped, {triggerResult.errors.length} errors across{' '}
+              {triggerResult.items_skipped} skipped, {triggerResult.insights_generated} insights
+              generated, {triggerResult.errors.length} errors across{' '}
               {triggerResult.tickers_processed} tickers.
             </p>
           )}
@@ -306,7 +307,8 @@ export default function Admin() {
                 <li key={r.id}>
                   <strong>{r.status}</strong> - {new Date(r.started_at).toLocaleString()} -{' '}
                   {r.feeds_classified} custom, {r.common_items_classified} common classified,{' '}
-                  {r.items_skipped} skipped, {(r.errors || []).length} errors ({r.tickers_processed} tickers)
+                  {r.items_skipped} skipped, {r.insights_generated || 0} insights generated,{' '}
+                  {(r.errors || []).length} errors ({r.tickers_processed} tickers)
                 </li>
               ))}
             </ul>

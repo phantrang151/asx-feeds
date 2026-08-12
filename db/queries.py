@@ -180,6 +180,22 @@ def get_feed_items(feed_id: str) -> list[dict]:
     )
 
 
+def get_common_feed_items(common_feed_template_id: str, ticker: str) -> list[dict]:
+    """A 'common' feed's items - unlike a custom feed, these never land in feed_items
+    (see feeds.feed_type in schema.sql), so a caller walking a user's feeds needs this
+    instead of get_feed_items() whenever feed_type == 'common'."""
+    client = get_client()
+    return (
+        client.table("common_feed_items")
+        .select("*")
+        .eq("common_feed_template_id", common_feed_template_id)
+        .eq("ticker", ticker)
+        .order("created_at", desc=True)
+        .execute()
+        .data
+    )
+
+
 def insert_ticker_insight(
     user_id: str, ticker: str, insight_text: str, based_on_feed_item_ids: list[str]
 ) -> dict:
@@ -214,6 +230,15 @@ def get_distinct_watchlisted_tickers() -> list[str]:
     return sorted({row["ticker"] for row in result.data})
 
 
+def get_ticker_insight_pairs() -> list[dict]:
+    """Every (user_id, ticker) pair that already has at least one ticker_insights row -
+    lets the orchestrator's insight-synthesis phase tell "never generated yet" apart
+    from "generated before, nothing new since", since only the latter should be skipped
+    when a run adds no fresh evidence."""
+    client = get_client()
+    return client.table("ticker_insights").select("user_id, ticker").execute().data
+
+
 def create_pipeline_run() -> str:
     """Logs the start of a pipeline run and returns its id, so progress can be updated
     once the run finishes (or partially finishes)."""
@@ -229,6 +254,7 @@ def update_pipeline_run(
     feeds_classified: int,
     common_items_classified: int,
     items_skipped: int,
+    insights_generated: int,
     errors: list[dict],
 ) -> None:
     client = get_client()
@@ -239,6 +265,7 @@ def update_pipeline_run(
             "feeds_classified": feeds_classified,
             "common_items_classified": common_items_classified,
             "items_skipped": items_skipped,
+            "insights_generated": insights_generated,
             "errors": errors,
             "finished_at": datetime.now(timezone.utc).isoformat(),
         }

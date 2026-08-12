@@ -8,10 +8,71 @@ const MONTHS = [
   'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
+function InsightCard({ insight, tickerItems, feedNames, itemsById }) {
+  if (!insight) return null;
+
+  const sourceIds = insight.based_on_feed_item_ids || [];
+  const tagCounts = feedNames.map((name) => ({
+    name,
+    count: tickerItems.filter((item) => item.feed_name === name).length,
+  }));
+
+  return (
+    <div className="insight-card">
+      <div className="insight-head">
+        <span className="insight-badge">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 0l2.2 7.6L22 10l-7.8 2.4L12 20l-2.2-7.6L2 10l7.8-2.4z" />
+          </svg>
+          Cross-feed insight
+        </span>
+        <span className="insight-meta">{new Date(insight.created_at).toLocaleDateString()}</span>
+      </div>
+      <p className="insight-text">{insight.insight_text}</p>
+      <div className="insight-foot">
+        {tagCounts.length > 0 && (
+          <div className="tags">
+            {tagCounts.map(({ name, count }) => (
+              <span key={name} className={count === 0 ? 'tag muted' : 'tag'}>
+                {name} · {count}
+              </span>
+            ))}
+          </div>
+        )}
+        {sourceIds.length > 0 && (
+          <details className="insight-sources">
+            <summary>{sourceIds.length} sources</summary>
+            <ul>
+              {sourceIds.map((id) => {
+                const src = itemsById.get(id);
+                if (!src) return null;
+                return (
+                  <li key={id}>
+                    {src.source_url ? (
+                      <a href={src.source_url} target="_blank" rel="noreferrer">
+                        {src.content_summary}
+                      </a>
+                    ) : (
+                      src.content_summary
+                    )}{' '}
+                    — {src.feed_name}
+                  </li>
+                );
+              })}
+            </ul>
+          </details>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function Alerts() {
   const { user, loading } = useRequireAuth();
   const [items, setItems] = useState([]);
   const [loadingItems, setLoadingItems] = useState(true);
+  const [insights, setInsights] = useState([]);
+  const [feeds, setFeeds] = useState([]);
 
   const [ticker, setTicker] = useState('all');
   const [year, setYear] = useState('all');
@@ -33,7 +94,51 @@ export default function Alerts() {
         if (!error) setItems(data);
         setLoadingItems(false);
       });
+
+    // ticker_insights holds insight_graph's cross-feed summary, one row per synthesis
+    // run - RLS ("select own insights") already scopes this to the signed-in user.
+    supabase
+      .from('ticker_insights')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .then(({ data, error }) => {
+        if (!error) setInsights(data);
+      });
+
+    // feeds (not user_feed_items) so a feed with zero matching items this period still
+    // shows up as a "· 0" tag on the insight card, instead of silently disappearing.
+    supabase
+      .from('feeds')
+      .select('*')
+      .then(({ data, error }) => {
+        if (!error) setFeeds(data);
+      });
   }, [user]);
+
+  // Only the most recent insight per ticker is shown - older ones stay in the table
+  // as history but aren't surfaced here.
+  const latestInsightByTicker = useMemo(() => {
+    const map = new Map();
+    for (const insight of insights) {
+      if (!map.has(insight.ticker)) map.set(insight.ticker, insight);
+    }
+    return map;
+  }, [insights]);
+
+  const itemsById = useMemo(() => {
+    const map = new Map();
+    for (const item of items) map.set(item.id, item);
+    return map;
+  }, [items]);
+
+  const feedNamesByTicker = useMemo(() => {
+    const map = new Map();
+    for (const feed of feeds) {
+      if (!map.has(feed.ticker)) map.set(feed.ticker, []);
+      map.get(feed.ticker).push(feed.feed_name);
+    }
+    return map;
+  }, [feeds]);
 
   const tickers = useMemo(() => {
     const set = new Set(items.map((i) => i.ticker).filter(Boolean));
@@ -147,6 +252,12 @@ export default function Alerts() {
             grouped.map(([tickerKey, tickerItems]) => (
               <div key={tickerKey} className="alerts-group">
                 <h3>{tickerKey}</h3>
+                <InsightCard
+                  insight={latestInsightByTicker.get(tickerKey)}
+                  tickerItems={tickerItems}
+                  feedNames={feedNamesByTicker.get(tickerKey) || []}
+                  itemsById={itemsById}
+                />
                 <ul className="alerts-list">
                   {tickerItems.map((item) => (
                     <li key={item.id}>

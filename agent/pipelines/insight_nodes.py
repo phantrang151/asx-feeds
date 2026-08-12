@@ -2,7 +2,12 @@ from langchain_anthropic import ChatAnthropic
 from langgraph.types import Command
 
 from config import ANALYSIS_MODEL, ANTHROPIC_API_KEY
-from db.queries import get_feeds_for_user, get_feed_items, insert_ticker_insight
+from db.queries import (
+    get_feeds_for_user,
+    get_feed_items,
+    get_common_feed_items,
+    insert_ticker_insight,
+)
 from agent.shared.synthesize import synthesize_insight
 
 from .insight_schemas import Plan
@@ -31,21 +36,27 @@ def planner_node(state):
 
 
 def execute_step_node(state):
-    """Executes the next un-run step of the plan: pulls stored feed_items for that feed.
+    """Executes the next un-run step of the plan: pulls stored items for that feed.
 
-    Known gap: get_feed_items() only reads feed_items, so a feed_type='common' feed
-    (see schema.sql) always contributes zero evidence here, since common-feed
-    classifications live in common_feed_items instead. Not fixed yet because this graph
-    is currently dormant (only invoked from scripts/seed_single_user.py, not wired to
-    any FastAPI route) - fix by reading from the user_feed_items view instead of
-    get_feed_items() directly once insight generation is actually wired up.
+    A 'common' feed's classified items live in common_feed_items (keyed by
+    common_feed_template_id + ticker), not feed_items (keyed by feed_id) - see
+    feeds.feed_type in schema.sql - so which table to read depends on the feed's type.
+    Getting this wrong silently starves the insight of evidence for any ticker whose
+    feeds are all common ones, which is common (a fresh ticker only gets the shared
+    common feeds until a user adds a custom one).
     """
     step_index = len(state["step_results"])
     feed_name = state["plan"][step_index]
 
     feeds = get_feeds_for_user(state["user_id"], state["ticker"])
     feed = next((f for f in feeds if f["feed_name"] == feed_name), None)
-    items = get_feed_items(feed["id"]) if feed else []
+
+    if not feed:
+        items = []
+    elif feed["feed_type"] == "common":
+        items = get_common_feed_items(feed["common_feed_template_id"], state["ticker"])
+    else:
+        items = get_feed_items(feed["id"])
 
     new_results = state["step_results"] + [{"step": feed_name, "items": items}]
     next_node = "execute_step" if len(new_results) < len(state["plan"]) else "synthesize"
