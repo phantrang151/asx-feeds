@@ -342,24 +342,14 @@ export default function Technical() {
               <p>
                 Doesn&apos;t evaluate the user&apos;s own reasoning at all. &quot;Thesis&quot; here means a
                 category the user defines to organize incoming news (Revenue Trend, Customer Churn); the system
-                classifies external news articles into those categories and answers questions using only
-                retrieved, cited evidence.
+                classifies external news articles into those categories, synthesizes what they add up to into
+                one connected insight per ticker, and answers questions using only retrieved, cited evidence.
               </p>
-              <p>Core mechanism: classifies and retrieves <b style={{ color: 'var(--ink)' }}>external evidence</b>.</p>
+              <p>
+                Core mechanism: classifies, synthesizes, and retrieves{' '}
+                <b style={{ color: 'var(--ink)' }}>external evidence</b>.
+              </p>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section style={{ borderBottom: 'none', paddingBottom: 100 }}>
-        <div className={styles.wrap}>
-          <div className={styles.eyebrow}>LINKS</div>
-          <div className={styles.linksRow}>
-            <span className={styles.linkChip}>Fig. 1 — Define a thesis<span className={styles.status}>image coming soon</span></span>
-            <span className={styles.linkChip}>Fig. 2 — Daily evidence<span className={styles.status}>image coming soon</span></span>
-            <span className={styles.linkChip}>Fig. 3 — Ask &amp; cite<span className={styles.status}>image coming soon</span></span>
-            <span className={styles.linkChip}>GitHub repository<span className={styles.status}>link coming soon</span></span>
-            <span className={styles.linkChip}>LinkedIn / contact<span className={styles.status}>link coming soon</span></span>
           </div>
         </div>
       </section>

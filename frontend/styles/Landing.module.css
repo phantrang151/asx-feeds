@@ -457,7 +457,6 @@
   font-style: italic;
   color: var(--ink-faint);
   font-size: 0.88rem;
-  max-width: 72ch;
 }
 .landing footer.siteFooter {
   padding: 28px 0 60px;
@@ -651,25 +650,3 @@
   }
 }
 
-.linksRow {
-  margin-top: 32px;
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
-}
-.linkChip {
-  font-family: var(--mono);
-  font-size: 0.78rem;
-  border: 1px solid var(--rule-strong);
-  border-radius: 3px;
-  padding: 10px 16px;
-  color: var(--ink-faint);
-}
-.linkChip .status {
-  display: block;
-  font-size: 0.65rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  margin-top: 3px;
-  color: var(--ink-faint);
-}
