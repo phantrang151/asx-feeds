@@ -1,7 +1,7 @@
 import yfinance as yf
 
 
-def search_news(ticker: str, max_results: int = 5) -> list[dict]:
+def search_news(ticker: str, max_results: int = 20) -> list[dict]:
     """Get recent news headlines for an ASX ticker using yfinance."""
     if not ticker:
         return []
