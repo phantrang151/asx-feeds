@@ -8,7 +8,8 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-variant-numeric: tabular-nums;
   background: #f7f7f5;
   color: #222;
   margin: 0;
@@ -81,7 +82,17 @@ button:disabled {
 
 .nav-links {
   display: flex;
+  align-items: center;
   gap: 16px;
+}
+
+.nav-brand {
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: none;
+  padding-right: 16px;
+  margin-right: 4px;
+  border-right: 1px solid #e0e0e0;
 }
 
 .nav-user {

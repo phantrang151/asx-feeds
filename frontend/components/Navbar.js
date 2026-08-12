@@ -15,6 +15,9 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="nav-links">
+        <Link href="/" className="nav-brand">
+          TickerThesis
+        </Link>
         <Link href="/dashboard">Dashboard</Link>
         <Link href="/alerts">Alerts</Link>
         {isAdmin && <Link href="/admin">Admin</Link>}

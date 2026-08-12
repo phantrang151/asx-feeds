@@ -19,8 +19,11 @@
   --shadow: rgba(23, 26, 32, 0.1);
   --up: #3F7855;
   --down: #A8432E;
-  --mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, "Roboto Mono", monospace;
-  --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  /* One font (Inter, loaded once in _document.js) for the whole app, landing included -
+     --mono and --serif are kept as names only so every existing rule that reaches for
+     "the label font" or "the body font" still works without being touched individually. */
+  --mono: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --serif: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -53,6 +56,7 @@
   font-family: var(--serif);
   font-size: 16px;
   line-height: 1.6;
+  font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
 }
@@ -304,7 +308,7 @@
 /* ---------- value props ---------- */
 .valueGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 1px;
   background: var(--rule);
   border: 1px solid var(--rule);
@@ -330,7 +334,12 @@
   font-size: 0.98rem;
   margin-top: 12px;
 }
-@media (max-width: 760px) {
+@media (max-width: 900px) {
+  .valueGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 560px) {
   .valueGrid {
     grid-template-columns: 1fr;
   }
