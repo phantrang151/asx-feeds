@@ -69,5 +69,9 @@ def search_financial_reports_tool(ticker: str, query: str):
         doc_id = m["document_id"]
         if doc_id not in urls_by_document:
             urls_by_document[doc_id] = _document_url(m["source_type"], m["source_url"], m["storage_path"])
-        references.append({"content": m["document_title"], "url": urls_by_document[doc_id]})
+        # "content" stays the short display label (filename) the frontend's citation
+        # list renders as link text (see AnswerBlock in AskQuestion.js) - "excerpt" carries
+        # the actual chunk text alongside it so judge_groundedness (eval/judge.py) has real
+        # evidence to check claims against, not just a filename.
+        references.append({"content": m["document_title"], "excerpt": m["content"], "url": urls_by_document[doc_id]})
     return content, references

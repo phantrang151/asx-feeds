@@ -46,8 +46,11 @@ def judge_groundedness(insight: str, evidence: list[dict]) -> GroundednessJudgme
     support'. Checks each claim in `insight` against `evidence` verbatim (no access to
     outside/parametric knowledge is implied to the judge - it's only asked to compare
     the two texts)."""
+    # Prefer "excerpt" (the actual retrieved text, when a tool's citation-display
+    # "content" is only a short label like a filename or headline - see
+    # search_financial_reports_tool in tools/react_tools.py) over "content" itself.
     evidence_text = "\n\n".join(
-        f"[{item.get('source', 'unknown')}] {item.get('content')}" for item in evidence
+        f"[{item.get('source', 'unknown')}] {item.get('excerpt') or item.get('content')}" for item in evidence
     )
     prompt = (
         "You are grading whether a generated financial insight is fully supported by "
