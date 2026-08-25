@@ -267,6 +267,8 @@ def _extract_tool_evidence(messages) -> list[dict]:
         items = getattr(msg, "artifact", None)
         if items:
             for item in items:
+                if item.get("visibility") == "internal":
+                    continue
                 evidence.append({"source": msg.name, "content": item["content"], "url": item.get("url")})
         else:
             evidence.append({"source": msg.name, "content": msg.content, "url": None})

@@ -51,6 +51,11 @@ def _require_internal_news(source_name: str) -> str | None:
     return None
 
 
+def _internal_tool_result(content: str) -> tuple[str, list[dict]]:
+    """Keep guardrail control messages available to the model, but mark them as non-evidence."""
+    return content, [{"content": content, "visibility": "internal", "outcome": "blocked"}]
+
+
 def _document_url(source_type: str, source_url: str | None, storage_path: str | None) -> str | None:
     """A pasted link cites its own URL directly. An uploaded file has no public URL -
     the documents bucket is private (see db/storage.py) - so it needs a signed URL
@@ -102,7 +107,7 @@ def search_internal_peer_news_tool(ticker: str, query: str):
     """
     blocked = _require_internal_news("search_internal_peer_news_tool")
     if blocked:
-        return blocked, []
+        return _internal_tool_result(blocked)
     gate = _research_gate.get()
     if gate and not gate.target_news_found:
         return "Peer news is blocked because no relevant target-company news was found.", []
@@ -138,7 +143,7 @@ def search_news_tool(ticker: str):
     """
     blocked = _require_internal_news("search_news_tool")
     if blocked:
-        return blocked, []
+        return _internal_tool_result(blocked)
     articles = _search_news(ticker)
     if not articles:
         return f"No recent news found for {ticker}.", []
@@ -168,7 +173,7 @@ def search_financial_reports_tool(ticker: str, query: str):
     e.g. query='revenue growth drivers' or query='reasons for profit increase'."""
     blocked = _require_internal_news("search_financial_reports_tool")
     if blocked:
-        return blocked, []
+        return _internal_tool_result(blocked)
     matches = match_document_chunks_for_embedding(ticker, embed(query), match_count=5)
     if not matches:
         return f"No uploaded financial report content found for {ticker}.", []
