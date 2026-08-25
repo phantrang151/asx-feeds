@@ -22,9 +22,12 @@ from agent.guardrails.advice_check import check_advice_avoidance
 from agent.guardrails.token_budget import TokenBudgetCallback, TokenBudgetExceededError
 from agent.shared.synthesize import synthesize_insight
 from tools.react_tools import (
+    search_internal_news_tool,
+    search_internal_peer_news_tool,
     search_news_tool,
     get_latest_price_tool,
     search_financial_reports_tool,
+    research_gate,
 )
 
 logger = logging.getLogger(__name__)
@@ -57,13 +60,27 @@ def _build_prompt(state, config, store):
         f"< Episodic examples (past analyses for this ticker) >\n{episodic}\n"
         f"</ Episodic examples >\n\n"
         "< Semantic memory >\n"
-        "Use the manage_memory / search_memory tools to store or retrieve durable facts "
-        "about this company as you reason (e.g. details about an outage or a strategic "
-        "change you learn about while researching).\n"
+        "The manage_memory / search_memory tools are optional bookkeeping on the side - use "
+        "them to store or retrieve durable facts about this company (e.g. details about an "
+        "outage or a strategic change) if useful. They are not research and calling them is "
+        "never a reason to stop: after a memory call, keep going with search_news_tool / "
+        "search_financial_reports_tool until you've actually met the evidence bar above, "
+        "then answer.\n"
         "</ Semantic memory >\n\n"
+        "Research source order is mandatory: first call search_internal_news_tool for the "
+        "target ticker. Use its cached company news if it answers the question. Only when "
+        "that evidence is missing, stale, or insufficient, call search_financial_reports_tool "
+        "for report-specific detail or search_news_tool for fresh external news. Use peer "
+        "company news only for an explicit comparison or industry-context question, using "
+        "search_internal_peer_news_tool after target-company internal news, and "
+        "never infer a target-company event from peer evidence. If the relevant source is "
+        "unavailable, say that evidence is insufficient.\n\n"
         "Prefer search_financial_reports_tool over general knowledge whenever the "
         "question could plausibly be answered by an admin-uploaded report - it searches "
-        "actual uploaded documents for this ticker, not just news headlines."
+        "actual uploaded documents for this ticker, not just news headlines. Once the relevant "
+        "evidence bar is met, stop retrieving and return only a concise research handoff; do "
+        "not spend another turn polishing a final answer because synthesize_insight() handles "
+        "the final response."
     )
     return [{"role": "system", "content": system_content}] + state["messages"]
 
@@ -82,6 +99,8 @@ def _make_react_agent(ticker: str):
     return create_react_agent(
         _llm,
         tools=[
+            search_internal_news_tool,
+            search_internal_peer_news_tool,
             search_news_tool,
             get_latest_price_tool,
             search_financial_reports_tool,
@@ -137,9 +156,20 @@ def conduct_analysis_node(state, config):
     }
 
     try:
-        result = react_agent.invoke({"messages": state["messages"]}, config=sub_config)
+        with research_gate():
+            result = react_agent.invoke({"messages": state["messages"]}, config=sub_config)
         evidence = _extract_tool_evidence(result["messages"])
-        insight = synthesize_insight(ticker, evidence, callbacks=react_callbacks)
+        # The ReAct loop's own final message is passed through as `draft_answer` rather than
+        # used directly - it can end on tool-bookkeeping narration (e.g. "I've saved this
+        # context...") instead of a real answer, since the loop only stops when the model
+        # emits a turn with no tool calls, not when it has actually finished answering. This
+        # dedicated synthesis call re-grounds the answer in the raw evidence, using the draft
+        # as a starting point to refine rather than trusting it outright.
+        draft_answer = result["messages"][-1].content
+        insight = synthesize_insight(
+            ticker, evidence, callbacks=react_callbacks,
+            question=current_question, draft_answer=draft_answer,
+        )
     except (GraphRecursionError, TokenBudgetExceededError) as e:
         # Cost/runaway-loop guardrails: no partial answer on abort - the react agent has
         # no checkpointer of its own between invoke calls, so there's nothing reliably

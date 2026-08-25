@@ -48,7 +48,7 @@ ADMIN_EMAILS = os.getenv("ADMIN_EMAILS")
 
 # Single-user testing mode: no auth yet, everything is scoped to this fixed id.
 # Swap this out for the real authenticated user id once auth is wired up.
-TEST_USER_ID = "00000000-0000-0000-0000-000000000001"
+TEST_USER_ID = "1df40f20-c5e1-4858-a7ad-0400f1afca63"
 
 MATCH_THRESHOLD_DEFAULT = 0.35
 

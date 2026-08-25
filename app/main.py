@@ -17,6 +17,8 @@ from db.queries import (
     create_feed,
     get_common_feed_template,
     update_feed,
+    delete_feed,
+    delete_ticker_for_user,
     set_feed_needs_rematch,
     log_token_usage,
     sum_recent_token_usage,
@@ -26,6 +28,7 @@ from db.queries import (
 )
 from db.storage import ensure_documents_bucket
 from agent.chat.graph import graph
+from agent.pipelines.insight_graph import synthesize_insight_for
 from agent.guardrails.rate_limit import enforce_rate_limit
 from agent.guardrails.daily_token_budget import enforce_daily_token_budget, DAILY_BUDGET_MESSAGE
 from agent.guardrails.token_budget import DailyTokenBudgetExceededError
@@ -131,6 +134,22 @@ class AskRequest(BaseModel):
     thread_id: str
 
 
+def _resynthesize_insight(user_id: str, ticker: str, action: str) -> None:
+    """
+    Re-runs the cross-feed insight for one (user, ticker) pair after a feed is removed, so
+    the new GOD summary no longer includes that feed. Feed creation deliberately does not
+    call this function; the next pipeline run classifies news for the new feed before
+    synthesis. Best-effort:
+    a synthesis failure (e.g. a transient LLM error) shouldn't fail the feed mutation itself,
+    which already succeeded by the time this runs - logged instead, same tolerance as the
+    orchestrator gives each ticker/pair it processes.
+    """
+    try:
+        synthesize_insight_for(user_id, ticker)
+    except Exception:
+        logger.exception("Insight re-synthesis failed after %s for %s/%s", action, user_id, ticker)
+
+
 @app.post("/api/feeds")
 def create_feed_endpoint(req: FeedCreateRequest, authorization: str = Header(...)):
     """
@@ -208,13 +227,42 @@ def refresh_feed_endpoint(feed_id: str, authorization: str = Header(...)):
     entire ticker_news history under its current description/threshold - lets a user see
     the effect of an edit on past news, not just newly-fetched articles. Not synchronous:
     the actual re-match happens on the next scheduled or admin-triggered pipeline run (see
-    classify_and_store_node).
+    classify_and_store).
     """
     user_id = get_user_id_from_token(authorization)
     feed = set_feed_needs_rematch(feed_id, user_id)
     if not feed:
         raise HTTPException(status_code=404, detail="Feed not found.")
     return feed
+
+
+@app.delete("/api/feeds/{feed_id}")
+def delete_feed_endpoint(feed_id: str, authorization: str = Header(...)):
+    """
+    Deletes a feed (either type - ownership is the only check, see delete_feed). Custom
+    feed_items are removed by the database foreign-key cascade; common feed items are
+    shared and remain available to other users. Re-synthesize after deletion so the next
+    ticker insight no longer includes the removed feed.
+    """
+    user_id = get_user_id_from_token(authorization)
+    feed = delete_feed(feed_id, user_id)
+    if not feed:
+        raise HTTPException(status_code=404, detail="Feed not found.")
+    _resynthesize_insight(user_id, feed["ticker"], "deleting a feed")
+    return {"status": "deleted"}
+
+
+@app.delete("/api/tickers/{ticker}")
+def delete_ticker_endpoint(ticker: str, authorization: str = Header(...)):
+    """Deletes this user's ticker, feeds, and custom feed-item connections, then
+    regenerates the ticker's GOD summary without the user's deleted feeds. Shared news
+    caches remain available to other users."""
+    user_id = get_user_id_from_token(authorization)
+    ticker = ticker.strip().upper()
+    if not delete_ticker_for_user(ticker, user_id):
+        raise HTTPException(status_code=404, detail="Ticker not found.")
+    _resynthesize_insight(user_id, ticker, "deleting a ticker")
+    return {"status": "deleted"}
 
 
 @app.post("/api/ask")

@@ -10,8 +10,8 @@ from datetime import datetime, timezone
 
 from config import TEST_USER_ID
 from tools.embeddings import embed
-from db.queries import get_feeds_for_user, create_feed, get_feed_items
-from agent.pipelines.news_ingestion_graph import news_fetch_and_cache_graph, feed_classification_graph
+from db.queries import get_feeds_for_user, create_feed, get_custom_feed_items
+from agent.pipelines.ingestion_steps import fetch_and_cache_news, classify_common_feeds, classify_and_store
 from agent.pipelines.insight_graph import insight_graph
 
 TICKER = "TLS.AX"
@@ -21,7 +21,9 @@ TICKER = "TLS.AX"
 FEED_DEFINITIONS = [
     (
         "Revenue trend",
-        "News and signals about whether Telstra's revenue is increasing or decreasing.",
+        "News and signals about Telstra's revenue performance, growth drivers, and composition, "
+        "including business segments, products, services, customers, geographic markets, pricing, "
+        "volumes, acquisitions, and other factors affecting revenue.",
     ),
     (
         "Profit trend",
@@ -57,25 +59,13 @@ def seed_feeds():
 
 
 def run_ingestion():
-    fetch_result = news_fetch_and_cache_graph.invoke(
-        {"ticker": TICKER, "articles_cached": 0, "common_classified_count": 0}
-    )
-    print(
-        f"Cached {fetch_result['articles_cached']} articles, "
-        f"classified {fetch_result['common_classified_count']} into common feeds."
-    )
+    articles_cached = fetch_and_cache_news(TICKER)
+    common_classified_count = classify_common_feeds(TICKER)
+    print(f"Cached {articles_cached} articles, classified {common_classified_count} into common feeds.")
 
     run_cutoff = datetime.now(timezone.utc).isoformat()
-    result = feed_classification_graph.invoke(
-        {
-            "user_id": TEST_USER_ID,
-            "ticker": TICKER,
-            "run_cutoff": run_cutoff,
-            "classified_count": 0,
-            "skipped_count": 0,
-        }
-    )
-    print(f"Classified {result['classified_count']} articles, skipped {result['skipped_count']}.")
+    classified_count, skipped_count = classify_and_store(TEST_USER_ID, TICKER, run_cutoff)
+    print(f"Classified {classified_count} articles, skipped {skipped_count}.")
 
 
 def run_insight_synthesis():
@@ -83,6 +73,7 @@ def run_insight_synthesis():
         {
             "user_id": TEST_USER_ID,
             "ticker": TICKER,
+            "items_by_feed": {},
             "plan": [],
             "step_results": [],
             "insight_text": None,
@@ -95,7 +86,7 @@ def run_insight_synthesis():
 
 def print_feed_items():
     for feed in get_feeds_for_user(TEST_USER_ID, ticker=TICKER):
-        items = get_feed_items(feed["id"])
+        items = get_custom_feed_items(feed["id"])
         print(f"\n=== {feed['feed_name']} ({len(items)} items) ===")
         for item in items:
             print(f"- {item['content_summary']}")

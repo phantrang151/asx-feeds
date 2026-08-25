@@ -1,7 +1,3 @@
--- Incremental migration for an existing Supabase project that already has the
--- pre-common-feeds schema.sql applied. Paste into the Supabase SQL editor and run once.
--- (For a brand-new project, just run the full schema.sql instead - this file only
--- covers the delta.)
 
 create table if not exists common_feed_templates (
   id uuid primary key default gen_random_uuid(),
@@ -29,6 +25,50 @@ create table if not exists ticker_news (
   created_at timestamptz not null default now(),
   unique (ticker, source_url)
 );
+
+alter table companies add column if not exists is_asx200 boolean not null default false;
+
+-- Remove the pre-peer-news overload so PostgREST resolves the current RPC
+-- unambiguously when the optional threshold and date arguments are supplied.
+drop function if exists match_ticker_news(vector, text[], integer);
+
+create or replace function match_ticker_news(
+  query_embedding vector(384),
+  match_tickers text[],
+  match_count int default 10,
+  similarity_threshold float default 0.6,
+  news_since timestamptz default now() - interval '6 months'
+)
+returns table (
+  id uuid,
+  ticker text,
+  title text,
+  publisher text,
+  source_url text,
+  published_at timestamptz,
+  similarity float
+)
+language sql stable
+as $$
+  with peer_news as materialized (
+    select id, ticker, title, publisher, source_url, published_at, content_embedding
+    from ticker_news
+    where ticker = any(match_tickers)
+      and published_at >= news_since
+  )
+  select
+    peer_news.id,
+    peer_news.ticker,
+    peer_news.title,
+    peer_news.publisher,
+    peer_news.source_url,
+    peer_news.published_at,
+    1 - (peer_news.content_embedding <=> query_embedding) as similarity
+  from peer_news
+  where 1 - (peer_news.content_embedding <=> query_embedding) >= similarity_threshold
+  order by peer_news.content_embedding <=> query_embedding
+  limit match_count;
+$$;
 
 create table if not exists common_feed_items (
   id uuid primary key default gen_random_uuid(),

@@ -12,10 +12,24 @@ function InsightCard({ insight, tickerItems, feedNames, itemsById }) {
   if (!insight) return null;
 
   const sourceIds = insight.based_on_feed_item_ids || [];
-  const tagCounts = feedNames.map((name) => ({
-    name,
-    count: tickerItems.filter((item) => item.feed_name === name).length,
-  }));
+  const feedSummaries = insight.feed_summaries || [];
+
+  // feed_summaries is '[]' on insights generated before per-feed sufficiency gating shipped
+  // (schema.sql's column default) - fall back to the old client-side count-only tags so
+  // those older insights don't silently lose their tag row.
+  const tagCounts =
+    feedSummaries.length > 0
+      ? feedSummaries.map((fs) => ({
+          name: fs.feed_name,
+          label: fs.status === 'insufficient' ? 'not enough evidence' : fs.item_count,
+          muted: fs.status === 'insufficient',
+        }))
+      : feedNames.map((name) => {
+          const count = tickerItems.filter((item) => item.feed_name === name).length;
+          return { name, label: count, muted: count === 0 };
+        });
+
+  const perFeedSummaries = feedSummaries.filter((fs) => fs.status === 'sufficient');
 
   return (
     <div className="insight-card">
@@ -32,9 +46,9 @@ function InsightCard({ insight, tickerItems, feedNames, itemsById }) {
       <div className="insight-foot">
         {tagCounts.length > 0 && (
           <div className="tags">
-            {tagCounts.map(({ name, count }) => (
-              <span key={name} className={count === 0 ? 'tag muted' : 'tag'}>
-                {name} · {count}
+            {tagCounts.map(({ name, label, muted }) => (
+              <span key={name} className={muted ? 'tag muted' : 'tag'}>
+                {name} · {label}
               </span>
             ))}
           </div>
@@ -59,6 +73,18 @@ function InsightCard({ insight, tickerItems, feedNames, itemsById }) {
                   </li>
                 );
               })}
+            </ul>
+          </details>
+        )}
+        {perFeedSummaries.length > 0 && (
+          <details className="insight-sources">
+            <summary>Per-feed summaries</summary>
+            <ul>
+              {perFeedSummaries.map((fs) => (
+                <li key={fs.feed_name}>
+                  <strong>{fs.feed_name}:</strong> {fs.summary}
+                </li>
+              ))}
             </ul>
           </details>
         )}

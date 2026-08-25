@@ -4,6 +4,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 
 from app.auth import require_admin
+from agent.pipelines.insight_graph import synthesize_insight_for
 from agent.pipelines.orchestrator import run_ingestion_for_all_watchlisted_tickers
 from db.client import get_client
 from db.storage import DOCUMENTS_BUCKET
@@ -18,6 +19,7 @@ from db.queries import (
     get_recent_eval_runs,
     get_efficiency_summary,
     get_recent_ops_alerts,
+    get_all_watchlist_entries,
 )
 from eval.run_generation_eval import run_generation_eval
 from eval.score_guardrails import run_guardrail_eval
@@ -53,6 +55,34 @@ def trigger_pipeline(admin_user_id: str = Depends(require_admin)):
     """Runs the ingestion pipeline for every watchlisted ticker right now, synchronously,
     and returns the summary. See orchestrator.py for why this is a blocking call for now."""
     return run_ingestion_for_all_watchlisted_tickers()
+
+
+@router.post("/pipeline/debug-planner")
+def debug_planner(ticker: str, admin_user_id: str = Depends(require_admin)):
+    """Reruns the insight planner for one ticker using existing classified news. This
+    deliberately skips fetching and classification so an unchanged ticker can be
+    breakpoint-tested without changing ingestion state."""
+    ticker = ticker.strip().upper()
+    if not ASX_TICKER_PATTERN.fullmatch(ticker):
+        raise HTTPException(status_code=422, detail="Ticker must be a Yahoo Finance ASX symbol, e.g. CBA.AX.")
+
+    user_ids = sorted({
+        entry["user_id"]
+        for entry in get_all_watchlist_entries()
+        if entry["ticker"] == ticker
+    })
+    if not user_ids:
+        raise HTTPException(status_code=404, detail=f"No users are watching {ticker}.")
+
+    results = []
+    for user_id in user_ids:
+        try:
+            synthesize_insight_for(user_id, ticker)
+            results.append({"user_id": user_id, "status": "success"})
+        except Exception as error:
+            results.append({"user_id": user_id, "status": "failed", "error": str(error)})
+
+    return {"ticker": ticker, "users_processed": len(user_ids), "results": results}
 
 
 @router.get("/pipeline/runs")

@@ -94,9 +94,18 @@ export default function TickerFeedsList({ tickers, feeds, onFeedDeleted, onTicke
 
   async function handleDeleteFeed(feedId) {
     if (!window.confirm('Delete this feed? Its alert history will be deleted too.')) return;
-    const { error } = await supabase.from('feeds').delete().eq('id', feedId);
-    if (error) {
-      window.alert(error.message);
+    // Goes through the backend (not a direct Supabase delete) so feed_items cascade and
+    // the ticker's GOD summary is rebuilt without this feed.
+    let res;
+    try {
+      res = await authedFetch(`/api/feeds/${feedId}`, { method: 'DELETE' });
+    } catch (err) {
+      window.alert('Could not reach the API - is it running on ' + API_URL + '?');
+      return;
+    }
+    if (!res.ok) {
+      const resBody = await res.json().catch(() => ({}));
+      window.alert(resBody.detail || 'Failed to delete feed.');
       return;
     }
     onFeedDeleted();
@@ -105,28 +114,16 @@ export default function TickerFeedsList({ tickers, feeds, onFeedDeleted, onTicke
   async function handleDeleteTicker(ticker) {
     if (!window.confirm(`Delete ${ticker} and all of its feeds? This can't be undone.`)) return;
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    // Feeds first, then the watchlist row: feeds.ticker isn't FK'd to watchlist_stocks,
-    // so deleting the watchlist row alone would silently orphan this user's feeds for
-    // this ticker. If the second delete fails, the ticker stays listed with no feeds
-    // under it - a visible, re-triggerable state - rather than the reverse (orphaned
-    // feeds with no ticker row left to attach a delete button to).
-    const { error: feedsError } = await supabase.from('feeds').delete().eq('user_id', user.id).eq('ticker', ticker);
-    if (feedsError) {
-      window.alert(feedsError.message);
+    let res;
+    try {
+      res = await authedFetch(`/api/tickers/${encodeURIComponent(ticker)}`, { method: 'DELETE' });
+    } catch (err) {
+      window.alert('Could not reach the API - is it running on ' + API_URL + '?');
       return;
     }
-
-    const { error: watchlistError } = await supabase
-      .from('watchlist_stocks')
-      .delete()
-      .eq('user_id', user.id)
-      .eq('ticker', ticker);
-    if (watchlistError) {
-      window.alert(watchlistError.message);
+    if (!res.ok) {
+      const resBody = await res.json().catch(() => ({}));
+      window.alert(resBody.detail || 'Failed to delete ticker.');
       return;
     }
 

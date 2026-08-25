@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import logging
 
 from db.queries import (
     get_all_watchlist_entries,
@@ -7,32 +8,121 @@ from db.queries import (
     create_pipeline_run,
     update_pipeline_run,
 )
-from .news_ingestion_graph import news_fetch_and_cache_graph, feed_classification_graph
-from .insight_graph import insight_graph
+from .ingestion_steps import (
+    fetch_and_cache_news,
+    classify_common_feeds,
+    classify_and_store,
+    ensure_company_sector_cached,
+)
+from .insight_graph import synthesize_insight_for
+
+logger = logging.getLogger(__name__)
+
+
+def _fetch_and_classify_common(tickers: list[str], errors: list[dict]) -> tuple[int, set[str]]:
+    """Phases 1 and 1.5: fetch + cache each ticker's news ONCE (not once per user
+    watching it), then classify newly-cached articles against the shared common feed
+    templates, once per ticker regardless of how many users have a common feed on it.
+    Returns the total common-feed items classified and the set of tickers that got at
+    least one, for phase 3 to use as an insight-regeneration trigger."""
+    total_common_classified = 0
+    tickers_with_new_common_items = set()
+
+    for ticker in tickers:
+        try:
+            fetch_and_cache_news(ticker)
+            ensure_company_sector_cached(ticker)
+            common_classified_count = classify_common_feeds(ticker)
+            total_common_classified += common_classified_count
+            if common_classified_count > 0:
+                tickers_with_new_common_items.add(ticker)
+        except Exception as e:
+            error = {"ticker": ticker, "phase": "fetch_and_cache", "error": str(e)}
+            logger.exception("Pipeline failed for %s during %s", ticker, error["phase"])
+            errors.append(error)
+
+    return total_common_classified, tickers_with_new_common_items
+
+
+def _classify_custom_feeds(
+    entries: list[dict],
+    run_cutoff: str,
+    tickers_with_new_common_items: set[str],
+    errors: list[dict],
+) -> tuple[int, int, list[dict]]:
+    """Phase 2: classify each user's CUSTOM feeds against the cache - the only phase
+    that still loops per (user, ticker) pair, and the only one that calls an LLM per
+    user. Returns the totals classified/skipped, and the entries that need their
+    insight regenerated: those with new custom-feed evidence this run, a new
+    common-feed item from phase 1.5, or no insight generated yet at all (a one-time
+    backfill for evidence classified before insight_graph existed)."""
+    existing_insight_pairs = {
+        (row["user_id"], row["ticker"]) for row in get_ticker_insight_pairs()
+    }
+
+    total_classified = 0
+    total_skipped = 0
+    entries_needing_insight = []
+
+    for entry in entries:
+        try:
+            classified_count, skipped_count = classify_and_store(
+                entry["user_id"], entry["ticker"], run_cutoff
+            )
+            total_classified += classified_count
+            total_skipped += skipped_count
+            pair = (entry["user_id"], entry["ticker"])
+            if (
+                classified_count > 0
+                or entry["ticker"] in tickers_with_new_common_items
+                or pair not in existing_insight_pairs
+            ):
+                entries_needing_insight.append(entry)
+        except Exception as e:
+            error = {
+                "user_id": entry["user_id"],
+                "ticker": entry["ticker"],
+                "phase": "classify",
+                "error": str(e),
+            }
+            logger.exception("Pipeline failed for %s during %s", entry["ticker"], error["phase"])
+            errors.append(error)
+
+    return total_classified, total_skipped, entries_needing_insight
+
+
+def _synthesize_insights(entries_needing_insight: list[dict], errors: list[dict]) -> int:
+    """Phase 4: re-synthesize insight_graph's cross-feed insight for each (user,
+    ticker) pair phase 2 flagged as needing it. Once a pair has its first insight,
+    it's only regenerated on genuine change, so repeat admin clicks don't burn one
+    more LLM call per watchlisted ticker for nothing."""
+    total_insights_generated = 0
+
+    for entry in entries_needing_insight:
+        try:
+            synthesize_insight_for(entry["user_id"], entry["ticker"])
+            total_insights_generated += 1
+        except Exception as e:
+            error = {
+                "user_id": entry["user_id"],
+                "ticker": entry["ticker"],
+                "phase": "insight_synthesis",
+                "error": str(e),
+            }
+            logger.exception("Pipeline failed for %s during %s", entry["ticker"], error["phase"])
+            errors.append(error)
+
+    return total_insights_generated
 
 
 def run_ingestion_for_all_watchlisted_tickers() -> dict:
     """
-    Four phases, in order. This is the single function both a scheduled cron job AND
-    the admin 'trigger now' button call - one orchestrator, two triggers - so the logic
-    for "what counts as a run" only lives in one place. Each ticker's/pair's failure is
-    caught individually so one bad one doesn't take down the whole run.
-
-      1. Fetch + cache each distinct watchlisted ticker's news ONCE - not once per user
-         watching it.
-      2. Classify each newly-cached article against the shared common feed templates,
-         once per ticker, regardless of how many users have a common feed on it.
-      3. Classify each user's CUSTOM feeds against the cache - the only phase that still
-         loops per (user, ticker) pair, and the only one that calls an LLM per user.
-      4. Re-synthesize insight_graph's cross-feed insight for each (user, ticker) pair
-         that either saw new evidence this run (a new custom-feed item from phase 3, or
-         a new common-feed item on that ticker from phase 2) or has never had an insight
-         generated at all. That second condition is a one-time backfill for evidence
-         that was already classified before this phase existed - without it, a pair
-         with old feed_items but zero ticker_insights rows would wait forever for the
-         "new evidence" condition to fire again. Once a pair has its first insight, it's
-         only regenerated on genuine change, so repeat admin clicks don't burn one more
-         LLM call per watchlisted ticker for nothing.
+    Four phases, in order (see _fetch_and_classify_common, _classify_custom_feeds, and
+    _synthesize_insights for what each one does). This is the single function both a
+    scheduled cron job AND the admin 'trigger now' button call - one orchestrator, two
+    triggers - so the logic for "what counts as a run" only lives in one place. Each
+    ticker's/pair's failure is caught individually so one bad one doesn't take down the
+    whole run.
 
     run_cutoff is captured once, after phases 1-2 finish and before phase 3 starts, and
     used as both phase 3's read-bound and write-bound - so every article cached earlier
@@ -48,80 +138,17 @@ def run_ingestion_for_all_watchlisted_tickers() -> dict:
 
     tickers = get_distinct_watchlisted_tickers()
     entries = get_all_watchlist_entries()
-
-    total_common_classified = 0
-    total_classified = 0
-    total_skipped = 0
-    total_insights_generated = 0
     errors = []
 
-    tickers_with_new_common_items = set()
-
-    for ticker in tickers:
-        try:
-            result = news_fetch_and_cache_graph.invoke(
-                {"ticker": ticker, "articles_cached": 0, "common_classified_count": 0}
-            )
-            total_common_classified += result["common_classified_count"]
-            if result["common_classified_count"] > 0:
-                tickers_with_new_common_items.add(ticker)
-        except Exception as e:
-            errors.append({"ticker": ticker, "phase": "fetch_and_cache", "error": str(e)})
+    total_common_classified, tickers_with_new_common_items = _fetch_and_classify_common(tickers, errors)
 
     run_cutoff = datetime.now(timezone.utc).isoformat()
 
-    existing_insight_pairs = {
-        (row["user_id"], row["ticker"]) for row in get_ticker_insight_pairs()
-    }
-    entries_needing_insight = []
+    total_classified, total_skipped, entries_needing_insight = _classify_custom_feeds(
+        entries, run_cutoff, tickers_with_new_common_items, errors
+    )
 
-    for entry in entries:
-        try:
-            result = feed_classification_graph.invoke(
-                {
-                    "user_id": entry["user_id"],
-                    "ticker": entry["ticker"],
-                    "run_cutoff": run_cutoff,
-                    "classified_count": 0,
-                    "skipped_count": 0,
-                }
-            )
-            total_classified += result["classified_count"]
-            total_skipped += result["skipped_count"]
-            pair = (entry["user_id"], entry["ticker"])
-            if (
-                result["classified_count"] > 0
-                or entry["ticker"] in tickers_with_new_common_items
-                or pair not in existing_insight_pairs
-            ):
-                entries_needing_insight.append(entry)
-        except Exception as e:
-            errors.append(
-                {"user_id": entry["user_id"], "ticker": entry["ticker"], "phase": "classify", "error": str(e)}
-            )
-
-    for entry in entries_needing_insight:
-        try:
-            insight_graph.invoke(
-                {
-                    "user_id": entry["user_id"],
-                    "ticker": entry["ticker"],
-                    "plan": [],
-                    "step_results": [],
-                    "insight_text": None,
-                    "based_on_feed_item_ids": [],
-                }
-            )
-            total_insights_generated += 1
-        except Exception as e:
-            errors.append(
-                {
-                    "user_id": entry["user_id"],
-                    "ticker": entry["ticker"],
-                    "phase": "insight_synthesis",
-                    "error": str(e),
-                }
-            )
+    total_insights_generated = _synthesize_insights(entries_needing_insight, errors)
 
     if not errors:
         status = "success"

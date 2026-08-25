@@ -128,6 +128,10 @@ button:disabled {
   .dashboard-grid {
     grid-template-columns: 1fr;
   }
+
+  .planner-debug-form {
+    max-width: none;
+  }
 }
 
 section {
@@ -141,6 +145,21 @@ section {
   display: flex;
   gap: 8px;
   margin-bottom: 12px;
+}
+
+.planner-debug-form {
+  align-items: stretch;
+  max-width: 620px;
+}
+
+.planner-debug-form input {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.planner-debug-form button {
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .stacked-form {

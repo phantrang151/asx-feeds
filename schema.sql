@@ -137,8 +137,20 @@ create table if not exists financial_records (
 create table if not exists companies (
   ticker text primary key,          -- Yahoo Finance ASX format, e.g. 'TLS.AX'
   company_name text not null,
+  is_asx200 boolean not null default false,
   created_at timestamptz not null default now()
 );
+
+-- Sector/industry cache, lazily populated for EVERY watchlisted ticker (not just the
+-- top-200 seed above) by ingestion_steps.py's ensure_company_sector_cached during phase
+-- 1 of the pipeline - so insight_nodes.py's peer-ticker lookup at synthesis time is
+-- DB-only, never a live yfinance call mid-graph-run. sector_fetched_at is stamped even
+-- when the fetch found no sector (both left null) - a ticker yfinance genuinely has no
+-- classification for shouldn't cost a live API call on every single pipeline run.
+alter table companies add column if not exists sector text;
+alter table companies add column if not exists industry text;
+alter table companies add column if not exists sector_fetched_at timestamptz;
+alter table companies add column if not exists is_asx200 boolean not null default false;
 
 -- Admin-uploaded source material (files or pasted links) for a ticker, run through
 -- extraction -> chunking -> embedding so a future analysis tool can retrieve report
@@ -230,14 +242,65 @@ as $$
   limit match_count;
 $$;
 
+-- Multi-ticker sibling of match_document_chunks() above: closest-matching ticker_news
+-- rows across a SET of tickers (peer tickers in the same sector) for a query embedding.
+-- Used by insight_nodes.py's execute_step_node for feeds the LLM decided need
+-- peer-ticker news - the feed's own ticker is never included in match_tickers, since
+-- that's already covered by items_by_feed. Same materialized-CTE-first shape as
+-- match_document_chunks, for the same reason (see its comment above).
+create or replace function match_ticker_news(
+  query_embedding vector(384),
+  match_tickers text[],
+  match_count int default 10,
+  similarity_threshold float default 0.6,
+  news_since timestamptz default now() - interval '6 months'
+)
+returns table (
+  id uuid,
+  ticker text,
+  title text,
+  publisher text,
+  source_url text,
+  published_at timestamptz,
+  similarity float
+)
+language sql stable
+as $$
+  with peer_news as materialized (
+    select id, ticker, title, publisher, source_url, published_at, content_embedding
+    from ticker_news
+    where ticker = any(match_tickers)
+      and published_at >= news_since
+  )
+  select
+    peer_news.id,
+    peer_news.ticker,
+    peer_news.title,
+    peer_news.publisher,
+    peer_news.source_url,
+    peer_news.published_at,
+    1 - (peer_news.content_embedding <=> query_embedding) as similarity
+  from peer_news
+  where 1 - (peer_news.content_embedding <=> query_embedding) >= similarity_threshold
+  order by peer_news.content_embedding <=> query_embedding
+  limit match_count;
+$$;
+
 create table if not exists ticker_insights (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
   ticker text not null,
   insight_text text not null,
   based_on_feed_item_ids uuid[] not null default '{}',
+  -- Per-feed breakdown backing insight_text: [{feed_name, status: "sufficient" |
+  -- "insufficient", summary, item_count, item_ids}, ...] - see synthesize_node in
+  -- agent/pipelines/insight_nodes.py. '[]' on rows written before this column existed.
+  feed_summaries jsonb not null default '[]',
   created_at timestamptz not null default now()
 );
+-- Safe to re-run against a database created before per-feed sufficiency gating - see the
+-- insights_generated migration above for the same pattern.
+alter table ticker_insights add column if not exists feed_summaries jsonb not null default '[]';
 
 -- One row per eval run (see eval/score_classification.py, eval/run_generation_eval.py,
 -- eval/score_guardrails.py, eval/run_live_sample_eval.py) - what the admin page's

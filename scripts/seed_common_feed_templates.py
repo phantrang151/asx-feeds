@@ -12,7 +12,9 @@ from db.queries import upsert_common_feed_template
 TEMPLATE_DEFINITIONS = [
     (
         "Revenue Trend",
-        "News and signals about whether the company's revenue is increasing or decreasing.",
+        "News and signals about the company's revenue performance, growth drivers, and composition, "
+        "including business segments, products, services, customers, geographic markets, pricing, "
+        "volumes, acquisitions, and other factors affecting revenue.",
     ),
     (
         "Business Strategy",

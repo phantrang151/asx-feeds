@@ -1,7 +1,6 @@
 from datetime import datetime, timezone
 
 from langchain_anthropic import ChatAnthropic
-from langgraph.types import Command
 
 from config import ROUTER_MODEL, ANTHROPIC_API_KEY
 from tools.search import search_news
@@ -20,9 +19,11 @@ from db.queries import (
     delete_feed_items,
     reset_feed_watermarks,
     clear_feeds_needs_rematch,
+    get_company,
+    get_company_sector,
+    upsert_company_sector,
 )
-
-from .schemas import FetchState, ClassifyState
+from tools.companies import fetch_sector_industry_live
 
 
 def _parse_published_at(published) -> str | None:
@@ -35,10 +36,10 @@ def _parse_published_at(published) -> str | None:
     return str(published)
 
 
-def fetch_and_cache_news_node(state: FetchState):
+def fetch_and_cache_news(ticker: str) -> int:
     """Phase 1: pull this ticker's latest headlines ONCE - not once per user watching
-    it - and cache them in ticker_news, embedding every title in a single batch call."""
-    ticker = state["ticker"]
+    it - and cache them in ticker_news, embedding every title in a single batch call.
+    Returns the number of articles cached."""
     articles = [a for a in search_news(ticker) if a.get("title")]
 
     embeddings = embed_batch([a["title"] for a in articles]) if articles else []
@@ -56,14 +57,14 @@ def fetch_and_cache_news_node(state: FetchState):
     ]
 
     upsert_ticker_news(rows)
-    return Command(update={"articles_cached": len(rows)})
+    return len(rows)
 
 
-def classify_common_feeds_node(state: FetchState):
+def classify_common_feeds(ticker: str) -> int:
     """Phase 1.5: match this ticker's not-yet-evaluated cached news against the shared
     common feed templates (top-1, same pattern as custom-feed matching below) - runs
-    once per ticker regardless of how many users have a common feed on it."""
-    ticker = state["ticker"]
+    once per ticker regardless of how many users have a common feed on it. Returns the
+    number of articles classified into a common feed."""
     articles = get_unclassified_ticker_news(ticker)
 
     common_classified = 0
@@ -83,24 +84,36 @@ def classify_common_feeds_node(state: FetchState):
 
     run_cutoff = datetime.now(timezone.utc).isoformat()
     mark_ticker_news_common_classified([a["id"] for a in articles], run_cutoff)
-    return Command(update={"common_classified_count": common_classified})
+    return common_classified
 
 
-def classify_and_store_node(state: ClassifyState):
+def ensure_company_sector_cached(ticker: str) -> None:
+    """Phase 1 addition: lazily backfills companies.sector/industry for this ticker, so
+    insight_nodes.py's peer-ticker lookup at synthesis time is DB-only. No-op if already
+    attempted (get_company_sector returning a row means sector_fetched_at is set, even if
+    the fetch found no sector) - stamped either way so a ticker yfinance genuinely has no
+    classification for isn't retried every single pipeline run."""
+    if get_company_sector(ticker) is not None:
+        return
+
+    sector, industry = fetch_sector_industry_live(ticker)
+    existing = get_company(ticker)
+    company_name = existing["company_name"] if existing else ticker
+    upsert_company_sector(ticker, company_name, sector, industry, datetime.now(timezone.utc).isoformat())
+
+
+def classify_and_store(user_id: str, ticker: str, run_cutoff: str) -> tuple[int, int]:
     """
     Phase 2: for this user's CUSTOM feeds on this ticker, classify the ticker_news cached
     since each feed was last classified (or its full cached history, on a feed's first
     run - a brand-new feed on a long-tracked ticker still needs to see everything).
-    Common feeds are handled entirely by classify_common_feeds_node and never reach here.
+    Common feeds are handled entirely by classify_common_feeds and never reach here.
+    Returns (classified_count, skipped_count).
     """
-    user_id = state["user_id"]
-    ticker = state["ticker"]
-    run_cutoff = state["run_cutoff"]
-
     feeds = get_feeds_for_user(user_id, ticker)
     custom_feeds = [f for f in feeds if f["feed_type"] == "custom"]
     if not custom_feeds:
-        return Command(update={"classified_count": 0, "skipped_count": 0})
+        return 0, 0
 
     # A feed flagged by the user's "Refresh" action (after editing its description or
     # threshold) gets its existing feed_items wiped and its watermark treated as unset for
@@ -158,7 +171,7 @@ def classify_and_store_node(state: ClassifyState):
     bulk_update_feed_last_classified_at([f["id"] for f in custom_feeds], run_cutoff)
     if refreshing_ids:
         clear_feeds_needs_rematch(refreshing_ids)
-    return Command(update={"classified_count": classified, "skipped_count": skipped})
+    return classified, skipped
 
 
 def _summarize_for_feed(article: dict, feed_name: str, feed_description: str) -> str:
@@ -172,4 +185,9 @@ def _summarize_for_feed(article: dict, feed_name: str, feed_description: str) ->
         "In one sentence, explain why this news item is relevant to this feed."
     )
     response = llm.invoke(prompt)
-    return response.content.strip()
+    content = response.content
+    if isinstance(content, list):
+        content = "".join(
+            block.get("text", "") for block in content if isinstance(block, dict) and block.get("type") == "text"
+        )
+    return content.strip()

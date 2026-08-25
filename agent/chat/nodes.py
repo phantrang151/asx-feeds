@@ -1,3 +1,4 @@
+import re
 from typing import Optional
 
 from langchain_anthropic import ChatAnthropic
@@ -12,6 +13,18 @@ from agent.guardrails.advice_check import keyword_scan_advice_seeking
 from agent.guardrails.tickers import validate_ticker
 from config import ROUTER_MODEL, ANTHROPIC_API_KEY
 from tools.search import search_news
+
+_LATEST_NEWS_QUERY = re.compile(r"\b(latest|recent)\s+news\b|\bnews\s+(on|about)\b", re.IGNORECASE)
+_ASX_TICKER = re.compile(r"\b([A-Z0-9]{1,6}\.AX)\b", re.IGNORECASE)
+_ANALYSIS_WORDS = re.compile(r"\b(why|how|compare|comparison|strategy|trend|revenue|profit|report|versus|vs)\b", re.IGNORECASE)
+
+
+def _latest_news_ticker(question: str) -> Optional[str]:
+    """Return an explicit ASX ticker only for an unambiguous latest-news lookup."""
+    if not _LATEST_NEWS_QUERY.search(question) or _ANALYSIS_WORDS.search(question):
+        return None
+    match = _ASX_TICKER.search(question)
+    return match.group(1).upper() if match else None
 
 
 def _declined(ticker: Optional[str], message: str, **trace_fields) -> Command:
@@ -67,6 +80,21 @@ def router_node(state: State, config):
         regex_matches = keyword_scan_advice_seeking(question)
     if regex_matches:
         return _declined(None, decline_messages.ADVICE_SEEKING, input_guardrail_regex_matched=True)
+
+    # Known-shape latest-news requests with an explicit ticker do not need the router LLM:
+    # the response is a direct Yahoo Finance headline list and the fetch itself uses no
+    # LLM tokens. Ambiguous wording or company-name-only requests stay on the normal route.
+    latest_ticker = _latest_news_ticker(question)
+    if latest_ticker and validate_ticker(latest_ticker):
+        return Command(
+            goto="search_news",
+            update={
+                "ticker": latest_ticker,
+                "category": "search_news",
+                "input_guardrail_regex_matched": False,
+                "input_guardrail_llm_is_advice": None,
+            },
+        )
 
     # Daily per-user token budget (see agent/guardrails/daily_token_budget.py) - shared
     # across every LLM call this whole /api/ask request makes, not just this one, so

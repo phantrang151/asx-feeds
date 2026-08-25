@@ -92,10 +92,46 @@ def update_feed(
     return result.data[0] if result.data else None
 
 
+def delete_feed(feed_id: str, user_id: str) -> Optional[dict]:
+    """Deletes one feed, scoped to ownership only (unlike update_feed, common feeds are
+    deletable too - the frontend's delete button shows for both feed types). Cascades to
+    the feed's feed_items via schema.sql's ON DELETE CASCADE. Returns the deleted row (so
+    the caller has its ticker to re-synthesize the cross-feed insight with) or None if it
+    didn't exist / wasn't the caller's."""
+    client = get_client()
+    result = (
+        client.table("feeds")
+        .delete()
+        .eq("id", feed_id)
+        .eq("user_id", user_id)
+        .select("*")
+        .execute()
+    )
+    return result.data[0] if result.data else None
+
+
+def delete_ticker_for_user(ticker: str, user_id: str) -> bool:
+    """Deletes this user's feeds and watchlist row for a ticker. Feed-item rows cascade
+    from feed deletion; shared ticker and common-feed news are intentionally retained."""
+    client = get_client()
+    feeds = client.table("feeds").select("id").eq("user_id", user_id).eq("ticker", ticker).execute().data
+    had_feeds = bool(feeds)
+    client.table("feeds").delete().eq("user_id", user_id).eq("ticker", ticker).execute()
+    result = (
+        client.table("watchlist_stocks")
+        .delete()
+        .eq("user_id", user_id)
+        .eq("ticker", ticker)
+        .select("id")
+        .execute()
+    )
+    return had_feeds or bool(result.data)
+
+
 def set_feed_needs_rematch(feed_id: str, user_id: str) -> Optional[dict]:
     """Flags a custom feed so the next pipeline run wipes its feed_items and re-matches its
     entire ticker_news history under its current description/threshold (see
-    classify_and_store_node). Same ownership+custom-only scoping as update_feed."""
+    classify_and_store). Same ownership+custom-only scoping as update_feed."""
     client = get_client()
     result = (
         client.table("feeds")
@@ -168,7 +204,7 @@ def insert_feed_item(
     return result.data[0]
 
 
-def get_feed_items(feed_id: str) -> list[dict]:
+def get_custom_feed_items(feed_id: str) -> list[dict]:
     client = get_client()
     return (
         client.table("feed_items")
@@ -183,7 +219,7 @@ def get_feed_items(feed_id: str) -> list[dict]:
 def get_common_feed_items(common_feed_template_id: str, ticker: str) -> list[dict]:
     """A 'common' feed's items - unlike a custom feed, these never land in feed_items
     (see feeds.feed_type in schema.sql), so a caller walking a user's feeds needs this
-    instead of get_feed_items() whenever feed_type == 'common'."""
+    instead of get_custom_feed_items() whenever feed_type == 'common'."""
     client = get_client()
     return (
         client.table("common_feed_items")
@@ -197,7 +233,11 @@ def get_common_feed_items(common_feed_template_id: str, ticker: str) -> list[dic
 
 
 def insert_ticker_insight(
-    user_id: str, ticker: str, insight_text: str, based_on_feed_item_ids: list[str]
+    user_id: str,
+    ticker: str,
+    insight_text: str,
+    based_on_feed_item_ids: list[str],
+    feed_summaries: list[dict],
 ) -> dict:
     client = get_client()
     result = (
@@ -208,6 +248,7 @@ def insert_ticker_insight(
                 "ticker": ticker,
                 "insight_text": insight_text,
                 "based_on_feed_item_ids": based_on_feed_item_ids,
+                "feed_summaries": feed_summaries,
             }
         )
         .execute()
@@ -385,7 +426,7 @@ def bulk_update_feed_last_classified_at(feed_ids: list[str], run_cutoff: str) ->
 
 def delete_feed_items(feed_ids: list[str]) -> None:
     """Wipes every feed_item for these feeds - the first step of a user-requested refresh,
-    before classify_and_store_node re-matches the feed's full ticker_news history."""
+    before classify_and_store re-matches the feed's full ticker_news history."""
     if not feed_ids:
         return
     client = get_client()
@@ -396,7 +437,7 @@ def reset_feed_watermarks(feed_ids: list[str]) -> None:
     """Nulls last_classified_at for these feeds - the second step of a user-requested
     refresh. match_feed_for_embedding reads last_classified_at fresh from the DB on every
     call, so this (not just an in-memory change) is what actually makes
-    classify_and_store_node stop skipping the feed's already-seen articles this run."""
+    classify_and_store stop skipping the feed's already-seen articles this run."""
     if not feed_ids:
         return
     client = get_client()
@@ -404,7 +445,7 @@ def reset_feed_watermarks(feed_ids: list[str]) -> None:
 
 
 def clear_feeds_needs_rematch(feed_ids: list[str]) -> None:
-    """Clears the refresh flag once classify_and_store_node has actually re-matched these
+    """Clears the refresh flag once classify_and_store has actually re-matched these
     feeds' full history in this run."""
     if not feed_ids:
         return
@@ -522,6 +563,34 @@ def match_document_chunks_for_embedding(
     return result.data
 
 
+def match_ticker_news_for_embedding(
+    tickers: list[str],
+    embedding: list[float],
+    match_count: int = 10,
+    similarity_threshold: float = 0.6,
+    news_since: Optional[str] = None,
+) -> list[dict]:
+    """Calls match_ticker_news() - pgvector cosine-similarity search over ticker_news
+    across MULTIPLE tickers (peer tickers), unlike match_document_chunks_for_embedding's
+    single-ticker match. Skips the round trip and returns [] if `tickers` is empty."""
+    if not tickers:
+        return []
+    client = get_client()
+    rpc_args = {
+        "query_embedding": embedding,
+        "match_tickers": tickers,
+        "match_count": match_count,
+        "similarity_threshold": similarity_threshold,
+    }
+    if news_since is not None:
+        rpc_args["news_since"] = news_since
+    result = client.rpc(
+        "match_ticker_news",
+        rpc_args,
+    ).execute()
+    return result.data
+
+
 def upsert_companies(rows: list[dict]) -> None:
     """Bulk upsert for scripts/seed_companies.py - safe to re-run, rows are
     {"ticker", "company_name"} pairs keyed on ticker."""
@@ -537,6 +606,53 @@ def get_company(ticker: str) -> Optional[dict]:
     client = get_client()
     result = client.table("companies").select("*").eq("ticker", ticker).limit(1).execute()
     return result.data[0] if result.data else None
+
+
+def get_company_sector(ticker: str) -> Optional[dict]:
+    """Sector/industry cache lookup for peer-ticker identification (see
+    ingestion_steps.py::ensure_company_sector_cached, the write side). Returns None if no
+    companies row exists yet OR sector_fetched_at is null (never successfully attempted) -
+    callers should treat both cases identically: no peer lookup possible this run."""
+    client = get_client()
+    result = client.table("companies").select("*").eq("ticker", ticker).limit(1).execute()
+    row = result.data[0] if result.data else None
+    return row if row and row.get("sector_fetched_at") else None
+
+
+def upsert_company_sector(
+    ticker: str, company_name: str, sector: Optional[str], industry: Optional[str], fetched_at: str
+) -> None:
+    """Upserts a companies row with freshly-fetched sector/industry, keyed on ticker -
+    creates the row if scripts/seed_companies.py never seeded this ticker (true for any
+    watchlisted ticker outside the top-200 seed)."""
+    client = get_client()
+    client.table("companies").upsert(
+        {
+            "ticker": ticker,
+            "company_name": company_name,
+            "sector": sector,
+            "industry": industry,
+            "sector_fetched_at": fetched_at,
+        },
+        on_conflict="ticker",
+    ).execute()
+
+
+def get_peer_tickers(industry: str, exclude_ticker: str, limit: int = 4) -> list[str]:
+    """Other ASX 200 tickers sharing this industry, for peer-news lookup.
+    Queried against the companies cache, not a live yfinance scan - a candidate only
+    shows up here once ensure_company_sector_cached has run for it too."""
+    client = get_client()
+    result = (
+        client.table("companies")
+        .select("ticker")
+        .eq("industry", industry)
+        .eq("is_asx200", True)
+        .neq("ticker", exclude_ticker)
+        .limit(limit)
+        .execute()
+    )
+    return [r["ticker"] for r in result.data]
 
 
 def count_recent_requests(user_id: str, since: str) -> int:

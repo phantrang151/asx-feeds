@@ -139,6 +139,188 @@ function OrchestrationDiagram() {
   );
 }
 
+function AskFlowDetail() {
+  return (
+    <details className={styles.expandBox}>
+      <summary>See the full step-by-step for a chat question</summary>
+      <div className={styles.expandBody}>
+        <div className={styles.legendRow}>
+          <span><i className={`${styles.legendSwatch} ${styles.py}`} />Python &middot; deterministic code</span>
+          <span><i className={`${styles.legendSwatch} ${styles.llm}`} />Claude call &middot; LLM</span>
+          <span><i className={`${styles.legendSwatch} ${styles.exit}`} />Terminal / short-circuit exit</span>
+        </div>
+
+        <figure className={styles.diagramFigure}>
+          <div className={styles.diagramScroll}>
+            <svg
+              viewBox="0 0 780 840"
+              role="img"
+              aria-label="After the frontend posts a question, entry guardrails check auth, rate limit and daily token budget in plain Python. The router then runs a regex advice-seeking scan in Python, a classify_request LLM call that returns category, ticker and an is_advice_seeking flag, a Python ticker-validation gate, and a Python check of the LLM's advice-seeking flag - any of the three gates can short-circuit straight to a declined response, shown as one shared exit box. A clean request branches by category. search_news is pure Python: yfinance headlines, no LLM, no synthesis, and it skips straight to the final response step. conduct_analysis first builds a prompt in Python by fetching procedural instructions and episodic examples, then runs a ReAct loop that alternates an LLM reasoning turn with Python tool execution and a per-call token-budget check, repeating until the LLM produces a final answer. That evidence goes through synthesize_insight, an LLM call, then an output guardrail: a Python regex scan followed, if clean, by an LLM judge call, either of which can still decline the answer. A passing insight is stored as a new episodic memory entry in Python. Both the search_news path and the conduct_analysis success path converge on one final Python step that filters unreachable reference links, logs the request trace, and returns the answer JSON, which the frontend then renders."
+            >
+              <defs>
+                <marker id="arrow3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+                  <path d="M0,0 L10,5 L0,10 z" fill="currentColor" />
+                </marker>
+                <marker id="arrow3llm" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+                  <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)" />
+                </marker>
+                <marker id="arrow3exit" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M0,0 L10,5 L0,10 z" fill="currentColor" opacity="0.6" />
+                </marker>
+              </defs>
+
+              <g fontFamily="var(--mono)" fill="currentColor">
+                {/* Entry guardrails */}
+                <rect x="210" y="14" width="360" height="52" rx="4" fill="none" stroke="currentColor" strokeWidth="1.3" />
+                <text x="390" y="36" textAnchor="middle" fontSize="11.5">Entry guardrails</text>
+                <text x="390" y="51" textAnchor="middle" fontSize="9" opacity="0.65">verify Supabase JWT &middot; rate limit &middot; daily token ceiling</text>
+
+                <path d="M390,66 L102,90" stroke="currentColor" strokeWidth="1.2" fill="none" markerEnd="url(#arrow3)" />
+
+                {/* Router row */}
+                <rect x="14" y="90" width="176" height="58" rx="4" fill="none" stroke="currentColor" strokeWidth="1.3" />
+                <text x="102" y="112" textAnchor="middle" fontSize="11.5">Regex scan</text>
+                <text x="102" y="127" textAnchor="middle" fontSize="9" opacity="0.65">obvious advice-seeking</text>
+                <text x="102" y="139" textAnchor="middle" fontSize="9" opacity="0.65">phrasing, no LLM</text>
+
+                <rect x="210" y="90" width="176" height="58" rx="4" fill="none" stroke="var(--accent)" strokeWidth="1.6" />
+                <text x="298" y="112" textAnchor="middle" fontSize="11.5" fill="var(--accent)">classify_request()</text>
+                <text x="298" y="127" textAnchor="middle" fontSize="9" fill="var(--accent)" opacity="0.8">Haiku &middot; category, ticker,</text>
+                <text x="298" y="139" textAnchor="middle" fontSize="9" fill="var(--accent)" opacity="0.8">is_advice_seeking</text>
+
+                <rect x="406" y="90" width="176" height="58" rx="4" fill="none" stroke="currentColor" strokeWidth="1.3" />
+                <text x="494" y="112" textAnchor="middle" fontSize="11.5">Validate ticker</text>
+                <text x="494" y="127" textAnchor="middle" fontSize="9" opacity="0.65">real, resolvable</text>
+                <text x="494" y="139" textAnchor="middle" fontSize="9" opacity="0.65">ASX symbol</text>
+
+                <rect x="602" y="90" width="164" height="58" rx="4" fill="none" stroke="currentColor" strokeWidth="1.3" />
+                <text x="684" y="112" textAnchor="middle" fontSize="11.5">Advice gate</text>
+                <text x="684" y="127" textAnchor="middle" fontSize="9" opacity="0.65">checks the LLM&apos;s own</text>
+                <text x="684" y="139" textAnchor="middle" fontSize="9" opacity="0.65">is_advice_seeking flag</text>
+
+                <path d="M190,119 L210,119" stroke="currentColor" strokeWidth="1.2" fill="none" markerEnd="url(#arrow3)" />
+                <path d="M386,119 L406,119" stroke="var(--accent)" strokeWidth="1.2" fill="none" markerEnd="url(#arrow3llm)" />
+                <path d="M582,119 L602,119" stroke="currentColor" strokeWidth="1.2" fill="none" markerEnd="url(#arrow3)" />
+
+                {/* declined (input) */}
+                <rect x="280" y="170" width="220" height="50" rx="4" fill="none" stroke="currentColor" strokeWidth="1.2" strokeDasharray="3 3" opacity="0.75" />
+                <text x="390" y="190" textAnchor="middle" fontSize="11.5">Declined</text>
+                <text x="390" y="204" textAnchor="middle" fontSize="8.5" opacity="0.65">TICKER_NOT_FOUND / ADVICE_SEEKING</text>
+
+                <path d="M102,148 Q102,160 330,170" stroke="currentColor" strokeWidth="1.1" strokeDasharray="3 3" fill="none" opacity="0.6" markerEnd="url(#arrow3exit)" />
+                <text x="150" y="163" textAnchor="middle" fontSize="8.5" opacity="0.6">matched</text>
+                <path d="M494,148 L420,170" stroke="currentColor" strokeWidth="1.1" strokeDasharray="3 3" fill="none" opacity="0.6" markerEnd="url(#arrow3exit)" />
+                <text x="478" y="162" textAnchor="middle" fontSize="8.5" opacity="0.6">fails</text>
+                <path d="M684,148 Q684,160 470,170" stroke="currentColor" strokeWidth="1.1" strokeDasharray="3 3" fill="none" opacity="0.6" markerEnd="url(#arrow3exit)" />
+                <text x="630" y="163" textAnchor="middle" fontSize="8.5" opacity="0.6">flag = true</text>
+
+                {/* pass path + branch */}
+                <path d="M684,148 L684,232 L536,232 L536,254" stroke="currentColor" strokeWidth="1.2" fill="none" markerEnd="url(#arrow3)" />
+                <path d="M684,232 L146,232 L146,256" stroke="currentColor" strokeWidth="1.2" fill="none" markerEnd="url(#arrow3)" />
+                <text x="270" y="226" textAnchor="middle" fontSize="8.5" opacity="0.6">category = search_news</text>
+                <text x="610" y="226" textAnchor="middle" fontSize="8.5" opacity="0.6">category = conduct_analysis</text>
+
+                {/* search_news terminal */}
+                <rect x="30" y="256" width="232" height="70" rx="4" fill="none" stroke="currentColor" strokeWidth="1.2" strokeDasharray="3 3" opacity="0.85" />
+                <text x="146" y="278" textAnchor="middle" fontSize="11.5">search_news()</text>
+                <text x="146" y="293" textAnchor="middle" fontSize="9" opacity="0.65">yfinance headlines &mdash; no LLM,</text>
+                <text x="146" y="305" textAnchor="middle" fontSize="9" opacity="0.65">no synthesis</text>
+                <text x="146" y="318" textAnchor="middle" fontSize="8" opacity="0.5" fontStyle="italic">&quot;news on TLS.AX?&quot;</text>
+
+                {/* conduct_analysis lane */}
+                <rect x="322" y="240" width="428" height="410" rx="6" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="2 3" opacity="0.4" />
+                <text x="536" y="258" textAnchor="middle" fontSize="10" letterSpacing="0.04em" opacity="0.7">
+                  conduct_analysis_node() &middot; open / &quot;why&quot; questions
+                </text>
+
+                <rect x="356" y="270" width="360" height="50" rx="4" fill="none" stroke="currentColor" strokeWidth="1.3" />
+                <text x="536" y="290" textAnchor="middle" fontSize="11.5">Build prompt</text>
+                <text x="536" y="305" textAnchor="middle" fontSize="9" opacity="0.65">fetch procedural instructions + episodic examples (vector search)</text>
+
+                <path d="M536,320 L536,346" stroke="currentColor" strokeWidth="1.2" fill="none" markerEnd="url(#arrow3)" />
+
+                {/* react loop */}
+                <rect x="356" y="346" width="168" height="60" rx="4" fill="none" stroke="var(--accent)" strokeWidth="1.6" />
+                <text x="440" y="368" textAnchor="middle" fontSize="11.5" fill="var(--accent)">LLM reasons</text>
+                <text x="440" y="383" textAnchor="middle" fontSize="9" fill="var(--accent)" opacity="0.8">Sonnet &middot; picks a tool,</text>
+                <text x="440" y="396" textAnchor="middle" fontSize="9" fill="var(--accent)" opacity="0.8">or gives final answer</text>
+
+                <rect x="548" y="346" width="168" height="60" rx="4" fill="none" stroke="currentColor" strokeWidth="1.3" />
+                <text x="632" y="368" textAnchor="middle" fontSize="11.5">Run tool + check_token()</text>
+                <text x="632" y="383" textAnchor="middle" fontSize="9" opacity="0.65">news / price / report search,</text>
+                <text x="632" y="396" textAnchor="middle" fontSize="9" opacity="0.65">then per-call token ceiling</text>
+
+                <path d="M524,362 L548,362" stroke="currentColor" strokeWidth="1.1" fill="none" markerEnd="url(#arrow3)" />
+                <text x="536" y="356" textAnchor="middle" fontSize="8.5" opacity="0.6">tool call</text>
+                <path d="M548,390 L524,390" stroke="currentColor" strokeWidth="1.1" fill="none" markerEnd="url(#arrow3)" />
+                <text x="536" y="411" textAnchor="middle" fontSize="8.5" opacity="0.6">next turn, until final answer</text>
+
+                <path d="M440,406 L440,430 L536,430 L536,450" stroke="var(--accent)" strokeWidth="1.2" fill="none" markerEnd="url(#arrow3llm)" />
+                <text x="474" y="424" textAnchor="middle" fontSize="8.5" fill="var(--accent)" opacity="0.85">final answer</text>
+
+                <rect x="416" y="456" width="240" height="56" rx="4" fill="none" stroke="var(--accent)" strokeWidth="1.8" />
+                <text x="536" y="480" textAnchor="middle" fontSize="12" fill="var(--accent)">synthesize_insight()</text>
+                <text x="536" y="497" textAnchor="middle" fontSize="9" fill="var(--accent)" opacity="0.8">Sonnet &middot; connects all gathered evidence</text>
+
+                <path d="M536,512 L536,528" stroke="currentColor" strokeWidth="1.2" fill="none" markerEnd="url(#arrow3)" />
+
+                <rect x="356" y="534" width="168" height="50" rx="4" fill="none" stroke="currentColor" strokeWidth="1.3" />
+                <text x="440" y="554" textAnchor="middle" fontSize="11.5">Regex scan</text>
+                <text x="440" y="569" textAnchor="middle" fontSize="9" opacity="0.65">advice-language keywords</text>
+
+                <rect x="548" y="534" width="168" height="50" rx="4" fill="none" stroke="var(--accent)" strokeWidth="1.6" />
+                <text x="632" y="552" textAnchor="middle" fontSize="11.5" fill="var(--accent)">LLM judge</text>
+                <text x="632" y="567" textAnchor="middle" fontSize="9" fill="var(--accent)" opacity="0.8">Opus &middot; check_advice_avoidance()</text>
+
+                <path d="M524,559 L548,559" stroke="currentColor" strokeWidth="1.1" fill="none" markerEnd="url(#arrow3)" />
+                <text x="536" y="551" textAnchor="middle" fontSize="8.5" opacity="0.6">clean</text>
+
+                {/* output guardrail exits */}
+                <rect x="602" y="600" width="164" height="46" rx="4" fill="none" stroke="currentColor" strokeWidth="1.2" strokeDasharray="3 3" opacity="0.75" />
+                <text x="684" y="619" textAnchor="middle" fontSize="11.5">Declined</text>
+                <text x="684" y="633" textAnchor="middle" fontSize="8.5" opacity="0.65">ADVICE_LANGUAGE_DETECTED</text>
+
+                <rect x="372" y="600" width="200" height="46" rx="4" fill="none" stroke="currentColor" strokeWidth="1.3" />
+                <text x="472" y="619" textAnchor="middle" fontSize="11.5">Store episodic memory</text>
+                <text x="472" y="633" textAnchor="middle" fontSize="8.5" opacity="0.65">so a similar future question retrieves it</text>
+
+                <path d="M440,584 Q470,594 620,600" stroke="currentColor" strokeWidth="1.1" strokeDasharray="3 3" fill="none" opacity="0.6" markerEnd="url(#arrow3exit)" />
+                <text x="500" y="592" textAnchor="middle" fontSize="8.5" opacity="0.6">matched</text>
+                <path d="M600,584 L500,600" stroke="currentColor" strokeWidth="1.2" fill="none" markerEnd="url(#arrow3)" />
+                <text x="590" y="592" textAnchor="middle" fontSize="8.5" opacity="0.6">passed</text>
+                <path d="M664,584 L684,600" stroke="currentColor" strokeWidth="1.1" strokeDasharray="3 3" fill="none" opacity="0.6" markerEnd="url(#arrow3exit)" />
+                <text x="690" y="592" textAnchor="middle" fontSize="8.5" opacity="0.6">flagged</text>
+
+                {/* merge into final response step */}
+                <path d="M146,326 L146,680 L260,690" stroke="currentColor" strokeWidth="1.2" fill="none" markerEnd="url(#arrow3)" />
+                <path d="M472,646 L410,690" stroke="currentColor" strokeWidth="1.2" fill="none" markerEnd="url(#arrow3)" />
+
+                <rect x="230" y="694" width="320" height="60" rx="4" fill="none" stroke="currentColor" strokeWidth="1.3" />
+                <text x="390" y="717" textAnchor="middle" fontSize="11.5">Filter references &middot; log trace</text>
+                <text x="390" y="732" textAnchor="middle" fontSize="9" opacity="0.65">drops unreachable links, returns</text>
+                <text x="390" y="744" textAnchor="middle" fontSize="9" opacity="0.65">{'{answer, ticker, category, references}'}</text>
+
+                <path d="M390,754 L390,776" stroke="currentColor" strokeWidth="1.2" fill="none" markerEnd="url(#arrow3)" />
+
+                <rect x="255" y="782" width="270" height="34" rx="4" fill="none" stroke="currentColor" strokeWidth="1.2" strokeDasharray="3 3" opacity="0.75" />
+                <text x="390" y="804" textAnchor="middle" fontSize="11.5">Frontend re-renders AnswerBlock</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption>
+            Two-layer guardrails bookend the pipeline &mdash; a cheap regex gate before every expensive LLM call, both
+            on the way in (advice-seeking phrasing, ticker validity) and on the way out (advice-language detection,
+            checked by an Opus judge only once the regex layer passes clean). <code>search_news</code> never touches{' '}
+            <code>synthesize_insight()</code> or the output guardrail at all &mdash; it has no LLM-generated text to
+            check, so it skips straight to the shared response step. Amber boxes are the only steps that spend an
+            LLM call; every other box is deterministic Python against Postgres, yfinance, or the embedding index.
+          </figcaption>
+        </figure>
+      </div>
+    </details>
+  );
+}
+
 export default function Technical() {
   return (
     <div className={`${styles.landing} ${styles.tpage}`}>
@@ -212,6 +394,7 @@ export default function Technical() {
 
           <ArchitectureDiagram />
           <OrchestrationDiagram />
+          <AskFlowDetail />
 
           <dl className={styles.stackList}>
             <div>

@@ -40,7 +40,7 @@ def _fetch_constituent_rows() -> list[dict]:
         code, company = cells[0], cells[1]
         if not code or not company:
             continue
-        rows.append({"ticker": f"{code.upper()}.AX", "company_name": company})
+        rows.append({"ticker": f"{code.upper()}.AX", "company_name": company, "is_asx200": True})
     return rows
 
 

@@ -6,41 +6,71 @@ import { supabase } from '../lib/supabaseClient';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 const ASX_TICKER_PATTERN = /^[A-Z0-9]{1,6}\.AX$/;
 
+// fetch() REJECTS (throws) on a network-level failure - backend unreachable, still
+// starting up, DNS/CORS failure - as opposed to an HTTP error status, which is still a
+// resolved Response with res.ok===false. Every caller below only ever branches on
+// res.status/res.ok, so on a rejection this returns a fake Response shaped the same way
+// instead of throwing, meaning one code path (each caller's existing res.ok check) handles
+// both kinds of failure. Previously the rejection went uncaught, through both the
+// useEffect loaders AND the button onClick handlers, and Next's dev overlay renders any
+// uncaught error full-screen - which is what "the admin page disappears" actually was,
+// triggered simply by loading this page while the backend happened to be down/restarting.
+function _unreachableResponse() {
+  return {
+    ok: false,
+    status: 0,
+    json: async () => ({ detail: `Could not reach the API at ${API_URL} - is the backend running?` }),
+  };
+}
+
 async function authedFetch(path, options = {}) {
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  return fetch(`${API_URL}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${session.access_token}`,
-      ...(options.headers || {}),
-    },
-  });
+  try {
+    return await fetch(`${API_URL}${path}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+        ...(options.headers || {}),
+      },
+    });
+  } catch {
+    return _unreachableResponse();
+  }
 }
 
 async function authedFetchMultipart(path, formData) {
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  return fetch(`${API_URL}${path}`, {
-    method: 'POST',
-    // No Content-Type here - fetch sets multipart/form-data with the right boundary
-    // itself for a FormData body; authedFetch's hardcoded JSON header would break that.
-    headers: { Authorization: `Bearer ${session.access_token}` },
-    body: formData,
-  });
+  try {
+    return await fetch(`${API_URL}${path}`, {
+      method: 'POST',
+      // No Content-Type here - fetch sets multipart/form-data with the right boundary
+      // itself for a FormData body; authedFetch's hardcoded JSON header would break that.
+      headers: { Authorization: `Bearer ${session.access_token}` },
+      body: formData,
+    });
+  } catch {
+    return _unreachableResponse();
+  }
 }
 
 export default function Admin() {
   const { user, loading } = useRequireAuth();
   const [forbidden, setForbidden] = useState(false);
+  const [loadError, setLoadError] = useState('');
   const [runs, setRuns] = useState([]);
   const [summary, setSummary] = useState(null);
   const [triggering, setTriggering] = useState(false);
   const [triggerResult, setTriggerResult] = useState(null);
   const [error, setError] = useState('');
+  const [debugTicker, setDebugTicker] = useState('');
+  const [debuggingPlanner, setDebuggingPlanner] = useState(false);
+  const [debugPlannerResult, setDebugPlannerResult] = useState(null);
+  const [debugPlannerError, setDebugPlannerError] = useState('');
 
   const [generationRuns, setGenerationRuns] = useState([]);
   const [classificationRuns, setClassificationRuns] = useState([]);
@@ -66,13 +96,34 @@ export default function Admin() {
   const [uploadResults, setUploadResults] = useState(null);
   const [documents, setDocuments] = useState(null);
 
-  async function loadDocuments(ticker) {
-    const res = await authedFetch(`/api/admin/documents?ticker=${encodeURIComponent(ticker)}`);
+  // Every read-only loader below goes through this rather than checking `res.status === 403`
+  // and otherwise trusting the body - a stale/expired session token gets a 401 (see
+  // app/auth.py's decode_token) and a backend hiccup gets a 500, neither of which is a 403.
+  // Treating either of those bodies as real data (e.g. {detail: "..."} where an array was
+  // expected) blows up the next render's .map()/.length call - a second, separate way this
+  // page could go blank, on top of the raw network failures authedFetch handles above.
+  // Returns null on any failure so callers can just skip the setState and leave the
+  // previous (or initial, empty-array) state in place.
+  async function fetchJsonOrForbidden(path, options) {
+    const res = await authedFetch(path, options);
     if (res.status === 403) {
       setForbidden(true);
-      return;
+      return null;
     }
-    setDocuments(await res.json());
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      setLoadError(
+        body.detail ||
+          `Failed to load ${path} (${res.status}). Your session may have expired - try refreshing the page.`
+      );
+      return null;
+    }
+    return res.json();
+  }
+
+  async function loadDocuments(ticker) {
+    const data = await fetchJsonOrForbidden(`/api/admin/documents?ticker=${encodeURIComponent(ticker)}`);
+    if (data) setDocuments(data);
   }
 
   function handleViewDocuments() {
@@ -125,56 +176,36 @@ export default function Admin() {
   }
 
   async function loadRuns() {
-    const res = await authedFetch('/api/admin/pipeline/runs');
-    if (res.status === 403) {
-      setForbidden(true);
-      return;
-    }
-    setRuns(await res.json());
+    const data = await fetchJsonOrForbidden('/api/admin/pipeline/runs');
+    if (data) setRuns(data);
   }
 
   async function loadSummary() {
-    const res = await authedFetch('/api/admin/langsmith/summary');
-    if (res.status === 403) {
-      setForbidden(true);
-      return;
-    }
-    setSummary(await res.json());
+    const data = await fetchJsonOrForbidden('/api/admin/langsmith/summary');
+    if (data) setSummary(data);
   }
 
   async function loadEvalRuns() {
-    const [genRes, classRes, guardrailRes, liveSampleRes] = await Promise.all([
-      authedFetch('/api/admin/eval/runs?eval_type=generation'),
-      authedFetch('/api/admin/eval/runs?eval_type=classification'),
-      authedFetch('/api/admin/eval/runs?eval_type=guardrails'),
-      authedFetch('/api/admin/eval/runs?eval_type=live_sample'),
+    const [genData, classData, guardrailData, liveSampleData] = await Promise.all([
+      fetchJsonOrForbidden('/api/admin/eval/runs?eval_type=generation'),
+      fetchJsonOrForbidden('/api/admin/eval/runs?eval_type=classification'),
+      fetchJsonOrForbidden('/api/admin/eval/runs?eval_type=guardrails'),
+      fetchJsonOrForbidden('/api/admin/eval/runs?eval_type=live_sample'),
     ]);
-    if ([genRes, classRes, guardrailRes, liveSampleRes].some((r) => r.status === 403)) {
-      setForbidden(true);
-      return;
-    }
-    setGenerationRuns(await genRes.json());
-    setClassificationRuns(await classRes.json());
-    setGuardrailRuns(await guardrailRes.json());
-    setLiveSampleRuns(await liveSampleRes.json());
+    if (genData) setGenerationRuns(genData);
+    if (classData) setClassificationRuns(classData);
+    if (guardrailData) setGuardrailRuns(guardrailData);
+    if (liveSampleData) setLiveSampleRuns(liveSampleData);
   }
 
   async function loadEfficiency() {
-    const res = await authedFetch('/api/admin/efficiency/summary');
-    if (res.status === 403) {
-      setForbidden(true);
-      return;
-    }
-    setEfficiency(await res.json());
+    const data = await fetchJsonOrForbidden('/api/admin/efficiency/summary');
+    if (data) setEfficiency(data);
   }
 
   async function loadAlerts() {
-    const res = await authedFetch('/api/admin/alerts/recent');
-    if (res.status === 403) {
-      setForbidden(true);
-      return;
-    }
-    setAlerts(await res.json());
+    const data = await fetchJsonOrForbidden('/api/admin/alerts/recent');
+    if (data) setAlerts(data);
   }
 
   async function handleTriggerGenerationEval() {
@@ -249,6 +280,34 @@ export default function Admin() {
     loadRuns();
   }
 
+  async function handleDebugPlanner(e) {
+    e.preventDefault();
+    const ticker = debugTicker.trim().toUpperCase();
+    setDebugPlannerError('');
+    setDebugPlannerResult(null);
+    if (!ASX_TICKER_PATTERN.test(ticker)) {
+      setDebugPlannerError('Ticker must be a Yahoo Finance ASX symbol, e.g. CBA.AX.');
+      return;
+    }
+
+    setDebuggingPlanner(true);
+    const res = await authedFetch(`/api/admin/pipeline/debug-planner?ticker=${encodeURIComponent(ticker)}`, {
+      method: 'POST',
+    });
+    setDebuggingPlanner(false);
+
+    if (res.status === 403) {
+      setForbidden(true);
+      return;
+    }
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setDebugPlannerError(body.detail || 'Failed to debug the planner.');
+      return;
+    }
+    setDebugPlannerResult(body);
+  }
+
   useEffect(() => {
     if (user) {
       loadRuns();
@@ -280,6 +339,11 @@ export default function Admin() {
     <div>
       <Navbar />
       <main className="container">
+        {loadError && (
+          <section>
+            <p className="error">{loadError}</p>
+          </section>
+        )}
         <section>
           <h2>Pipeline control</h2>
           <button onClick={handleTrigger} disabled={triggering}>
@@ -287,13 +351,58 @@ export default function Admin() {
           </button>
           {error && <p className="error">{error}</p>}
           {triggerResult && (
-            <p className="info">
-              Run finished: {triggerResult.status} - {triggerResult.feeds_classified} custom,{' '}
-              {triggerResult.common_items_classified} common classified,{' '}
-              {triggerResult.items_skipped} skipped, {triggerResult.insights_generated} insights
-              generated, {triggerResult.errors.length} errors across{' '}
-              {triggerResult.tickers_processed} tickers.
-            </p>
+            <div className={triggerResult.errors.length ? 'error' : 'info'}>
+              <p>
+                Run finished: {triggerResult.status} - {triggerResult.feeds_classified} custom,{' '}
+                {triggerResult.common_items_classified} common classified,{' '}
+                {triggerResult.items_skipped} skipped, {triggerResult.insights_generated} insights
+                generated, {triggerResult.errors.length} errors across {triggerResult.tickers_processed}{' '}
+                tickers.
+              </p>
+              {triggerResult.errors.length > 0 && (
+                <ul>
+                  {triggerResult.errors.map((pipelineError, index) => (
+                    <li key={index}>
+                      {pipelineError.ticker || 'unknown ticker'} ({pipelineError.phase}):{' '}
+                      {pipelineError.error}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+        </section>
+
+        <section className="planner-debug-section">
+          <h2>Planner debugging</h2>
+          <form onSubmit={handleDebugPlanner} className="inline-form planner-debug-form">
+            <input
+              value={debugTicker}
+              onChange={(e) => setDebugTicker(e.target.value)}
+              placeholder="Ticker for planner debug, e.g. CBA.AX"
+              aria-label="Ticker for planner debug"
+              required
+            />
+            <button type="submit" disabled={debuggingPlanner}>
+              {debuggingPlanner ? 'Debugging planner...' : 'Debug Planner'}
+            </button>
+          </form>
+          <p className="info">Uses existing classified news only; does not fetch or classify news.</p>
+          {debugPlannerError && <p className="error">{debugPlannerError}</p>}
+          {debugPlannerResult && (
+            <div className={debugPlannerResult.results.some((result) => result.status === 'failed') ? 'error' : 'info'}>
+              <p>
+                Planner debug finished for {debugPlannerResult.ticker}: {debugPlannerResult.users_processed}{' '}
+                user(s) processed.
+              </p>
+              <ul>
+                {debugPlannerResult.results.map((result) => (
+                  <li key={result.user_id}>
+                    {result.status === 'success' ? 'Success' : `Failed: ${result.error}`}
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
         </section>
 
