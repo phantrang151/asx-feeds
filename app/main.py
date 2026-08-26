@@ -19,6 +19,7 @@ from db.queries import (
     update_feed,
     delete_feed,
     delete_ticker_for_user,
+    insert_watchlist_ticker,
     set_feed_needs_rematch,
     log_token_usage,
     sum_recent_token_usage,
@@ -30,6 +31,7 @@ from db.storage import ensure_documents_bucket
 from agent.chat.graph import graph
 from agent.pipelines.insight_graph import synthesize_insight_for
 from agent.guardrails.rate_limit import enforce_rate_limit
+from agent.guardrails.tickers import validate_ticker
 from agent.guardrails.daily_token_budget import enforce_daily_token_budget, DAILY_BUDGET_MESSAGE
 from agent.guardrails.token_budget import DailyTokenBudgetExceededError
 from agent.guardrails.citations import filter_reachable_references
@@ -134,6 +136,11 @@ class AskRequest(BaseModel):
     thread_id: str
 
 
+class TickerCreateRequest(BaseModel):
+    ticker: str
+    company_name: Optional[str] = None
+
+
 def _resynthesize_insight(user_id: str, ticker: str, action: str) -> None:
     """
     Re-runs the cross-feed insight for one (user, ticker) pair after a feed is removed, so
@@ -150,15 +157,30 @@ def _resynthesize_insight(user_id: str, ticker: str, action: str) -> None:
         logger.exception("Insight re-synthesis failed after %s for %s/%s", action, user_id, ticker)
 
 
+@app.post("/api/tickers")
+def create_ticker_endpoint(req: TickerCreateRequest, authorization: str = Header(...)):
+    """Validates an ASX ticker against the company cache or live market data before saving it."""
+    user_id = get_user_id_from_token(authorization)
+    ticker = req.ticker.strip().upper()
+    if not validate_ticker(ticker):
+        raise HTTPException(status_code=422, detail="Ticker was not found as a valid ASX-listed symbol.")
+
+    try:
+        return insert_watchlist_ticker(user_id, ticker, req.company_name)
+    except Exception as exc:
+        if getattr(exc, "code", None) == "23505":
+            raise HTTPException(status_code=409, detail="Ticker is already in your watchlist.") from exc
+        raise
+
+
 @app.post("/api/feeds")
 def create_feed_endpoint(req: FeedCreateRequest, authorization: str = Header(...)):
     """
-    Creates a feed for the CURRENT logged-in user (from the verified token, not from the
-    request body). Computing the embedding requires the Python sentence-transformers
-    model, which is why this one write goes through the backend instead of a direct
-    Supabase insert from the frontend - everything else (reading feeds/tickers/alerts,
-    creating a ticker) doesn't need an embedding and goes straight to Supabase, guarded
-    by RLS instead.
+    Creates a feed for the CURRENT logged-in user (from the verified token, not from the request body).
+    Computing the embedding requires the Python sentence-transformers model, which is why
+    feed creation goes through the backend. Ticker creation also goes through the backend
+    so the server can validate that the symbol exists before saving it; reads remain direct
+    Supabase queries from the frontend, guarded by RLS.
 
     For feed_type='common', the template's description + embedding are copied onto the
     feeds row instead of embedding user-supplied text - the LLM classification cost for

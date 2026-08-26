@@ -608,6 +608,15 @@ def get_company(ticker: str) -> Optional[dict]:
     return result.data[0] if result.data else None
 
 
+def insert_watchlist_ticker(user_id: str, ticker: str, company_name: str | None) -> dict:
+    """Adds a ticker to one user's watchlist; ownership comes from the verified JWT."""
+    client = get_client()
+    result = client.table("watchlist_stocks").insert(
+        {"user_id": user_id, "ticker": ticker, "company_name": company_name}
+    ).execute()
+    return result.data[0]
+
+
 def get_company_sector(ticker: str) -> Optional[dict]:
     """Sector/industry cache lookup for peer-ticker identification (see
     ingestion_steps.py::ensure_company_sector_cached, the write side). Returns None if no

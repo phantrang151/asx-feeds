@@ -1,11 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
-// Yahoo Finance's symbol format for ASX-listed stocks - what tools/search.py's
-// yf.Ticker() call needs to actually find news. A ticker stored in any other shape
-// (e.g. "ASX: TLS") silently returns zero news results with no error, so it's enforced
-// at entry time here rather than failing invisibly deep in the ingestion pipeline.
-const ASX_TICKER_PATTERN = /^[A-Z0-9]{1,6}\.AX$/;
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export default function TickerForm({ onAdded }) {
   const [ticker, setTicker] = useState('');
@@ -17,23 +13,22 @@ export default function TickerForm({ onAdded }) {
     setError('');
 
     const normalized = ticker.trim().toUpperCase();
-    if (!ASX_TICKER_PATTERN.test(normalized)) {
-      setError('Ticker must be a Yahoo Finance ASX symbol, e.g. TLS.AX.');
-      return;
-    }
-
     const {
-      data: { user },
-    } = await supabase.auth.getUser();
+      data: { session },
+    } = await supabase.auth.getSession();
 
-    const { error } = await supabase.from('watchlist_stocks').insert({
-      user_id: user.id,
-      ticker: normalized,
-      company_name: companyName,
+    const res = await fetch(`${API_URL}/api/tickers`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ ticker: normalized, company_name: companyName }),
     });
 
-    if (error) {
-      setError(error.message);
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      setError(body.detail || 'Failed to add ticker.');
       return;
     }
 

@@ -1,0 +1,18 @@
+Guardrail type,Purpose,Current implementation,Future improvement
+Ticker scope,Process only known user watchlist tickers,Implemented: pipeline reads from watchlist_stocks,Add server-side ticker validation when a ticker is added
+News freshness,Avoid repeatedly processing the same articles,Implemented: ticker news and feed watermarks,Add monitoring for stale or missing data
+Evidence relevance,Only classify sufficiently relevant news,Implemented: embedding similarity thresholds,Tune thresholds using evaluation data
+Feed eligibility,Avoid generating summaries without relevant feed items,Implemented: feeds without items are skipped,Add explicit insufficient-evidence reporting to users or admins
+Peer-news scope,Prevent excessive or irrelevant peer comparisons,Implemented: maximum four ASX 200 peers and six-month window,Validate that peer evidence is not attributed to the target company
+Source selection,Decide whether reports or peer news are needed,Partially implemented: LLM planner decides using a prompt,Add deterministic rules or validation for unsafe or invalid source plans
+Financial-advice prevention,Prevent buy sell or hold recommendations,Prompt-only: pipeline prompts instruct the model not to give advice,Run check_advice_avoidance after synthesis and block unsafe insights
+Output grounding,Ensure each insight is supported by retrieved evidence,Partially implemented: summaries use classified feed items and report or news evidence,Add a dedicated groundedness or citation check before saving the insight
+Per-request token limit,Prevent one pipeline run from consuming excessive LLM tokens,Not implemented,Add a shared token-budget callback for each pipeline run
+Pipeline-wide budget,Prevent a large batch from exceeding an overall cost limit,Not implemented,Add a maximum token or cost budget per pipeline execution
+Loop or step limit,Prevent planner or synthesis loops from running indefinitely,Partially implemented: pipeline advances through a finite feed list,Add an explicit maximum number of feeds steps or LLM calls
+Rate limiting,Prevent repeated manual pipeline triggers,Not implemented,Limit admin Run now requests and scheduled-run frequency
+Failure isolation,Prevent one ticker or feed failure from stopping the entire run,Implemented: errors are captured per ticker or feed,Add retry rules and distinguish transient from permanent failures
+Timeout protection,Prevent slow external APIs or LLM calls from blocking the run indefinitely,Partially implemented: citation checks have timeouts but pipeline calls do not consistently,Add timeouts around Yahoo Finance embeddings database and LLM calls
+Audit logging,Reconstruct what happened during a pipeline run,Partially implemented: pipeline_runs stores totals and errors,Store per-ticker per-feed model token source and outcome details
+Duplicate prevention,Avoid duplicate news feed items or insights,Implemented: database uniqueness and watermark logic,Add regression tests for concurrent pipeline runs
+Access control,Ensure only authorized users can trigger pipeline actions,Partially implemented: admin endpoints require authentication or admin access,Add stronger role-based permissions for production
