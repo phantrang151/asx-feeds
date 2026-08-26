@@ -3,7 +3,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 
-from app.auth import require_admin
+from api.auth import require_admin
 from agent.pipelines.insight_graph import synthesize_insight_for
 from agent.pipelines.orchestrator import run_ingestion_for_all_watchlisted_tickers
 from db.client import get_client
@@ -21,16 +21,16 @@ from db.queries import (
     get_recent_ops_alerts,
     get_all_watchlist_entries,
 )
-from eval.run_generation_eval import run_generation_eval
-from eval.score_guardrails import run_guardrail_eval
-from eval.run_live_sample_eval import run_live_sample_eval
+from agent.eval.run_generation_eval import run_generation_eval
+from agent.eval.score_guardrails import run_guardrail_eval
+from agent.eval.run_live_sample_eval import run_live_sample_eval
 from monitoring.langsmith_summary import get_langsmith_summary
 from tools.documents import extract_text, chunk_text, fetch_link
 from tools.embeddings import embed_batch
 
-DEFAULT_GENERATION_EVAL_FIXTURE = "eval/fixtures/qa_test_set.json"
-DEFAULT_INPUT_GUARDRAIL_FIXTURE = "eval/fixtures/input_guardrail_test_set.json"
-DEFAULT_OUTPUT_GUARDRAIL_FIXTURE = "eval/fixtures/output_guardrail_test_set.json"
+DEFAULT_GENERATION_EVAL_FIXTURE = "agent/eval/fixtures/qa_test_set.json"
+DEFAULT_INPUT_GUARDRAIL_FIXTURE = "agent/eval/fixtures/input_guardrail_test_set.json"
+DEFAULT_OUTPUT_GUARDRAIL_FIXTURE = "agent/eval/fixtures/output_guardrail_test_set.json"
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
@@ -127,8 +127,8 @@ def trigger_guardrail_eval(admin_user_id: str = Depends(require_admin)):
     """Runs per-layer TP/FP scoring for both guardrails (regex + LLM layer,
     independently) against the hand-labeled adversarial+quality test sets right now,
     synchronously, and returns the summary. Small, fixed-size fixture sets (see
-    eval/fixtures/*_guardrail_test_set.json) - grow these over time the same way
-    eval/export_labels.py's classification worksheet grows, especially with real
+    agent/eval/fixtures/*_guardrail_test_set.json) - grow these over time the same way
+    agent/eval/export_labels.py's classification worksheet grows, especially with real
     production near-misses once there's traffic. Makes real, live Groq calls for the
     LLM-layer half of the scoring."""
     return run_guardrail_eval(DEFAULT_INPUT_GUARDRAIL_FIXTURE, DEFAULT_OUTPUT_GUARDRAIL_FIXTURE)

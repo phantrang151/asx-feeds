@@ -1,6 +1,6 @@
 """
 Per-layer true-positive/false-positive rate for both guardrails' two layers, against a
-small hand-labeled adversarial+quality test set (see eval/fixtures/*_guardrail_test_set.json).
+small hand-labeled adversarial+quality test set (see agent/eval/fixtures/*_guardrail_test_set.json).
 Deliberately scores each layer INDEPENDENTLY on the full set - not the fail-fast
 pipeline behaviour check_advice_avoidance/router_node actually run in production - so
 you can see whether the cheap regex layer is pulling its weight (catching real cases
@@ -16,8 +16,8 @@ Makes real, live Groq calls for the LLM layers (router classification, advice-ch
 judge) - not free, not instant.
 
 Usage:
-    python -m eval.score_guardrails
-    python -m eval.score_guardrails --output eval/results/guardrail_scores.json
+    python -m agent.eval.score_guardrails
+    python -m agent.eval.score_guardrails --output agent/eval/results/guardrail_scores.json
 """
 
 import argparse
@@ -29,8 +29,8 @@ from agent.chat.nodes import classify_request
 from agent.guardrails.advice_check import keyword_scan, keyword_scan_advice_seeking, llm_judge_advice_check
 from db.queries import insert_eval_run
 
-DEFAULT_INPUT_FIXTURE = "eval/fixtures/input_guardrail_test_set.json"
-DEFAULT_OUTPUT_FIXTURE = "eval/fixtures/output_guardrail_test_set.json"
+DEFAULT_INPUT_FIXTURE = "agent/eval/fixtures/input_guardrail_test_set.json"
+DEFAULT_OUTPUT_FIXTURE = "agent/eval/fixtures/output_guardrail_test_set.json"
 
 
 def _load(path: str) -> list[dict]:

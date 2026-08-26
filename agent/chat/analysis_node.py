@@ -18,7 +18,7 @@ from .analysis_memory import (
     store_episodic_example,
     _namespace_ticker,
 )
-from agent.guardrails.advice_check import check_advice_avoidance
+from agent.guardrails import check_output, research_guard
 from agent.guardrails.token_budget import TokenBudgetCallback, TokenBudgetExceededError
 from agent.shared.synthesize import synthesize_insight
 from tools.react_tools import (
@@ -27,7 +27,6 @@ from tools.react_tools import (
     search_news_tool,
     get_latest_price_tool,
     search_financial_reports_tool,
-    research_gate,
 )
 
 logger = logging.getLogger(__name__)
@@ -138,7 +137,7 @@ def conduct_analysis_node(state, config):
     # matching comment) - falls back to only the per-request ceiling in that case.
     daily_cb = config["configurable"].get("daily_token_cb")
     # Same .get() reasoning as daily_cb - only set by app/main.py::ask_endpoint, absent
-    # for eval/direct-invoke callers, which don't need step tracing.
+    # for agent/eval/direct-invoke callers, which don't need step tracing.
     tracer = config["configurable"].get("tracer")
     react_callbacks = [c for c in (budget_cb, daily_cb, tracer) if c]
     # ticker isn't part of the prebuilt react agent's own state schema (it only tracks
@@ -156,7 +155,7 @@ def conduct_analysis_node(state, config):
     }
 
     try:
-        with research_gate():
+        with research_guard():
             result = react_agent.invoke({"messages": state["messages"]}, config=sub_config)
         evidence = _extract_tool_evidence(result["messages"])
         # The ReAct loop's own final message is passed through as `draft_answer` rather than
@@ -211,7 +210,7 @@ def conduct_analysis_node(state, config):
     # Compliance-critical output gate: run AFTER synthesis, BEFORE the insight is written
     # into episodic memory - a flagged insight must never become a future few-shot
     # example, or it poisons later retrieval for this ticker.
-    passed, matched_keywords, reasoning = check_advice_avoidance(
+    passed, matched_keywords, reasoning = check_output(
         insight, callbacks=[daily_cb] if daily_cb else None, tracer=tracer,
     )
     if not passed:

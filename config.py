@@ -13,7 +13,7 @@ load_dotenv()
 #     ReAct loop, cross-evidence synthesis (agent/shared/synthesize.py), and insight
 #     planning (agent/pipelines/insight_nodes.py).
 #   - JUDGE_MODEL: the advice-avoidance output guardrail (agent/guardrails/advice_check.py)
-#     and the offline eval judges (eval/judge.py) - deliberately the strongest tier AND a
+#     and the offline eval judges (agent/eval/judge.py) - deliberately the strongest tier AND a
 #     different model from ANALYSIS_MODEL, so it isn't grading its own homework; a judge
 #     is only as trustworthy as its own reasoning, and grading subtle cases (does this
 #     insight cross into advice? is every claim actually backed by the evidence?) needs at

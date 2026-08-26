@@ -770,7 +770,7 @@ def insert_request_trace(
     evidence: Optional[list[dict]] = None,
 ) -> dict:
     """One row per /api/ask request - see request_trace in schema.sql. Called once,
-    from app/main.py::ask_endpoint's finally block, after graph.invoke() returns (or
+    from api/main.py::ask_endpoint's finally block, after graph.invoke() returns (or
     raises) - so this fires on every outcome (completed, declined, or error), not just
     success. `answer`/`evidence` are only meaningful for a completed conduct_analysis
     request - what eval/run_live_sample_eval.py re-judges later; left None otherwise."""

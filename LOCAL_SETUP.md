@@ -124,7 +124,7 @@ Terminal 1 - backend:
 ```
 cd d:\Trang\GenAI_Projects\asx-agent
 asx_feed_env\Scripts\activate
-uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+uvicorn api.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
 Wait for `Application startup complete`.

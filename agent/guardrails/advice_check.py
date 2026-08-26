@@ -87,10 +87,10 @@ def check_advice_avoidance(text: str, callbacks: Optional[list] = None, tracer=N
     """Runs both layers, fail-fast on the keyword layer to save an LLM call. Returns
     (passed, matched_keywords, reasoning) - `passed` is True only if the text is clean
     at both layers. Reused verbatim by both the live gate in conduct_analysis_node AND
-    eval/judge.py's advice-avoidance score - one implementation, not a live copy plus a
+    agent/eval/judge.py's advice-avoidance score - one implementation, not a live copy plus a
     separately-drifting eval copy.
 
-    `callbacks` is forwarded to llm_judge_advice_check unchanged - eval/judge.py never
+    `callbacks` is forwarded to llm_judge_advice_check unchanged - agent/eval/judge.py never
     passes any, since eval runs are offline and outside any live request's token budget.
     `tracer`, if given (a RequestTracer - see agent/guardrails/tracer.py), times the
     regex layer directly (no LLM/tool event exists for it to hook) and is also added to

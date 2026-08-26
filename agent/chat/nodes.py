@@ -9,8 +9,7 @@ from langgraph.types import Command
 from .schemas import State, Router
 from .prompts import ROUTER_PROMPT
 from . import decline_messages
-from agent.guardrails.advice_check import keyword_scan_advice_seeking
-from agent.guardrails.tickers import validate_ticker
+from agent.guardrails import keyword_scan_advice_seeking, validate_ticker
 from config import ROUTER_MODEL, ANTHROPIC_API_KEY
 from tools.search import search_news
 
@@ -51,7 +50,7 @@ def _declined(ticker: Optional[str], message: str, **trace_fields) -> Command:
 
 def classify_request(messages: list, callbacks: Optional[list] = None) -> Router:
     """The router LLM call in isolation - what router_node below calls for the live
-    gate, and what eval/score_guardrails.py calls directly to score the input
+    gate, and what agent/eval/score_guardrails.py calls directly to score the input
     guardrail's LLM layer (response.is_advice_seeking) against a labeled test set in
     isolation from the regex layer and ticker-validation gate. One implementation, not
     a live copy plus a separately-drifting eval copy - same reasoning as
@@ -101,7 +100,7 @@ def router_node(state: State, config):
     # it's threaded through configurable rather than built here. Raises
     # DailyTokenBudgetExceededError straight out of this node if it trips - deliberately
     # uncaught here, propagates to app/main.py::ask_endpoint, which turns it into a 429.
-    # .get(), not [...]: eval/run_generation_eval.py and scripts/test_conduct_analysis.py
+    # .get(), not [...]: agent/eval/run_generation_eval.py and scripts/test_conduct_analysis.py
     # invoke this graph directly without setting it, same as they already intentionally
     # bypass the rate limiter and citation check - offline runs aren't a live user's
     # daily spend.

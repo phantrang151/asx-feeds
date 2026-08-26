@@ -14,9 +14,9 @@ Definitions (all relative to the single top-1 candidate a row was checked agains
                       separately as wrong_feed_count)
 
 Usage:
-    python -m eval.score_classification --labels eval/labeling_worksheet_filled.csv
-    python -m eval.score_classification --labels eval/labeling_worksheet_filled.csv \
-        --sweep-thresholds 0.15,0.20,0.22,0.25,0.30 --output eval/classification_scores.json
+    python -m agent.eval.score_classification --labels agent/eval/labeling_worksheet_filled.csv
+    python -m agent.eval.score_classification --labels agent/eval/labeling_worksheet_filled.csv \
+    --sweep-thresholds 0.15,0.20,0.22,0.25,0.30 --output agent/eval/classification_scores.json
 """
 
 import argparse

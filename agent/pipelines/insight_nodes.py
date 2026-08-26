@@ -16,6 +16,7 @@ from db.queries import (
     insert_ticker_insight,
 )
 from agent.shared.synthesize import synthesize_insight
+from agent.guardrails import check_output
 
 from .insight_schemas import FeedSummary, FeedSourceDecision, FeedSourcePlan
 
@@ -298,6 +299,9 @@ def synthesize_node(state):
         no_evidence_feeds=no_evidence_feeds or None,
         insufficient_evidence_feeds=insufficient_evidence_feeds or None,
     )
+    passed, _, reasoning = check_output(insight_text)
+    if not passed:
+        raise RuntimeError(f"Pipeline insight failed output guardrail: {reasoning}")
     insert_ticker_insight(state["user_id"], state["ticker"], insight_text, item_ids, feed_summaries)
 
     return Command(update={"insight_text": insight_text, "based_on_feed_item_ids": item_ids})

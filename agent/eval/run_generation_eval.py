@@ -9,8 +9,8 @@ No fabricated "correct answers" - unlike eval/score_classification.py, this judg
 whatever the live agent actually produces on a given run, not against a fixed label.
 
 Usage:
-    python -m eval.run_generation_eval --fixture eval/fixtures/qa_test_set.json \
-        --output eval/results/generation_eval.json
+    python -m agent.eval.run_generation_eval --fixture agent/eval/fixtures/qa_test_set.json \
+    --output agent/eval/results/generation_eval.json
 """
 
 import argparse
@@ -23,7 +23,7 @@ from agent.chat.graph import graph
 from agent.guardrails.advice_check import check_advice_avoidance
 from config import TEST_USER_ID
 from db.queries import insert_eval_run
-from eval.judge import judge_groundedness, judge_relevance, judge_answer_found
+from agent.eval.judge import judge_groundedness, judge_relevance, judge_answer_found
 
 
 def run_one(ticker: str, question: str, genuinely_answerable: bool = True) -> dict:
@@ -139,8 +139,8 @@ def run_generation_eval(fixture_path: str, persist: bool = True) -> dict:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--fixture", default="eval/fixtures/qa_test_set.json")
-    parser.add_argument("--output", default="eval/results/generation_eval.json")
+    parser.add_argument("--fixture", default="agent/eval/fixtures/qa_test_set.json")
+    parser.add_argument("--output", default="agent/eval/results/generation_eval.json")
     parser.add_argument(
         "--no-persist", action="store_true",
         help="Skip writing this run to the eval_runs table (used by the admin page) - useful for a local dry run.",

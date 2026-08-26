@@ -12,7 +12,7 @@ Scoped to common_feed_templates (ticker-agnostic, shared across users) rather th
 per-user custom feeds, to avoid picking one arbitrary user's feed set.
 
 Usage:
-    python -m eval.export_labels --limit 100 --output eval/labeling_worksheet.csv
+    python -m agent.eval.export_labels --limit 100 --output agent/eval/labeling_worksheet.csv
 """
 
 import argparse
@@ -66,7 +66,7 @@ def export_labels(limit: int, output_path: str) -> int:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--limit", type=int, default=100)
-    parser.add_argument("--output", default="eval/labeling_worksheet.csv")
+    parser.add_argument("--output", default="agent/eval/labeling_worksheet.csv")
     args = parser.parse_args()
 
     n = export_labels(args.limit, args.output)

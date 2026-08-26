@@ -16,7 +16,7 @@ if (-not (Test-Port 8000)) {
     Start-Process powershell.exe -WorkingDirectory $root -ArgumentList @(
         '-NoExit',
         '-Command',
-        "& '$python' -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000"
+        "& '$python' -m uvicorn api.main:app --reload --host 127.0.0.1 --port 8000"
     ) | Out-Null
 }
 

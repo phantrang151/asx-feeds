@@ -553,9 +553,9 @@ export default function Admin() {
           <p className="info">
             Measures precision/recall/false-skip-rate of common-feed classification against a
             hand-labeled sample - not triggerable from here, since it needs a human to label real
-            examples first: run <code>python -m eval.export_labels</code>, fill in the
+            examples first: run <code>python -m agent.eval.export_labels</code>, fill in the
             <code>correct_feed</code> column, then{' '}
-            <code>python -m eval.score_classification --labels &lt;file&gt;</code> to add a run here.
+            <code>python -m agent.eval.score_classification --labels &lt;file&gt;</code> to add a run here.
           </p>
           {classificationRuns.length === 0 ? (
             <p>No classification eval runs yet.</p>
@@ -583,7 +583,7 @@ export default function Admin() {
             blocks legitimate ones), scored independently for each guardrail&apos;s regex layer and LLM
             layer against a small hand-labeled test set - shows whether the cheap regex layer is
             pulling its weight or the LLM layer is doing all the real work. Grow{' '}
-            <code>eval/fixtures/input_guardrail_test_set.json</code> and{' '}
+            <code>agent/eval/fixtures/input_guardrail_test_set.json</code> and{' '}
             <code>output_guardrail_test_set.json</code> over time, the same way the classification
             worksheet grows.
           </p>

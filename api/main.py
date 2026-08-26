@@ -37,8 +37,8 @@ from agent.guardrails.token_budget import DailyTokenBudgetExceededError
 from agent.guardrails.citations import filter_reachable_references
 from agent.guardrails.tracer import RequestTracer
 from agent.guardrails.alerts import evaluate_alerts
-from app.auth import get_user_id_from_token
-from app.admin import router as admin_router
+from api.auth import get_user_id_from_token
+from api.admin import router as admin_router
 
 logger = logging.getLogger(__name__)
 

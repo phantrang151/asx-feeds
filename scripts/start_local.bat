@@ -17,7 +17,7 @@ if not exist "%ROOT%\frontend\package.json" (
 )
 
 echo Starting backend in a new terminal...
-start "ASX backend" /D "%ROOT%" cmd.exe /k ""%PYTHON%" -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000"
+start "ASX backend" /D "%ROOT%" cmd.exe /k ""%PYTHON%" -m uvicorn api.main:app --reload --host 127.0.0.1 --port 8000"
 
 echo Starting frontend in a new terminal...
 start "ASX frontend" /D "%ROOT%\frontend" cmd.exe /k "npm.cmd run dev"
