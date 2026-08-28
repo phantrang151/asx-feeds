@@ -1,0 +1,72 @@
+[
+  {
+    "ticker": "CBA.AX",
+    "feed_name": "Business Strategy",
+    "feed_description": "News about the company's strategic moves - partnerships, expansions, new products, acquisitions, or shifts in direction.",
+    "article_title": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy",
+    "publisher": "Reuters"
+  },
+  {
+    "ticker": "TLS.AX",
+    "feed_name": "Revenue Trend",
+    "feed_description": "News and signals about the company's revenue performance, growth drivers, and composition, including business segments, products, services, customers, geographic markets, pricing, volumes, acquisitions, and other factors affecting revenue.",
+    "article_title": "Telstra posts 3.2% profit rise, dials up shareholder returns with A$1 billion buyback",
+    "publisher": "AFR"
+  },
+  {
+    "ticker": "TPG.AX",
+    "feed_name": "Red Flags",
+    "feed_description": "Controversies, scandals, outages, regulatory issues, lawsuits, or other reputational or operational risks affecting the company.",
+    "article_title": "TPG Telecom hit with ACMA fine over mobile network outage affecting emergency calls",
+    "publisher": "ABC News"
+  },
+  {
+    "ticker": "NAB.AX",
+    "feed_name": "Investment in AI",
+    "feed_description": "Any news about the company's investment in Data and AI, including new tools, partnerships, or pilot programs.",
+    "article_title": "Australia's NAB to test AI agent safeguards - report",
+    "publisher": "Reuters"
+  },
+  {
+    "ticker": "COL.AX",
+    "feed_name": "Business Strategy",
+    "feed_description": "News about the company's strategic moves - partnerships, expansions, new products, acquisitions, or shifts in direction.",
+    "article_title": "Coles Group Limited's (ASX:COL) Stock On An Uptrend: Could Fundamentals Be Driving The Momentum?",
+    "publisher": "Simply Wall St."
+  },
+  {
+    "ticker": "ANZ.AX",
+    "feed_name": "Revenue Trend",
+    "feed_description": "News and signals about the company's revenue performance, growth drivers, and composition, including business segments, products, services, customers, geographic markets, pricing, volumes, acquisitions, and other factors affecting revenue.",
+    "article_title": "ANZ Group Holdings completes Suncorp Bank acquisition, adding $17.9bn in net interest income",
+    "publisher": "AFR"
+  },
+  {
+    "ticker": "CBA.AX",
+    "feed_name": "Red Flags",
+    "feed_description": "Controversies, scandals, outages, regulatory issues, lawsuits, or other reputational or operational risks affecting the company.",
+    "article_title": "CBA faces class action over alleged unconscionable lending practices to small business customers",
+    "publisher": "AFR"
+  },
+  {
+    "ticker": "TLS.AX",
+    "feed_name": "Investment in AI",
+    "feed_description": "Any news about the company's investment in Data and AI, including new tools, partnerships, or pilot programs.",
+    "article_title": "Telstra shares slip 1.2% after network outage, no link to AI systems reported",
+    "publisher": "Reuters"
+  },
+  {
+    "ticker": "TPG.AX",
+    "feed_name": "Business Strategy",
+    "feed_description": "News about the company's strategic moves - partnerships, expansions, new products, acquisitions, or shifts in direction.",
+    "article_title": "Private companies own 28% of TPG Telecom Limited (ASX:TPG) shares but public companies control 35% of the company",
+    "publisher": "Simply Wall St."
+  },
+  {
+    "ticker": "NAB.AX",
+    "feed_name": "Revenue Trend",
+    "feed_description": "News and signals about the company's revenue performance, growth drivers, and composition, including business segments, products, services, customers, geographic markets, pricing, volumes, acquisitions, and other factors affecting revenue.",
+    "article_title": "NAB cuts variable home loan rate by 0.15% following RBA decision",
+    "publisher": "AFR"
+  }
+]

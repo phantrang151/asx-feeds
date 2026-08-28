@@ -16,7 +16,7 @@ Usage:
 import argparse
 
 from db.queries import insert_eval_run, sample_recent_request_traces
-from agent.eval.judge import judge_groundedness, judge_relevance, judge_answer_found
+from agent.eval.judge import judge_groundedness, judge_relevance, judge_answer_found, dump_unsupported_claims
 
 
 def run_one(trace_row: dict) -> dict:
@@ -35,7 +35,11 @@ def run_one(trace_row: dict) -> dict:
 
     return {
         "request_trace_id": trace_row["id"],
-        "groundedness": {"grounded": groundedness.grounded, "unsupported_claims": groundedness.unsupported_claims},
+        "groundedness": {
+            "grounded": groundedness.grounded,
+            "groundedness_pct": groundedness.groundedness_pct,
+            "unsupported_claims": dump_unsupported_claims(groundedness.unsupported_claims),
+        },
         "relevance": {"score": relevance.score, "reasoning": relevance.reasoning},
         "answer_found": {"found_answer": found.found_answer, "reasoning": found.reasoning},
     }

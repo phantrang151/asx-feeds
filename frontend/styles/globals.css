@@ -143,8 +143,14 @@ section {
 
 .inline-form {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
   margin-bottom: 12px;
+}
+
+.push-right {
+  margin-left: auto;
 }
 
 .planner-debug-form {
@@ -549,7 +555,7 @@ ul {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: 16px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .eval-panel {
@@ -560,15 +566,459 @@ ul {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  /* Fixed height (not just align-items: stretch, which only equalizes panels within
+     the same grid row) so all 6 panels match regardless of how many columns the grid
+     wraps to - the description text length and run-history count both vary per panel,
+     so without this each panel would size to its own content. */
+  height: 460px;
 }
 
 .eval-panel h3 {
   margin: 0;
   font-size: 15px;
+  /* Reserves space for a 2-line title regardless of whether this panel's own title
+     wraps to 1 or 2 lines, so the description below - and therefore the button below
+     that - lands at the same y-position across every panel. */
+  min-height: 2.6em;
+  line-height: 1.3;
+}
+
+.eval-panel-description {
+  /* Reserves ~3 lines of space (not a clamp/ellipsis - text is written short enough to
+     fit on its own) so the button below still lands at a consistent y-position even
+     with the small natural length variance between panels' descriptions. */
+  min-height: 3.9em;
+  line-height: 1.3;
+  margin: 0;
 }
 
 .eval-panel .admin-runs {
   margin-top: 4px;
+  /* Caps the variable-length run history so it can't push the panel taller than the
+     fixed height above - scrolls internally instead. */
+  flex: 1;
+  overflow-y: auto;
+}
+
+.admin-runs-scroll {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.admin-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.admin-toolbar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 9px;
+  flex-wrap: wrap;
+}
+
+.admin-toolbar-row.sampling {
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-border);
+  justify-content: space-between;
+}
+
+.admin-toolbar-row.filters {
+  background: #fbfbfa;
+  border: 1px solid #e5e5e2;
+}
+
+.admin-row-eyebrow {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #999;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-toolbar-row.sampling .admin-row-eyebrow {
+  color: var(--accent);
+  opacity: 0.85;
+}
+
+.admin-row-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-field-label {
+  font-size: 12.5px;
+  color: #7a7268;
+  white-space: nowrap;
+}
+
+.admin-toolbar-row.sampling .admin-field-label {
+  color: var(--accent);
+  opacity: 0.85;
+}
+
+.admin-filter-count {
+  font-size: 11px;
+  font-weight: 700;
+  background: #1f1d1a;
+  color: #fff;
+  border-radius: 999px;
+  padding: 1px 6px;
+}
+
+/* Shared 34px-tall pill control - select/input share one visual language so the row
+   doesn't wrap at mismatched heights the way label-above-select/label-beside-checkbox
+   used to. */
+.admin-ctl {
+  height: 34px;
+  border: 1px solid #d8d6d0;
+  background: #fff;
+  border-radius: 7px;
+  font-family: inherit;
+  font-size: 13px;
+  color: #1f1d1a;
+  padding: 0 10px;
+}
+
+.admin-ctl:hover {
+  border-color: #a39c90;
+}
+
+.admin-ctl:focus-visible {
+  outline: none;
+  border-color: #2c5f8a;
+  box-shadow: 0 0 0 3px rgba(44, 95, 138, 0.18);
+}
+
+.admin-ctl.active {
+  border-color: var(--accent-border);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.admin-search-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.admin-search-wrap svg {
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.admin-search-wrap .admin-ctl {
+  padding-left: 28px;
+  width: 130px;
+}
+
+.admin-date-range {
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  border: 1px solid #d8d6d0;
+  border-radius: 7px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.admin-date-range input {
+  border: none;
+  height: 100%;
+  font-family: inherit;
+  font-size: 12.5px;
+  color: #1f1d1a;
+  padding: 0 8px;
+  width: 128px;
+}
+
+.admin-date-range input:focus-visible {
+  outline: none;
+  background: var(--accent-soft);
+}
+
+.admin-date-range .sep {
+  color: #a39c90;
+  font-size: 12px;
+  padding: 0 2px;
+}
+
+.admin-toggle-chip {
+  height: 34px;
+  border: 1px solid #d8d6d0;
+  border-radius: 999px;
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 12px 0 10px;
+  font-family: inherit;
+  font-size: 13px;
+  color: #7a7268;
+  cursor: pointer;
+}
+
+.admin-toggle-chip .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d8d6d0;
+}
+
+.admin-toggle-chip.on {
+  border-color: #b3261e;
+  background: rgba(179, 38, 30, 0.08);
+  color: #b3261e;
+  font-weight: 600;
+}
+
+.admin-toggle-chip.on .dot {
+  background: #b3261e;
+}
+
+.admin-btn-primary {
+  height: 34px;
+  border: none;
+  border-radius: 7px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 0 16px;
+  cursor: pointer;
+}
+
+.admin-btn-primary:hover {
+  filter: brightness(1.05);
+}
+
+.admin-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.admin-btn-text {
+  height: 34px;
+  border: none;
+  background: none;
+  color: #7a7268;
+  font-family: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  padding: 0 4px;
+}
+
+.admin-btn-text:hover {
+  color: #1f1d1a;
+}
+
+@media (max-width: 720px) {
+  .admin-toolbar-row.sampling {
+    justify-content: flex-start;
+  }
+}
+
+.quality-sample-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  /* Each card scrolls internally per-column below - this caps how much page space the
+     whole stack of cards can take, same reasoning as .admin-runs-scroll above. */
+  max-height: 640px;
+  overflow-y: auto;
+  padding: 2px;
+}
+
+.quality-sample-card {
+  border: 1px solid #e5e5e2;
+  border-radius: 8px;
+  background: #fbfbfa;
+  padding: 12px;
+}
+
+.quality-sample-card.flagged {
+  border-color: #d9a441;
+  background: #fdf8ef;
+}
+
+.quality-sample-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.quality-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #eee;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.quality-badge.flagged {
+  background: #b3261e;
+  color: #fff;
+}
+
+.quality-sample-columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.quality-sample-column {
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 8px 10px;
+  /* Each column scrolls independently, so a long answer/evidence list in one column
+     doesn't force the other two (and the whole card) to grow to match it. */
+  max-height: 260px;
+  overflow-y: auto;
+  font-size: 13px;
+}
+
+.quality-sample-column h4 {
+  margin: 0 0 4px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #888;
+}
+
+.quality-sample-column h4:not(:first-child) {
+  margin-top: 10px;
+}
+
+.quality-sample-column p {
+  margin: 0 0 6px;
+  white-space: pre-wrap;
+}
+
+.quality-evidence-list {
+  margin: 0;
+  padding-left: 18px;
+  list-style: disc;
+}
+
+.quality-evidence-list li {
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+
+.quality-empty {
+  margin: 0;
+  color: #999;
+}
+
+.quality-score-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 6px;
+}
+
+.quality-score {
+  font-weight: 600;
+  margin: 0;
+}
+
+.quality-score.good {
+  color: #1a7a3c;
+}
+
+.quality-score.bad {
+  color: #b3261e;
+}
+
+.quality-claims-list,
+.quality-omitted-list {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.quality-claims-list li,
+.quality-omitted-list li {
+  position: relative;
+  margin-bottom: 8px;
+  padding-left: 14px;
+}
+
+/* Explicit bullet mark before each statement, since global ul { list-style: none } */
+.quality-claims-list li::before,
+.quality-omitted-list li::before {
+  content: '\2022';
+  position: absolute;
+  left: 0;
+  color: #999;
+}
+
+.quality-claim-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin-right: 6px;
+  color: #fff;
+}
+
+.quality-claim-badge.contradicting {
+  background: #b3261e;
+}
+
+.quality-claim-badge.unsupported {
+  background: #b26a1e;
+}
+
+/* Original statement (from the judged text) vs. the judge's explanation - distinct
+   colors so a reviewer can tell at a glance which part is being quoted back and which
+   part is the judge's own reasoning. */
+.quality-claim-statement {
+  /* Highlighter-style background (not just text color) so the quoted statement is
+     visually unmistakable at a glance, separate from the explanation below it. */
+  background: #fff3b0;
+  color: #1a1a1a;
+  font-weight: 600;
+  padding: 1px 4px;
+  border-radius: 3px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.quality-claim-explanation {
+  color: #2c5f8a;
+  font-style: italic;
+}
+
+@media (max-width: 900px) {
+  .quality-sample-columns {
+    grid-template-columns: 1fr;
+  }
 }
 
 .admin-runs li {

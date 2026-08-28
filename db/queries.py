@@ -232,6 +232,93 @@ def get_common_feed_items(common_feed_template_id: str, ticker: str) -> list[dic
     )
 
 
+def get_recent_custom_feed_items_for_sampling(hours: int = 24, limit: int = 500) -> list[dict]:
+    """feed_items created in the last `hours` for CUSTOM feeds only, joined (in Python -
+    feed_items has no ticker/feed_name of its own) to their parent feeds row - the
+    candidate pool for monitoring/quality_sampling.py's sample_custom_feed_quality."""
+    client = get_client()
+    items = (
+        client.table("feed_items")
+        .select("id, feed_id, content_summary, source_url, created_at")
+        .gte("created_at", (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat())
+        .limit(limit)
+        .execute()
+        .data
+    )
+    if not items:
+        return []
+    feed_ids = list({item["feed_id"] for item in items})
+    feeds = (
+        client.table("feeds")
+        .select("id, ticker, feed_name, feed_description, feed_type")
+        .in_("id", feed_ids)
+        .eq("feed_type", "custom")
+        .execute()
+        .data
+    )
+    feeds_by_id = {f["id"]: f for f in feeds}
+    return [
+        {
+            **item,
+            "ticker": feeds_by_id[item["feed_id"]]["ticker"],
+            "feed_name": feeds_by_id[item["feed_id"]]["feed_name"],
+            "feed_description": feeds_by_id[item["feed_id"]]["feed_description"],
+        }
+        for item in items
+        if item["feed_id"] in feeds_by_id
+    ]
+
+
+def get_recent_common_feed_items_for_sampling(hours: int = 24, limit: int = 500) -> list[dict]:
+    """common_feed_items created in the last `hours`, joined (in Python, same reasoning
+    as get_recent_custom_feed_items_for_sampling above) to their common_feed_templates
+    row for the feed's display name - the candidate pool for
+    monitoring/quality_sampling.py's sample_common_feed_quality."""
+    client = get_client()
+    items = (
+        client.table("common_feed_items")
+        .select("id, common_feed_template_id, ticker, content_summary, source_url, created_at")
+        .gte("created_at", (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat())
+        .limit(limit)
+        .execute()
+        .data
+    )
+    if not items:
+        return []
+    template_ids = list({item["common_feed_template_id"] for item in items})
+    templates = (
+        client.table("common_feed_templates").select("id, name, description").in_("id", template_ids).execute().data
+    )
+    templates_by_id = {t["id"]: t for t in templates}
+    return [
+        {
+            **item,
+            "feed_name": templates_by_id.get(item["common_feed_template_id"], {}).get("name", "unknown"),
+            "feed_description": templates_by_id.get(item["common_feed_template_id"], {}).get("description"),
+        }
+        for item in items
+    ]
+
+
+def get_ticker_news_titles(ticker: str, source_urls: list[str]) -> dict[str, dict]:
+    """Bulk-fetches ticker_news rows for this ticker by source_url (unique(ticker,
+    source_url) in schema.sql), keyed by source_url - reconstructs the source article's
+    title/publisher as "evidence" for a feed/common-feed item's content_summary, since
+    feed_items/common_feed_items only store the summary itself, not the source text."""
+    if not source_urls:
+        return {}
+    client = get_client()
+    rows = (
+        client.table("ticker_news")
+        .select("title, publisher, source_url")
+        .eq("ticker", ticker)
+        .in_("source_url", source_urls)
+        .execute()
+        .data
+    )
+    return {row["source_url"]: row for row in rows}
+
+
 def insert_ticker_insight(
     user_id: str,
     ticker: str,
@@ -296,6 +383,23 @@ def get_recent_ticker_insights(limit: int = 20) -> list[dict]:
     )
 
 
+def get_recent_ticker_insights_in_window(hours: int = 24, limit: int = 500) -> list[dict]:
+    """Bounded pool of ticker_insights rows created in the last `hours` - unlike
+    get_recent_ticker_insights above (a fixed most-recent-N pull for a manually
+    triggered Evaluation run), this backs monitoring/quality_sampling.py's continuous
+    sampler, which needs the real eligible pool size to compute a rate-based sample
+    (QUALITY_SAMPLE_RATE/CAP in config.py), not just the newest N regardless of window."""
+    client = get_client()
+    return (
+        client.table("ticker_insights")
+        .select("*")
+        .gte("created_at", (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat())
+        .limit(limit)
+        .execute()
+        .data
+    )
+
+
 def create_pipeline_run() -> str:
     """Logs the start of a pipeline run and returns its id, so progress can be updated
     once the run finishes (or partially finishes)."""
@@ -329,13 +433,24 @@ def update_pipeline_run(
     ).eq("id", run_id).execute()
 
 
-def get_recent_pipeline_runs(limit: int = 20) -> list[dict]:
+def get_recent_pipeline_runs(
+    limit: int = 20,
+    offset: int = 0,
+    since: str | None = None,
+    until: str | None = None,
+) -> list[dict]:
+    """Newest-first page of pipeline_runs, optionally date-filtered - offset/limit give
+    the admin page's "Recent pipeline runs" list Prev/Next paging instead of always
+    rendering every run at once."""
     client = get_client()
+    query = client.table("pipeline_runs").select("*")
+    if since:
+        query = query.gte("started_at", since)
+    if until:
+        query = query.lte("started_at", until)
     return (
-        client.table("pipeline_runs")
-        .select("*")
-        .order("started_at", desc=True)
-        .limit(limit)
+        query.order("started_at", desc=True)
+        .range(offset, offset + limit - 1)
         .execute()
         .data
     )
@@ -766,6 +881,235 @@ def get_recent_eval_runs(eval_type: Optional[str] = None, limit: int = 20) -> li
     return query.order("created_at", desc=True).limit(limit).execute().data
 
 
+def get_sampled_source_ids(surface_type: str, source_ids: list[str]) -> set[str]:
+    """Which of these source_ids already have a quality_samples row for this
+    surface_type - checked BEFORE spending a judge call on a candidate, not just before
+    insert, so re-triggering monitoring/quality_sampling.py doesn't re-pay for an item
+    already sampled (the unique(surface_type, source_id) constraint in schema.sql is the
+    second, insert-time line of defense against the same thing)."""
+    if not source_ids:
+        return set()
+    client = get_client()
+    rows = (
+        client.table("quality_samples")
+        .select("source_id")
+        .eq("surface_type", surface_type)
+        .in_("source_id", source_ids)
+        .execute()
+        .data
+    )
+    return {row["source_id"] for row in rows}
+
+
+def insert_quality_samples(rows: list[dict]) -> list[dict]:
+    """Bulk-inserts judged quality_samples rows - see monitoring/quality_sampling.py.
+    ignore_duplicates=True is defense-in-depth against the unique(surface_type,
+    source_id) constraint alongside get_sampled_source_ids' pre-judge check above, not
+    the primary dedup mechanism (that check already avoids spending judge calls)."""
+    if not rows:
+        return []
+    client = get_client()
+    result = (
+        client.table("quality_samples")
+        .upsert(rows, on_conflict="surface_type,source_id", ignore_duplicates=True)
+        .execute()
+    )
+    return result.data
+
+
+def get_quality_samples(
+    surface_type: Optional[str] = None,
+    flagged_only: bool = False,
+    ticker: Optional[str] = None,
+    since: Optional[str] = None,
+    until: Optional[str] = None,
+    reviewed: Optional[bool] = None,
+    limit: int = 50,
+) -> list[dict]:
+    """Recent quality_samples rows, newest first - what the admin page's Monitoring
+    section's "Output quality" panel renders, so the admin can browse/filter to
+    specific bad examples rather than only seeing an aggregate score. `reviewed=True`
+    -> reviewed_at is set, `reviewed=False` -> still needs triage, `None` -> either."""
+    client = get_client()
+    query = client.table("quality_samples").select("*")
+    if surface_type:
+        query = query.eq("surface_type", surface_type)
+    if flagged_only:
+        query = query.eq("flagged", True)
+    if ticker:
+        query = query.eq("ticker", ticker)
+    if since:
+        query = query.gte("created_at", since)
+    if until:
+        query = query.lte("created_at", until)
+    if reviewed is True:
+        query = query.not_.is_("reviewed_at", "null")
+    elif reviewed is False:
+        query = query.is_("reviewed_at", "null")
+    return query.order("created_at", desc=True).limit(limit).execute().data
+
+
+def mark_quality_sample_reviewed(sample_id: str, reviewer_user_id: str) -> dict:
+    """Records that an admin has looked at this flagged sample - lets the panel
+    distinguish "still needs triage" from "already actioned" across repeated visits."""
+    client = get_client()
+    result = (
+        client.table("quality_samples")
+        .update({"reviewed_at": datetime.now(timezone.utc).isoformat(), "reviewed_by": reviewer_user_id})
+        .eq("id", sample_id)
+        .execute()
+    )
+    return result.data[0]
+
+
+def get_sampled_guardrail_source_ids(guardrail_type: str, source_ids: list[str]) -> set[str]:
+    """Same dedup role as get_sampled_source_ids above, scoped to guardrail_samples
+    instead of quality_samples - checked before spending a judge call on a candidate."""
+    if not source_ids:
+        return set()
+    client = get_client()
+    rows = (
+        client.table("guardrail_samples")
+        .select("source_id")
+        .eq("guardrail_type", guardrail_type)
+        .in_("source_id", source_ids)
+        .execute()
+        .data
+    )
+    return {row["source_id"] for row in rows}
+
+
+def insert_guardrail_samples(rows: list[dict]) -> list[dict]:
+    """Bulk-inserts judged guardrail_samples rows - see monitoring/guardrail_sampling.py.
+    Same ignore_duplicates defense-in-depth as insert_quality_samples above."""
+    if not rows:
+        return []
+    client = get_client()
+    result = (
+        client.table("guardrail_samples")
+        .upsert(rows, on_conflict="guardrail_type,source_id", ignore_duplicates=True)
+        .execute()
+    )
+    return result.data
+
+
+def get_guardrail_samples(
+    guardrail_type: Optional[str] = None,
+    flagged_only: bool = False,
+    ticker: Optional[str] = None,
+    since: Optional[str] = None,
+    until: Optional[str] = None,
+    reviewed: Optional[bool] = None,
+    limit: int = 50,
+) -> list[dict]:
+    """Recent guardrail_samples rows, newest first - what the admin page's "Guardrail
+    monitoring" panel renders. Same filter shape as get_quality_samples above."""
+    client = get_client()
+    query = client.table("guardrail_samples").select("*")
+    if guardrail_type:
+        query = query.eq("guardrail_type", guardrail_type)
+    if flagged_only:
+        query = query.eq("flagged", True)
+    if ticker:
+        query = query.eq("ticker", ticker)
+    if since:
+        query = query.gte("created_at", since)
+    if until:
+        query = query.lte("created_at", until)
+    if reviewed is True:
+        query = query.not_.is_("reviewed_at", "null")
+    elif reviewed is False:
+        query = query.is_("reviewed_at", "null")
+    return query.order("created_at", desc=True).limit(limit).execute().data
+
+
+def mark_guardrail_sample_reviewed(sample_id: str, reviewer_user_id: str) -> dict:
+    """Records that an admin has looked at this flagged guardrail sample."""
+    client = get_client()
+    result = (
+        client.table("guardrail_samples")
+        .update({"reviewed_at": datetime.now(timezone.utc).isoformat(), "reviewed_by": reviewer_user_id})
+        .eq("id", sample_id)
+        .execute()
+    )
+    return result.data[0]
+
+
+def get_sampled_classification_source_ids(classification_type: str, source_ids: list[str]) -> set[str]:
+    """Same dedup role as get_sampled_source_ids/get_sampled_guardrail_source_ids above,
+    scoped to classification_samples - checked before spending a judge call."""
+    if not source_ids:
+        return set()
+    client = get_client()
+    rows = (
+        client.table("classification_samples")
+        .select("source_id")
+        .eq("classification_type", classification_type)
+        .in_("source_id", source_ids)
+        .execute()
+        .data
+    )
+    return {row["source_id"] for row in rows}
+
+
+def insert_classification_samples(rows: list[dict]) -> list[dict]:
+    """Bulk-inserts judged classification_samples rows - see
+    monitoring/classification_sampling.py. Same ignore_duplicates defense-in-depth as
+    insert_quality_samples/insert_guardrail_samples above."""
+    if not rows:
+        return []
+    client = get_client()
+    result = (
+        client.table("classification_samples")
+        .upsert(rows, on_conflict="classification_type,source_id", ignore_duplicates=True)
+        .execute()
+    )
+    return result.data
+
+
+def get_classification_samples(
+    classification_type: Optional[str] = None,
+    flagged_only: bool = False,
+    ticker: Optional[str] = None,
+    since: Optional[str] = None,
+    until: Optional[str] = None,
+    reviewed: Optional[bool] = None,
+    limit: int = 50,
+) -> list[dict]:
+    """Recent classification_samples rows, newest first - what the admin page's unified
+    monitoring panel renders for the "Feed classification" filter. Same filter shape as
+    get_quality_samples/get_guardrail_samples above."""
+    client = get_client()
+    query = client.table("classification_samples").select("*")
+    if classification_type:
+        query = query.eq("classification_type", classification_type)
+    if flagged_only:
+        query = query.eq("flagged", True)
+    if ticker:
+        query = query.eq("ticker", ticker)
+    if since:
+        query = query.gte("created_at", since)
+    if until:
+        query = query.lte("created_at", until)
+    if reviewed is True:
+        query = query.not_.is_("reviewed_at", "null")
+    elif reviewed is False:
+        query = query.is_("reviewed_at", "null")
+    return query.order("created_at", desc=True).limit(limit).execute().data
+
+
+def mark_classification_sample_reviewed(sample_id: str, reviewer_user_id: str) -> dict:
+    """Records that an admin has looked at this flagged classification sample."""
+    client = get_client()
+    result = (
+        client.table("classification_samples")
+        .update({"reviewed_at": datetime.now(timezone.utc).isoformat(), "reviewed_by": reviewer_user_id})
+        .eq("id", sample_id)
+        .execute()
+    )
+    return result.data[0]
+
+
 def insert_request_trace(
     user_id: str,
     thread_id: str,
@@ -927,6 +1271,42 @@ def get_efficiency_summary(
     }
 
 
+def get_eligible_request_traces_for_sampling(hours: int = 24, limit: int = 500) -> list[dict]:
+    """Bounded pool of completed conduct_analysis requests from the last `hours` -
+    shared by sample_recent_request_traces below (which random-samples a fixed n from
+    it) and monitoring/quality_sampling.py's sample_chat_answer_quality (which sizes its
+    sample from the pool's real size via QUALITY_SAMPLE_RATE/CAP, not a fixed n)."""
+    client = get_client()
+    return (
+        client.table("request_trace")
+        .select("id, question, answer, evidence, ticker, output_guardrail_llm_is_advice")
+        .eq("category", "conduct_analysis")
+        .eq("status", "completed")
+        .gte("created_at", (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat())
+        .limit(limit)
+        .execute()
+        .data
+    )
+
+
+def get_recent_request_traces_for_input_guardrail_sampling(hours: int = 24, limit: int = 500) -> list[dict]:
+    """Bounded pool of ALL request_trace rows (any status/category) from the last
+    `hours` - unlike get_eligible_request_traces_for_sampling above, `question` is
+    populated regardless of outcome (see api/main.py::ask_endpoint's insert_request_trace
+    call), so the input guardrail's candidate pool isn't limited to completed requests
+    the way the output guardrail's is. Backs
+    monitoring/guardrail_sampling.py's sample_input_guardrail."""
+    client = get_client()
+    return (
+        client.table("request_trace")
+        .select("id, question, ticker, input_guardrail_llm_is_advice")
+        .gte("created_at", (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat())
+        .limit(limit)
+        .execute()
+        .data
+    )
+
+
 def sample_recent_request_traces(n: int, hours: int = 24) -> list[dict]:
     """Random sample of up to `n` completed conduct_analysis requests from the last
     `hours` - what eval/run_live_sample_eval.py judges for groundedness/relevance/
@@ -937,15 +1317,5 @@ def sample_recent_request_traces(n: int, hours: int = 24) -> list[dict]:
     TABLESAMPLE/random() - same demo-grade tradeoff as get_efficiency_summary above."""
     import random
 
-    client = get_client()
-    rows = (
-        client.table("request_trace")
-        .select("id, question, answer, evidence")
-        .eq("category", "conduct_analysis")
-        .eq("status", "completed")
-        .gte("created_at", (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat())
-        .limit(500)
-        .execute()
-        .data
-    )
+    rows = get_eligible_request_traces_for_sampling(hours)
     return random.sample(rows, min(n, len(rows)))

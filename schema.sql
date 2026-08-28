@@ -311,31 +311,157 @@ alter table ticker_insights add column if not exists feed_summaries jsonb not nu
 -- per-layer TP/FP against a labeled adversarial+quality set (eval/score_guardrails.py).
 -- 'live_sample' = the daily N-sample judge audit against real recent traffic
 -- (eval/run_live_sample_eval.py), as opposed to 'generation''s fixed fixture set.
--- 'insight_quality' = groundedness/relevance/completeness over recent real
--- ticker_insights rows (eval/run_insight_eval.py), the pipeline-side counterpart to
--- 'generation'. 'research_order' = the deterministic ordering guard's labeled
--- call-sequence regression check (eval/score_research_order.py) - no LLM calls, unlike
--- 'guardrails'.
+-- 'insight_quality' = groundedness/relevance/completeness over a fixed set of
+-- (ticker, evidence) pairs, synthesized fresh each run (eval/run_insight_eval.py), the
+-- pipeline-side counterpart to 'generation'. 'feed_summary' = groundedness/completeness
+-- over a fixed set of (article, feed) pairs, summarized fresh each run
+-- (eval/run_feed_summary_eval.py) - the regression-test counterpart to
+-- monitoring/quality_sampling.py's continuous custom_feed/common_feed sampling.
+-- 'research_order' = the deterministic ordering guard's labeled call-sequence
+-- regression check (eval/score_research_order.py) - no LLM calls, unlike 'guardrails'.
 create table if not exists eval_runs (
   id uuid primary key default gen_random_uuid(),
   eval_type text not null check (
     eval_type in (
-      'classification', 'generation', 'insight_quality', 'guardrails', 'research_order', 'live_sample'
+      'classification', 'generation', 'insight_quality', 'feed_summary', 'guardrails',
+      'research_order', 'live_sample'
     )
   ),
   summary jsonb not null,
   created_at timestamptz not null default now()
 );
 
--- Safe to re-run against a database created before insight_quality/research_order
--- existed as eval types - drops and recreates the check constraint with the wider set,
--- same pattern as the other "safe to re-run" migrations in this file.
+-- Safe to re-run against a database created before insight_quality/research_order/
+-- feed_summary existed as eval types - drops and recreates the check constraint with
+-- the wider set, same pattern as the other "safe to re-run" migrations in this file.
 alter table eval_runs drop constraint if exists eval_runs_eval_type_check;
 alter table eval_runs add constraint eval_runs_eval_type_check check (
   eval_type in (
-    'classification', 'generation', 'insight_quality', 'guardrails', 'research_order', 'live_sample'
+    'classification', 'generation', 'insight_quality', 'feed_summary', 'guardrails',
+    'research_order', 'live_sample'
   )
 );
+
+-- Continuous production quality monitoring - one row per LLM-generated text item
+-- sampled and judged, across all four surfaces that write LLM text: custom feed item
+-- summaries, common feed item summaries, pipeline insight summaries, and chat answers
+-- (see monitoring/quality_sampling.py). Complements eval_runs (fixed test cases /
+-- aggregate-only, re-run on prompt change) with per-item, continuously-sampled
+-- production output - the admin page's Monitoring section reads this to surface
+-- specific bad examples for prompt iteration, not just an aggregate score. Same "one
+-- type column + jsonb payload" shape as eval_runs rather than four separate tables per
+-- surface, so the admin panel queries one table instead of a UNION of four.
+create table if not exists quality_samples (
+  id uuid primary key default gen_random_uuid(),
+  surface_type text not null check (surface_type in ('custom_feed', 'common_feed', 'insight', 'chat_answer')),
+  source_id uuid not null,      -- feed_items.id / common_feed_items.id / ticker_insights.id / request_trace.id
+  ticker text,
+  question text,                -- real question (chat) or a synthetic framing (feed/insight), fed to judge_completeness
+  -- Display-only context for the admin panel's first column - the feed's own
+  -- description for custom_feed/common_feed rows (feeds.feed_description /
+  -- common_feed_templates.description), null for insight/chat_answer (which show
+  -- `question`/reconstructed feed summaries there instead - see
+  -- monitoring/quality_sampling.py). Distinct from `question` because `question` is fed
+  -- to judge_completeness and changing its wording would change what's being judged.
+  context text,
+  text text not null,           -- the summary/answer being judged
+  evidence jsonb not null default '[]',
+  groundedness_pct int,          -- 0-100, mirrors completeness_pct - see judge.py::GroundednessJudgment
+  grounded boolean not null,
+  unsupported_claims jsonb not null default '[]',
+  completeness_pct int,
+  omitted_points jsonb not null default '[]',
+  -- Flagged whenever grounded is false (zero tolerance on unsupported claims - a
+  -- financial-context hallucination can bias a user's decision) OR completeness_pct is
+  -- below QUALITY_COMPLETENESS_THRESHOLD_PCT (config.py) - computed once at insert time
+  -- so every reader (admin panel, future alerting) applies the same bar.
+  flagged boolean not null,
+  reviewed_at timestamptz,
+  reviewed_by uuid references auth.users(id),
+  created_at timestamptz not null default now(),
+  -- Re-triggering sampling must not re-judge (and re-spend LLM calls on) an item
+  -- already sampled - see monitoring/quality_sampling.py's pre-judge exclusion too.
+  unique (surface_type, source_id)
+);
+-- Safe to re-run against a database created before `context`/`groundedness_pct`
+-- existed - same pattern as the other "safe to re-run" migrations in this file.
+alter table quality_samples add column if not exists context text;
+alter table quality_samples add column if not exists groundedness_pct int;
+create index if not exists quality_samples_flagged_idx on quality_samples (flagged, created_at);
+create index if not exists quality_samples_surface_idx on quality_samples (surface_type, created_at);
+
+-- Continuous production monitoring for the two advice-avoidance guardrails (input:
+-- agent/guardrails/advice_check.py::keyword_scan_advice_seeking + agent/chat/nodes.py::
+-- classify_request; output: keyword_scan + llm_judge_advice_check) - see
+-- monitoring/guardrail_sampling.py. Same "one row per judged item" shape as
+-- quality_samples, but a separate table since the judgment shape is genuinely
+-- different (a flag + one-sentence reasoning, not groundedness/completeness against
+-- evidence).
+--
+-- Samples recent request_trace rows and re-checks each with BOTH the live production
+-- regex layer (re-run fresh, not read from the historical row, so a regex pattern
+-- added after the fact still gets credit for catching old text) and an independent
+-- evaluation-tier judge (judge_advice_seeking for input - the live input gate's LLM
+-- layer only runs the cheap ROUTER_MODEL, so this is the first JUDGE_MODEL-tier check
+-- for that side; llm_judge_advice_check re-run fresh for output, which already IS
+-- JUDGE_MODEL-tier live). `llm_flagged` is what the live gate's LLM layer actually
+-- decided for THIS historical request (null if that layer was never reached, e.g. the
+-- regex layer already fail-fast declined it).
+--
+-- Output-guardrail sampling can only audit PASSED requests - a blocked response's text
+-- is never persisted to request_trace.answer by design (status only reaches
+-- 'completed', which is what populates answer, when nothing was blocked), so this
+-- necessarily catches false negatives (missed violations), not false positives.
+create table if not exists guardrail_samples (
+  id uuid primary key default gen_random_uuid(),
+  guardrail_type text not null check (guardrail_type in ('input', 'output')),
+  source_id uuid not null,      -- request_trace.id
+  ticker text,
+  text text not null,           -- the question (input) or answer (output) being audited
+  regex_flagged boolean not null,
+  llm_flagged boolean,          -- the live gate's own verdict on this historical request; null if never reached
+  eval_flagged boolean not null,
+  eval_reasoning text not null,
+  -- True when eval_flagged disagrees with what the live gate actually decided
+  -- (llm_flagged if that layer ran, else regex_flagged) - the "needs review" signal.
+  flagged boolean not null,
+  reviewed_at timestamptz,
+  reviewed_by uuid references auth.users(id),
+  created_at timestamptz not null default now(),
+  unique (guardrail_type, source_id)
+);
+create index if not exists guardrail_samples_flagged_idx on guardrail_samples (flagged, created_at);
+create index if not exists guardrail_samples_type_idx on guardrail_samples (guardrail_type, created_at);
+
+-- Continuous production monitoring for feed classification correctness (custom feed_items
+-- and common_feed_items) - see monitoring/classification_sampling.py. The live classifier
+-- (db/queries.py::match_feed_for_embedding / match_common_feed_template_for_embedding)
+-- only checks embedding similarity against a threshold, with no semantic verification -
+-- this samples real recent classifications and independently judges (judge_feed_classification,
+-- JUDGE_MODEL) whether the match is actually genuine, catching false positives the
+-- similarity threshold let through. Complements score_classification.py's Evaluation
+-- panel (same live classifier, scored against a hand-labeled CSV) rather than
+-- replacing it - that's still the source of truth for precision/recall/ROC-AUC; this is
+-- the continuous, no-labeling-required companion for real traffic.
+create table if not exists classification_samples (
+  id uuid primary key default gen_random_uuid(),
+  classification_type text not null check (classification_type in ('custom_feed', 'common_feed')),
+  source_id uuid not null,      -- feed_items.id / common_feed_items.id
+  ticker text,
+  article_title text not null,
+  feed_name text not null,
+  feed_description text not null,
+  eval_correct boolean not null,
+  eval_reasoning text not null,
+  -- = not eval_correct - the "likely misclassification, needs review" signal.
+  flagged boolean not null,
+  reviewed_at timestamptz,
+  reviewed_by uuid references auth.users(id),
+  created_at timestamptz not null default now(),
+  unique (classification_type, source_id)
+);
+create index if not exists classification_samples_flagged_idx on classification_samples (flagged, created_at);
+create index if not exists classification_samples_type_idx on classification_samples (classification_type, created_at);
 
 create table if not exists pipeline_runs (
   id uuid primary key default gen_random_uuid(),
@@ -476,6 +602,11 @@ alter table pipeline_runs enable row level security;
 
 -- Same posture as pipeline_runs above.
 alter table eval_runs enable row level security;
+
+-- Same posture again: admin-only, backend service_role key only.
+alter table quality_samples enable row level security;
+alter table guardrail_samples enable row level security;
+alter table classification_samples enable row level security;
 
 -- Same posture again: only ever written/read by the backend's daily token-budget
 -- guardrail via the service_role key, never by the frontend directly.

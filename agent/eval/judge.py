@@ -1,12 +1,20 @@
 """
-LLM-as-judge scoring functions for generation quality (groundedness, relevance).
-Advice-avoidance is NOT reimplemented here - it reuses
-agent.guardrails.advice_check.check_advice_avoidance directly, the same function the
-live output guardrail runs, so the eval and the live gate can never drift apart.
+LLM-as-judge scoring functions for generation quality (groundedness, relevance) and
+guardrail correctness (advice-seeking/advice-giving).
+
+The OUTPUT guardrail's own live LLM layer (agent.guardrails.advice_check.llm_judge_advice_check)
+already runs on JUDGE_MODEL, so it's reused directly here rather than reimplemented -
+one implementation, not a live copy plus a separately-drifting eval copy. The INPUT
+guardrail's live LLM layer (agent.chat.nodes.classify_request) runs on the cheaper
+ROUTER_MODEL instead (tuned for routing speed, not a dedicated compliance check), so
+there's no existing strong-tier judgment for that side to reuse - judge_advice_seeking
+below fills that gap, JUDGE_MODEL-only, never called from the live gate itself.
 
 All judging uses config.JUDGE_MODEL - a different, stronger model than ANALYSIS_MODEL
 (the one that generated the answer being judged), so it isn't grading its own homework.
 """
+
+from typing import Literal
 
 from langchain_anthropic import ChatAnthropic
 from pydantic import BaseModel, Field
@@ -14,11 +22,32 @@ from pydantic import BaseModel, Field
 from config import JUDGE_MODEL, ANTHROPIC_API_KEY
 
 
+class UnsupportedClaim(BaseModel):
+    statement: str = Field(description="The exact claim from the insight that isn't backed by the evidence.")
+    issue_type: Literal["contradicting", "unsupported"] = Field(
+        description="'contradicting' if the evidence actively states something different from or opposite to this "
+        "claim; 'unsupported' if the evidence simply never addresses it (absence of evidence, not evidence of "
+        "the opposite)."
+    )
+    explanation: str = Field(
+        description="One sentence explaining why this claim is contradicting or unsupported, referencing what "
+        "the evidence actually says (or doesn't)."
+    )
+
+
 class GroundednessJudgment(BaseModel):
-    unsupported_claims: list[str] = Field(
+    groundedness_pct: int = Field(
+        description="0-100: what percentage of the insight's claims are actually supported by the evidence? "
+        "100 = every claim is fully supported. Lower scores reflect more claims, or more severe claims, "
+        "going beyond what the evidence says."
+    )
+    unsupported_claims: list[UnsupportedClaim] = Field(
         description="Specific claims in the insight that are NOT supported by the evidence. Empty if fully grounded."
     )
-    grounded: bool = Field(description="True if every claim in the insight is supported by the evidence.")
+    grounded: bool = Field(
+        description="True only if groundedness_pct is 100 - i.e. every claim in the insight is supported "
+        "by the evidence, with zero exceptions."
+    )
 
 
 class RelevanceJudgment(BaseModel):
@@ -53,6 +82,13 @@ def _judge_llm():
     return ChatAnthropic(model=JUDGE_MODEL, api_key=ANTHROPIC_API_KEY)
 
 
+def dump_unsupported_claims(claims: list[UnsupportedClaim]) -> list[dict]:
+    """Every caller that persists a GroundednessJudgment (as JSON, into eval_runs.summary
+    or quality_samples.unsupported_claims) needs plain dicts, not UnsupportedClaim
+    pydantic instances - one shared conversion so the shape can't drift between callers."""
+    return [c.model_dump() for c in claims]
+
+
 def _format_evidence(evidence: list[dict]) -> str:
     # Prefer "excerpt" (the actual retrieved text, when a tool's citation-display
     # "content" is only a short label like a filename or headline - see
@@ -72,8 +108,12 @@ def judge_groundedness(insight: str, evidence: list[dict]) -> GroundednessJudgme
     prompt = (
         "You are grading whether a generated financial insight is fully supported by "
         "the evidence it was given - not whether it's true in general, only whether "
-        "THIS evidence supports it. List any specific claims in the insight that go "
-        "beyond what the evidence actually says.\n\n"
+        "THIS evidence supports it. For each specific claim in the insight that goes "
+        "beyond what the evidence actually says, classify it as 'contradicting' (the "
+        "evidence states something different or opposite) or 'unsupported' (the "
+        "evidence simply doesn't address it at all), and explain why. Score what "
+        "percentage of the insight's claims are actually supported (100 = fully "
+        "grounded, no exceptions).\n\n"
         f"Evidence:\n{evidence_text}\n\n"
         f"Insight:\n{insight}"
     )
@@ -138,4 +178,65 @@ def judge_completeness(question: str, insight: str, evidence: list[dict]) -> Com
         f"Answer:\n{insight}"
     )
     judge = _judge_llm().with_structured_output(CompletenessJudgment)
+    return judge.invoke(prompt)
+
+
+class AdviceSeekingJudgment(BaseModel):
+    is_advice_seeking: bool = Field(
+        description="True if the user is directly asking for a buy/sell/hold recommendation or investment-timing "
+        "advice - not merely asking what happened to a stock and why, even if that question mentions price or "
+        "valuation."
+    )
+    reasoning: str = Field(description="One short sentence explaining the judgment.")
+
+
+def judge_advice_seeking(question: str) -> AdviceSeekingJudgment:
+    """Independent JUDGE_MODEL-tier check for whether a user question is advice-seeking -
+    see this module's docstring for why the live input guardrail's own LLM layer
+    (ROUTER_MODEL) doesn't already cover this. Same conceptual definition as
+    agent/guardrails/advice_check.py's _ADVICE_SEEKING_PATTERNS and
+    agent/chat/nodes.py::classify_request's is_advice_seeking field, phrased for a
+    standalone judge rather than a routing call. Used only by
+    monitoring/guardrail_sampling.py for continuous monitoring, never the live gate."""
+    prompt = (
+        "You are a compliance reviewer for a financial analysis tool. This tool must "
+        "decline any request that is directly asking for a buy/sell/hold recommendation "
+        "or advice on investment timing - as opposed to asking what happened to a stock "
+        "and why, even if that question mentions price or valuation. Is the following "
+        "question asking for that kind of recommendation?\n\n"
+        f"Question:\n{question}"
+    )
+    judge = _judge_llm().with_structured_output(AdviceSeekingJudgment)
+    return judge.invoke(prompt)
+
+
+class ClassificationJudgment(BaseModel):
+    is_correct_match: bool = Field(
+        description="True if this news article genuinely belongs to the given feed's topic, based on its "
+        "description - not merely thematically adjacent."
+    )
+    reasoning: str = Field(description="One short sentence explaining the judgment.")
+
+
+def judge_feed_classification(article_title: str, feed_name: str, feed_description: str) -> ClassificationJudgment:
+    """Independent JUDGE_MODEL check of whether a news article was correctly matched to
+    a feed. The live classifier (db/queries.py::match_feed_for_embedding /
+    match_common_feed_template_for_embedding) only checks embedding similarity against a
+    threshold - no semantic verification that the match is actually genuine, so this is
+    a real gap, not a duplicate of an existing check (score_classification.py's
+    Evaluation panel scores the same live classifier, but only against a hand-labeled
+    CSV, never with an LLM). Used only by monitoring/classification_sampling.py -
+    deliberately not run at ingestion time, since an LLM call per classified article
+    would be far too costly at real pipeline volume."""
+    prompt = (
+        "You are auditing whether a news article was correctly matched to a topic feed "
+        "for a stock-tracking tool. The match was made by embedding similarity, which can "
+        "produce false positives - articles that are thematically adjacent but don't "
+        "actually belong to the feed's topic. Does this article genuinely belong to the "
+        "feed below?\n\n"
+        f"Feed: {feed_name}\n"
+        f"Feed description: {feed_description}\n\n"
+        f"Article headline: {article_title}"
+    )
+    judge = _judge_llm().with_structured_output(ClassificationJudgment)
     return judge.invoke(prompt)

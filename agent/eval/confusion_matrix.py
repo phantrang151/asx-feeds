@@ -15,9 +15,14 @@ def load_fixture(path: str) -> list[dict]:
 
 def score_binary(rows: list[dict], predict) -> dict:
     """`predict(row) -> bool` (True = this layer would flag/block the row). Returns
-    confusion-matrix counts plus true_positive_rate (recall on actually-bad rows) and
-    false_positive_rate (rate of wrongly flagging actually-clean rows)."""
+    confusion-matrix counts plus true_positive_rate (recall on actually-bad rows),
+    false_positive_rate (rate of wrongly flagging actually-clean rows), and `rows` -
+    each fixture row plus its prediction and whether that prediction was correct, for
+    the admin page's per-item card view (score_binary itself has no opinion on what a
+    row's other fields mean - e.g. `text` vs `steps`/`description` - the caller's own
+    fixture shape passes straight through)."""
     tp = fp = tn = fn = 0
+    scored_rows = []
     for row in rows:
         predicted_bad = predict(row)
         actual_bad = row["is_bad"]
@@ -29,6 +34,7 @@ def score_binary(rows: list[dict], predict) -> dict:
             tn += 1
         else:
             fn += 1
+        scored_rows.append({**row, "predicted_bad": predicted_bad, "correct": predicted_bad == actual_bad})
     n_bad = tp + fn
     n_clean = fp + tn
     return {
@@ -39,6 +45,7 @@ def score_binary(rows: list[dict], predict) -> dict:
         "fn": fn,
         "true_positive_rate": round(tp / n_bad, 4) if n_bad else None,
         "false_positive_rate": round(fp / n_clean, 4) if n_clean else None,
+        "rows": scored_rows,
     }
 
 

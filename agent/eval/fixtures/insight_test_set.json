@@ -1,0 +1,76 @@
+[
+  {
+    "ticker": "ANZ.AX",
+    "evidence": [
+      {
+        "source": "Financial reports",
+        "content": "ANZ's FY2024 results: statutory profit of $6.5bn (down 8%), cash profit of $6,725m (down 9%), cash EPS of 224.3c (down 23c), CET1 ratio of 12.2% (down 114bps), total dividend of 166c (down 5%), and 1-year TSR of 27%. References the Suncorp Bank acquisition, the AmBank stake sale, and an ongoing $2bn share buyback."
+      },
+      {
+        "source": "Business Strategy",
+        "content": "ANZ completed its acquisition of Suncorp Bank, adding $17.9bn in net interest income, and continues its $2bn share buyback program announced earlier this year."
+      }
+    ]
+  },
+  {
+    "ticker": "TPG.AX",
+    "evidence": [
+      {
+        "source": "Financial reports",
+        "content": "TPG Telecom's FY24 Annual Report: Service Revenue of $4,702m, EBITDA of $1,988m, OFCF of $672m, a statutory NPAT loss of $(107)m, ROIC of 6.1%, and EPS of 10.7 cents. Strategic targets: reduce capex, hold opex flat, and grow OFCF/ROIC/EPS post-Vocus transaction."
+      },
+      {
+        "source": "pipeline note",
+        "content": "No evidence was found this run for: Customer Growth, Network Quality & Customer Service."
+      }
+    ]
+  },
+  {
+    "ticker": "CBA.AX",
+    "evidence": [
+      {
+        "source": "Investment in AI",
+        "content": "CBA appointed a new CIO and CTO explicitly tasked with advancing the bank's technology and AI strategy, signalling increased executive focus on AI deployment across the organisation."
+      },
+      {
+        "source": "Red Flags",
+        "content": "CBA faces a class action lawsuit alleging unconscionable lending practices toward small business customers, filed in the Federal Court."
+      }
+    ]
+  },
+  {
+    "ticker": "NAB.AX",
+    "evidence": [
+      {
+        "source": "Revenue Trend",
+        "content": "NAB cut its variable home loan interest rate by 0.15% following the RBA's latest rate decision, matching moves by other major banks."
+      },
+      {
+        "source": "pipeline note",
+        "content": "Evidence was found but judged too thin or off-topic for: Business Strategy, Investment in AI."
+      }
+    ]
+  },
+  {
+    "ticker": "TLS.AX",
+    "evidence": [
+      {
+        "source": "Revenue Trend",
+        "content": "Telstra posted a 3.2% rise in profit and announced an A$1 billion share buyback, alongside continued growth in its core mobile and infrastructure segments."
+      },
+      {
+        "source": "Red Flags",
+        "content": "Telstra shares slipped 1.2% following a network outage affecting mobile customers in several states; the company attributed the outage to a routine software update, not a security incident."
+      }
+    ]
+  },
+  {
+    "ticker": "COL.AX",
+    "evidence": [
+      {
+        "source": "pipeline note",
+        "content": "No evidence was found this run for: Business Strategy, Revenue Trend, Red Flags, Investment in AI."
+      }
+    ]
+  }
+]

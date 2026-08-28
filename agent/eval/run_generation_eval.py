@@ -23,7 +23,7 @@ from agent.chat.graph import graph
 from agent.guardrails.advice_check import check_advice_avoidance
 from config import TEST_USER_ID
 from db.queries import insert_eval_run
-from agent.eval.judge import judge_groundedness, judge_relevance, judge_answer_found, judge_completeness
+from agent.eval.judge import judge_groundedness, judge_relevance, judge_answer_found, judge_completeness, dump_unsupported_claims
 
 
 def run_one(ticker: str, question: str, genuinely_answerable: bool = True) -> dict:
@@ -42,6 +42,7 @@ def run_one(ticker: str, question: str, genuinely_answerable: bool = True) -> di
         "question": question,
         "category": category,
         "answer": answer,
+        "evidence": evidence,
         "evidence_count": len(evidence),
     }
 
@@ -62,7 +63,8 @@ def run_one(ticker: str, question: str, genuinely_answerable: bool = True) -> di
 
     result["groundedness"] = {
         "grounded": groundedness.grounded,
-        "unsupported_claims": groundedness.unsupported_claims,
+        "groundedness_pct": groundedness.groundedness_pct,
+        "unsupported_claims": dump_unsupported_claims(groundedness.unsupported_claims),
     }
     result["relevance"] = {"score": relevance.score, "reasoning": relevance.reasoning}
     result["advice_avoidance_passed"] = passed

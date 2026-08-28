@@ -57,6 +57,7 @@ def predict_label(row: dict, threshold: "float | None" = None) -> str:
 def score(rows: list[dict], threshold: "float | None" = None) -> dict:
     tp = fp = wrong_feed = false_skip = 0
     n_relevant = 0  # rows whose correct_feed isn't "none"
+    scored_rows = []
 
     for row in rows:
         correct = row["correct_feed"].strip()
@@ -66,14 +67,28 @@ def score(rows: list[dict], threshold: "float | None" = None) -> dict:
             n_relevant += 1
 
         if predicted == "none":
+            outcome = "false_skip" if is_relevant else "correct"
             if is_relevant:
                 false_skip += 1
         elif predicted == correct:
+            outcome = "correct"
             tp += 1
         else:
+            outcome = "wrong_feed"
             fp += 1
             if is_relevant:
                 wrong_feed += 1
+
+        # title/ticker_news_id come straight from export_labels.py's worksheet columns -
+        # the admin page's per-item card view needs the article's own headline text,
+        # which the aggregate counts above don't carry.
+        scored_rows.append({
+            "title": row.get("title"),
+            "correct_feed": correct,
+            "predicted_feed": predicted,
+            "similarity": float(row["candidate_similarity"]) if row.get("candidate_similarity") else None,
+            "outcome": outcome,
+        })
 
     fn = false_skip + wrong_feed
     precision = tp / (tp + fp) if (tp + fp) else None
@@ -92,6 +107,7 @@ def score(rows: list[dict], threshold: "float | None" = None) -> dict:
         "precision": round(precision, 4) if precision is not None else None,
         "recall": round(recall, 4) if recall is not None else None,
         "false_skip_rate": round(false_skip_rate, 4) if false_skip_rate is not None else None,
+        "rows": scored_rows,
     }
 
 

@@ -72,7 +72,7 @@ def classify_common_feeds(ticker: str) -> int:
         matches = match_common_feed_template_for_embedding(article["content_embedding"], match_count=1)
         if matches and matches[0]["similarity"] >= matches[0]["match_threshold"]:
             best = matches[0]
-            summary = _summarize_for_feed(article, best["name"], best["description"])
+            summary = summarize_for_feed(article, best["name"], best["description"])
             insert_common_feed_item(
                 common_feed_template_id=best["id"],
                 ticker=ticker,
@@ -158,7 +158,7 @@ def classify_and_store(user_id: str, ticker: str, run_cutoff: str) -> tuple[int,
             skipped += 1
             continue
 
-        summary = _summarize_for_feed(article, best["feed_name"], best["feed_description"])
+        summary = summarize_for_feed(article, best["feed_name"], best["feed_description"])
         insert_feed_item(
             feed_id=best["id"],
             source_type="news",
@@ -174,7 +174,7 @@ def classify_and_store(user_id: str, ticker: str, run_cutoff: str) -> tuple[int,
     return classified, skipped
 
 
-def _summarize_for_feed(article: dict, feed_name: str, feed_description: str) -> str:
+def summarize_for_feed(article: dict, feed_name: str, feed_description: str) -> str:
     """One LLM call per matched article - only for items that already cleared the
     vector-similarity threshold, to keep token usage low."""
     llm = ChatAnthropic(model=ROUTER_MODEL, api_key=ANTHROPIC_API_KEY)

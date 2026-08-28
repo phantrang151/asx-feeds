@@ -87,6 +87,19 @@ CITATION_CHECK_MAX_WORKERS = 8
 TOKEN_CEILING_PER_USER_PER_DAY = 200_000
 TOKEN_CEILING_WINDOW_HOURS = 24
 
+# --- Continuous quality sampling (monitoring/quality_sampling.py) ---
+# What fraction (capped at QUALITY_SAMPLE_CAP) of each surface's recent output gets
+# judged per trigger - a flat percentage would scale with traffic and make cost
+# unpredictable as usage grows, so it's rate-with-a-ceiling, same reasoning as
+# eval/run_live_sample_eval.py's fixed small N.
+QUALITY_SAMPLE_RATE = 0.10
+QUALITY_SAMPLE_CAP = 20
+QUALITY_SAMPLE_WINDOW_HOURS = 24
+# Below this, a sample is flagged for admin review - zero tolerance on ungrounded
+# claims (see quality_samples.grounded in schema.sql), but completeness allows some
+# slack since dropping a minor point isn't the same risk as stating something false.
+QUALITY_COMPLETENESS_THRESHOLD_PCT = 80
+
 # --- Alerts (agent/guardrails/alerts.py) ---
 # cost_per_request/cost_per_user_per_day/step_count alerts deliberately reuse the hard
 # guardrail ceilings above (TOKEN_CEILING_PER_REQUEST, TOKEN_CEILING_PER_USER_PER_DAY,
