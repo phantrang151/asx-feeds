@@ -311,11 +311,30 @@ alter table ticker_insights add column if not exists feed_summaries jsonb not nu
 -- per-layer TP/FP against a labeled adversarial+quality set (eval/score_guardrails.py).
 -- 'live_sample' = the daily N-sample judge audit against real recent traffic
 -- (eval/run_live_sample_eval.py), as opposed to 'generation''s fixed fixture set.
+-- 'insight_quality' = groundedness/relevance/completeness over recent real
+-- ticker_insights rows (eval/run_insight_eval.py), the pipeline-side counterpart to
+-- 'generation'. 'research_order' = the deterministic ordering guard's labeled
+-- call-sequence regression check (eval/score_research_order.py) - no LLM calls, unlike
+-- 'guardrails'.
 create table if not exists eval_runs (
   id uuid primary key default gen_random_uuid(),
-  eval_type text not null check (eval_type in ('classification', 'generation', 'guardrails', 'live_sample')),
+  eval_type text not null check (
+    eval_type in (
+      'classification', 'generation', 'insight_quality', 'guardrails', 'research_order', 'live_sample'
+    )
+  ),
   summary jsonb not null,
   created_at timestamptz not null default now()
+);
+
+-- Safe to re-run against a database created before insight_quality/research_order
+-- existed as eval types - drops and recreates the check constraint with the wider set,
+-- same pattern as the other "safe to re-run" migrations in this file.
+alter table eval_runs drop constraint if exists eval_runs_eval_type_check;
+alter table eval_runs add constraint eval_runs_eval_type_check check (
+  eval_type in (
+    'classification', 'generation', 'insight_quality', 'guardrails', 'research_order', 'live_sample'
+  )
 );
 
 create table if not exists pipeline_runs (

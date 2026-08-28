@@ -42,3 +42,23 @@ def test_blocked_result_preserves_internal_content():
     assert artifacts[0]["content"] == content
     assert artifacts[0]["visibility"] == "internal"
     assert artifacts[0]["outcome"] == "blocked"
+
+
+def test_record_internal_news_last_write_wins():
+    with research_guard():
+        record_internal_news_result(found=True)
+        record_internal_news_result(found=False)  # a second, different call overwrites the first
+        decision = authorize_peer_news("search_internal_peer_news_tool")
+
+    assert decision.allowed is False
+    assert decision.reason == "target_news_required"
+
+
+def test_authorize_research_source_idempotent_after_allow():
+    with research_guard():
+        record_internal_news_result(found=True)
+        first = authorize_research_source("search_news_tool")
+        second = authorize_research_source("search_news_tool")
+
+    assert first.allowed is True
+    assert second.allowed is True

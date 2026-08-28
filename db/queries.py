@@ -280,6 +280,22 @@ def get_ticker_insight_pairs() -> list[dict]:
     return client.table("ticker_insights").select("user_id, ticker").execute().data
 
 
+def get_recent_ticker_insights(limit: int = 20) -> list[dict]:
+    """Most recent ticker_insights rows across every user/ticker, newest first - what
+    agent/eval/run_insight_eval.py samples for insight-synthesis quality scoring. Every
+    synthesis run inserts a new row (see insert_ticker_insight - no on_conflict), so this
+    is genuinely a sample of real recent syntheses, not a snapshot of current state."""
+    client = get_client()
+    return (
+        client.table("ticker_insights")
+        .select("*")
+        .order("created_at", desc=True)
+        .limit(limit)
+        .execute()
+        .data
+    )
+
+
 def create_pipeline_run() -> str:
     """Logs the start of a pipeline run and returns its id, so progress can be updated
     once the run finishes (or partially finishes)."""
@@ -847,17 +863,25 @@ def insert_ops_alert(request_trace_id: str, user_id: str, alert_type: str, thres
     return result.data[0]
 
 
-def get_recent_ops_alerts(limit: int = 50) -> list[dict]:
+def get_recent_ops_alerts(limit: int = 50, since: str | None = None, until: str | None = None) -> list[dict]:
     """Recent alerts across every user, newest first - what the admin page's Alerts
     subsection renders. No question/answer content here (see ops_alerts in schema.sql),
     only ids and numbers - stays within the admin's operational-visibility scope."""
     client = get_client()
-    return (
-        client.table("ops_alerts").select("*").order("created_at", desc=True).limit(limit).execute().data
-    )
+    query = client.table("ops_alerts").select("*")
+    if since:
+        query = query.gte("created_at", since)
+    if until:
+        query = query.lte("created_at", until)
+    return query.order("created_at", desc=True).limit(limit).execute().data
 
 
-def get_efficiency_summary(hours: int = 24 * 7, sample_limit: int = 1000) -> dict:
+def get_efficiency_summary(
+    hours: int = 24 * 7,
+    sample_limit: int = 1000,
+    since: str | None = None,
+    until: str | None = None,
+) -> dict:
     """Percentile summary (p50/p95/max) of steps/tokens/latency across recent
     request_trace rows, plus the recursion-limit hit rate - what the admin page's
     Efficiency subsection renders, and what config.py's own placeholder comments on
@@ -866,16 +890,15 @@ def get_efficiency_summary(hours: int = 24 * 7, sample_limit: int = 1000) -> dic
     Python over a bounded recent sample, not a DB-side aggregate - same demo-grade
     tradeoff as sum_recent_token_usage() above."""
     client = get_client()
-    since = (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat()
-    rows = (
+    since_value = since or (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat()
+    query = (
         client.table("request_trace")
         .select("step_count, total_tokens, total_duration_ms, decline_reason")
-        .gte("created_at", since)
-        .order("created_at", desc=True)
-        .limit(sample_limit)
-        .execute()
-        .data
     )
+    query = query.gte("created_at", since_value)
+    if until:
+        query = query.lte("created_at", until)
+    rows = query.order("created_at", desc=True).limit(sample_limit).execute().data
 
     def _percentiles(values: list[float]) -> dict:
         if not values:

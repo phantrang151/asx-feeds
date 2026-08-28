@@ -1,0 +1,65 @@
+name: Test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run unit tests
+        run: pytest --ignore=tests/integration -m "not slow" -v
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Start local Supabase stack
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - run: supabase start
+
+      # Captures the local stack's own URL/keys at runtime rather than hardcoding
+      # them - avoids depending on the CLI's default local dev credentials staying the
+      # same across versions.
+      - name: Export local Supabase connection details
+        run: |
+          supabase status -o env | sed \
+            -e 's/^API_URL/SUPABASE_URL/' \
+            -e 's/^SERVICE_ROLE_KEY/SUPABASE_KEY/' \
+            -e 's/^DB_URL/SUPABASE_DB_URL/' \
+            >> "$GITHUB_ENV"
+
+      - name: Apply schema
+        run: python -m scripts.apply_schema
+
+      - name: Run integration tests
+        run: pytest tests/integration -v

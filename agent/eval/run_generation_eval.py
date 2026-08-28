@@ -23,7 +23,7 @@ from agent.chat.graph import graph
 from agent.guardrails.advice_check import check_advice_avoidance
 from config import TEST_USER_ID
 from db.queries import insert_eval_run
-from agent.eval.judge import judge_groundedness, judge_relevance, judge_answer_found
+from agent.eval.judge import judge_groundedness, judge_relevance, judge_answer_found, judge_completeness
 
 
 def run_one(ticker: str, question: str, genuinely_answerable: bool = True) -> dict:
@@ -51,6 +51,7 @@ def run_one(ticker: str, question: str, genuinely_answerable: bool = True) -> di
         # outcome explicitly instead of scoring groundedness against nothing.
         result["groundedness"] = None
         result["relevance"] = None
+        result["completeness"] = None
         result["advice_avoidance_passed"] = None
         result["answer_found"] = None
         return result
@@ -66,6 +67,17 @@ def run_one(ticker: str, question: str, genuinely_answerable: bool = True) -> di
     result["relevance"] = {"score": relevance.score, "reasoning": relevance.reasoning}
     result["advice_avoidance_passed"] = passed
     result["advice_avoidance_detail"] = {"matched_keywords": matched_keywords, "reasoning": reasoning}
+
+    # Only meaningful when there's actual evidence to measure coverage against - an
+    # empty evidence list would make "what % of it did the answer use" a vacuous 100%.
+    if evidence:
+        completeness = judge_completeness(question, answer, evidence)
+        result["completeness"] = {
+            "coverage_pct": completeness.coverage_pct,
+            "omitted_points": completeness.omitted_points,
+        }
+    else:
+        result["completeness"] = None
 
     # Context recall / answer-discovery rate: only meaningful on questions the fixture
     # marks as genuinely answerable - the whole point of this metric is "did the
@@ -84,6 +96,7 @@ def summarize(results: list[dict]) -> dict:
     judged = [r for r in results if r["category"] == "conduct_analysis"]
     n_judged = len(judged)
     discovery_judged = [r for r in judged if r["answer_found"] is not None]
+    completeness_judged = [r for r in judged if r["completeness"] is not None]
     return {
         "n_total": len(results),
         "n_judged": n_judged,
@@ -106,6 +119,11 @@ def summarize(results: list[dict]) -> dict:
             if discovery_judged
             else None
         ),
+        "avg_completeness_pct": (
+            round(sum(r["completeness"]["coverage_pct"] for r in completeness_judged) / len(completeness_judged), 1)
+            if completeness_judged
+            else None
+        ),
     }
 
 
@@ -117,6 +135,7 @@ def _print_summary(summary: dict) -> None:
     print(f"% grounded:               {summary['pct_grounded']}")
     print(f"% advice-avoidance pass:  {summary['pct_advice_avoidance_passed']}")
     print(f"% answer found (recall):  {summary['pct_answer_found']}")
+    print(f"Avg evidence coverage:    {summary['avg_completeness_pct']}%")
 
 
 def run_generation_eval(fixture_path: str, persist: bool = True) -> dict:

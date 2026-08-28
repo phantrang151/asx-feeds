@@ -544,3 +544,70 @@ ul {
   gap: 6px;
   font-weight: normal;
 }
+
+.eval-panel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.eval-panel {
+  background: #fbfbfa;
+  border: 1px solid #e5e5e2;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.eval-panel h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.eval-panel .admin-runs {
+  margin-top: 4px;
+}
+
+.admin-runs li {
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 13px;
+}
+
+.admin-runs li:last-child {
+  border-bottom: none;
+}
+
+.admin-runs ul {
+  margin-top: 4px;
+  padding-left: 14px;
+}
+
+.admin-runs ul li {
+  border-bottom: none;
+  padding: 2px 0;
+}
+
+.roc-chart {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin: 4px 0 8px;
+  padding: 10px;
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 6px;
+}
+
+.roc-chart svg {
+  width: 180px;
+  height: 180px;
+}
+
+.roc-chart .info {
+  margin: 0;
+}

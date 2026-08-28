@@ -1,0 +1,79 @@
+{
+  "summary": {
+    "n_total": 3,
+    "avg_relevance": 2.33,
+    "pct_grounded": 33.3,
+    "avg_completeness_pct": 96.7
+  },
+  "results": [
+    {
+      "ticker_insight_id": "9978fdcb-1a36-49cf-9b8f-63b18e2160e9",
+      "ticker": "NAB.AX",
+      "created_at": "2026-08-25T04:22:54.719821+00:00",
+      "n_sufficient_feeds": 2,
+      "groundedness": {
+        "grounded": false,
+        "unsupported_claims": [
+          "\"suggesting management is moving toward automation while trying to manage the associated operational risks\" \u2014 the evidence mentions safeguards/risk controls for AI agents, but does not characterize this as management moving toward automation or attribute intent to management, nor does it label the risks as 'operational'",
+          "The claim that there is no \"comparable peer data\" or reference to an \"industry-wide AI adoption trend\" \u2014 the evidence says nothing about peer comparisons or industry adoption trends",
+          "The framing that the AI initiative could be tied to \"cost-cutting, growth ambitions, or a defensive response to competitive pressure\" \u2014 these possible motivations are not mentioned anywhere in the evidence",
+          "\"cannot be characterized as evidence of a broader technology or efficiency strategy\" \u2014 the evidence only states it is not evidence of a broader AI investment strategy; 'technology or efficiency strategy' is a broadened restatement",
+          "Conclusions about implications for \"NAB's underlying financial performance or sustainability of results\" \u2014 the evidence contains no information on financial performance or sustainability of results"
+        ]
+      },
+      "relevance": {
+        "score": 2,
+        "reasoning": "The question asks what's happening with NAB.AX and why; the answer offers only one thin data point about agentic AI adoption and then largely explains why it cannot answer the \"why,\" leaving the question mostly unaddressed."
+      },
+      "completeness": {
+        "coverage_pct": 95,
+        "omitted_points": [
+          "The specific detail that the AI safeguards relate to implementing controls for AI agents as the bank deploys agentic AI systems is only loosely paraphrased; the 'implementing safeguards' framing is not explicitly stated"
+        ]
+      }
+    },
+    {
+      "ticker_insight_id": "46fefa8a-1a85-4ccb-be49-1acdcdd9530f",
+      "ticker": "NAB.AX",
+      "created_at": "2026-08-25T01:49:08.516199+00:00",
+      "n_sufficient_feeds": 2,
+      "groundedness": {
+        "grounded": true,
+        "unsupported_claims": []
+      },
+      "relevance": {
+        "score": 2,
+        "reasoning": "The answer engages the ticker and one AI-related item but largely explains why it cannot answer \"what's happening and why,\" offering no clear account of price/business developments or drivers."
+      },
+      "completeness": {
+        "coverage_pct": 100,
+        "omitted_points": []
+      }
+    },
+    {
+      "ticker_insight_id": "48ad0be6-a980-4faf-a30d-1e0c033f147a",
+      "ticker": "NAB.AX",
+      "created_at": "2026-08-25T01:31:59.363472+00:00",
+      "n_sufficient_feeds": 2,
+      "groundedness": {
+        "grounded": false,
+        "unsupported_claims": [
+          "That the AI adoption pattern is 'consistent with what other major banks have been signaling as they roll out AI' - the evidence contains no information about peer banks or industry-wide AI signaling.",
+          "That NAB is 'trying to capture efficiency or service gains from AI' - the evidence only states NAB is investing in AI with safeguards for AI agents; it does not identify efficiency or customer-service motivations.",
+          "That the safeguards address 'compliance risk' specifically - the evidence mentions 'governance or risk-control aspects' but does not reference compliance.",
+          "Framing the Revenue Trend gap as leaving open whether 'the bank is growing organically' - the evidence only notes revenue evidence was too thin/off-topic, with no mention of organic vs. inorganic growth."
+        ]
+      },
+      "relevance": {
+        "score": 3,
+        "reasoning": "The answer does address the \"what and why\" for NAB by reporting the one available signal (AI adoption with agent safeguards) and explaining why deeper causal/financial context is unavailable, though it's largely a statement of insufficient evidence rather than a substantive account of what is happening."
+      },
+      "completeness": {
+        "coverage_pct": 95,
+        "omitted_points": [
+          "The evidence explicitly notes the AI finding rests on a single article and that broader detail on the scale or strategy of the AI deployment is not yet available; the answer conveys the single-report basis but does not spell out the scale/strategy limitation"
+        ]
+      }
+    }
+  ]
+}

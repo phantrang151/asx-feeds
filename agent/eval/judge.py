@@ -34,10 +34,32 @@ class AnswerFoundJudgment(BaseModel):
     reasoning: str = Field(description="One short sentence explaining the judgment.")
 
 
+class CompletenessJudgment(BaseModel):
+    coverage_pct: int = Field(
+        description="0-100: what percentage of the evidence's RELEVANT content did the answer actually "
+        "incorporate? 100 = every relevant point in the evidence is reflected somewhere in the answer; "
+        "0 = none of it is. Evidence that's off-topic or redundant with a point already covered doesn't "
+        "count against the score - only relevant content the answer left out."
+    )
+    omitted_points: list[str] = Field(
+        description="Specific relevant points present in the evidence but missing from the answer. "
+        "Empty if fully covered."
+    )
+
+
 def _judge_llm():
     # Constructed lazily (not at import time) so this module stays importable without a
     # live ANTHROPIC_API_KEY, matching agent/shared/synthesize.py's own style.
     return ChatAnthropic(model=JUDGE_MODEL, api_key=ANTHROPIC_API_KEY)
+
+
+def _format_evidence(evidence: list[dict]) -> str:
+    # Prefer "excerpt" (the actual retrieved text, when a tool's citation-display
+    # "content" is only a short label like a filename or headline - see
+    # search_financial_reports_tool in tools/react_tools.py) over "content" itself.
+    return "\n\n".join(
+        f"[{item.get('source', 'unknown')}] {item.get('excerpt') or item.get('content')}" for item in evidence
+    )
 
 
 def judge_groundedness(insight: str, evidence: list[dict]) -> GroundednessJudgment:
@@ -46,12 +68,7 @@ def judge_groundedness(insight: str, evidence: list[dict]) -> GroundednessJudgme
     support'. Checks each claim in `insight` against `evidence` verbatim (no access to
     outside/parametric knowledge is implied to the judge - it's only asked to compare
     the two texts)."""
-    # Prefer "excerpt" (the actual retrieved text, when a tool's citation-display
-    # "content" is only a short label like a filename or headline - see
-    # search_financial_reports_tool in tools/react_tools.py) over "content" itself.
-    evidence_text = "\n\n".join(
-        f"[{item.get('source', 'unknown')}] {item.get('excerpt') or item.get('content')}" for item in evidence
-    )
+    evidence_text = _format_evidence(evidence)
     prompt = (
         "You are grading whether a generated financial insight is fully supported by "
         "the evidence it was given - not whether it's true in general, only whether "
@@ -97,4 +114,28 @@ def judge_answer_found(question: str, insight: str) -> AnswerFoundJudgment:
         f"Answer:\n{insight}"
     )
     judge = _judge_llm().with_structured_output(AnswerFoundJudgment)
+    return judge.invoke(prompt)
+
+
+def judge_completeness(question: str, insight: str, evidence: list[dict]) -> CompletenessJudgment:
+    """Graded upgrade of judge_answer_found's binary found/hedged check: of the evidence
+    that was actually retrieved for this question, how much of its relevant content made
+    it into the answer? Deliberately scored against the evidence the system itself
+    gathered, not a hand-authored 'ideal answer' - there's no reliable way to author a
+    fixed ground-truth answer for live, time-sensitive financial news, and grading
+    against the model's own retrieved evidence is what's actually actionable: a low
+    score here means synthesis is dropping information it had, not that retrieval found
+    too little (that's what judge_answer_found / evidence_count already catch)."""
+    evidence_text = _format_evidence(evidence)
+    prompt = (
+        "You are grading how completely a generated answer covers the RELEVANT content "
+        "in the evidence it was given - not whether it's grounded (a separate check) and "
+        "not how long it is. Evidence that's off-topic for the question, or redundant "
+        "with a point the answer already makes, doesn't count against the score - only "
+        "relevant content the answer left out.\n\n"
+        f"Question:\n{question}\n\n"
+        f"Evidence:\n{evidence_text}\n\n"
+        f"Answer:\n{insight}"
+    )
+    judge = _judge_llm().with_structured_output(CompletenessJudgment)
     return judge.invoke(prompt)

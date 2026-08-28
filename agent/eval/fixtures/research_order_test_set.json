@@ -1,0 +1,57 @@
+[
+  {
+    "description": "external news searched before any internal check - should block",
+    "steps": [{"action": "authorize_research_source", "source": "search_news_tool"}],
+    "is_bad": true
+  },
+  {
+    "description": "financial reports searched before any internal check - should block",
+    "steps": [{"action": "authorize_research_source", "source": "search_financial_reports_tool"}],
+    "is_bad": true
+  },
+  {
+    "description": "internal news found, then external news - should allow",
+    "steps": [
+      {"action": "record_internal_news_result", "found": true},
+      {"action": "authorize_research_source", "source": "search_news_tool"}
+    ],
+    "is_bad": false
+  },
+  {
+    "description": "internal news checked but found nothing, then external news - should still allow (external news only requires the check ran, not that it found something)",
+    "steps": [
+      {"action": "record_internal_news_result", "found": false},
+      {"action": "authorize_research_source", "source": "search_news_tool"}
+    ],
+    "is_bad": false
+  },
+  {
+    "description": "internal news found, then financial reports - should allow",
+    "steps": [
+      {"action": "record_internal_news_result", "found": true},
+      {"action": "authorize_research_source", "source": "search_financial_reports_tool"}
+    ],
+    "is_bad": false
+  },
+  {
+    "description": "peer news attempted before any internal check - should block",
+    "steps": [{"action": "authorize_peer_news", "source": "search_internal_peer_news_tool"}],
+    "is_bad": true
+  },
+  {
+    "description": "internal news checked but found nothing, then peer news - should block (peer news additionally requires target news to have been found)",
+    "steps": [
+      {"action": "record_internal_news_result", "found": false},
+      {"action": "authorize_peer_news", "source": "search_internal_peer_news_tool"}
+    ],
+    "is_bad": true
+  },
+  {
+    "description": "internal news found, then peer news - should allow",
+    "steps": [
+      {"action": "record_internal_news_result", "found": true},
+      {"action": "authorize_peer_news", "source": "search_internal_peer_news_tool"}
+    ],
+    "is_bad": false
+  }
+]

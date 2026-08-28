@@ -16,7 +16,7 @@ _EMPTY_SUMMARY = {
 }
 
 
-def get_langsmith_summary(hours: int = 24) -> dict:
+def get_langsmith_summary(hours: int = 24, start_time: datetime | None = None, end_time: datetime | None = None) -> dict:
     """
     Pulls recent run stats from LangSmith for a lightweight cost/latency/error dashboard.
     Requires LANGCHAIN_TRACING_V2=true and LANGCHAIN_API_KEY set (see .env.example) - with
@@ -30,18 +30,19 @@ def get_langsmith_summary(hours: int = 24) -> dict:
     aggregation service - it queries LangSmith fresh on every call.
     """
     client = Client()
-    since = datetime.now(timezone.utc) - timedelta(hours=hours)
+    end = end_time or datetime.now(timezone.utc)
+    since = start_time or end - timedelta(hours=hours)
 
     try:
-        runs = list(client.list_runs(project_name=LANGSMITH_PROJECT, start_time=since))
+        runs = list(client.list_runs(project_name=LANGSMITH_PROJECT, start_time=since, end_time=end))
     except LangSmithNotFoundError:
         # The project only exists on LangSmith's side once it has received a trace -
         # until then, "not found" means the same thing as "no runs yet".
-        return {**_EMPTY_SUMMARY, "window_hours": hours}
+        return {**_EMPTY_SUMMARY, "window_hours": (end - since).total_seconds() / 3600}
 
     if not runs:
         return {
-            "window_hours": hours,
+            "window_hours": (end - since).total_seconds() / 3600,
             "run_count": 0,
             "error_count": 0,
             "avg_latency_seconds": None,
@@ -59,7 +60,7 @@ def get_langsmith_summary(hours: int = 24) -> dict:
     error_count = sum(1 for r in runs if r.error)
 
     return {
-        "window_hours": hours,
+        "window_hours": (end - since).total_seconds() / 3600,
         "run_count": len(runs),
         "error_count": error_count,
         "avg_latency_seconds": round(sum(latencies) / len(latencies), 2) if latencies else None,

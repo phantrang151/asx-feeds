@@ -1,4 +1,6 @@
+import os
 import re
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
@@ -22,8 +24,11 @@ from db.queries import (
     get_all_watchlist_entries,
 )
 from agent.eval.run_generation_eval import run_generation_eval
+from agent.eval.run_insight_eval import run_insight_eval
 from agent.eval.score_guardrails import run_guardrail_eval
+from agent.eval.score_research_order import run_research_order_eval
 from agent.eval.run_live_sample_eval import run_live_sample_eval
+from agent.eval.score_classification import run_classification_eval, DEFAULT_LABELS_PATH
 from monitoring.langsmith_summary import get_langsmith_summary
 from tools.documents import extract_text, chunk_text, fetch_link
 from tools.embeddings import embed_batch
@@ -103,10 +108,11 @@ def langsmith_summary(admin_user_id: str = Depends(require_admin)):
 @router.get("/eval/runs")
 def list_eval_runs(eval_type: Optional[str] = None, admin_user_id: str = Depends(require_admin)):
     """Recent eval run history - what the admin page's Evaluation section renders.
-    Populated by eval/score_classification.py (run manually, needs a hand-labeled CSV -
-    see eval/export_labels.py), eval/run_generation_eval.py, eval/score_guardrails.py,
-    and eval/run_live_sample_eval.py (the latter three all triggerable from here, no
-    hand-labeling needed beyond the small starter guardrail fixture sets)."""
+    Populated by every eval type below, all triggerable from here: eval/run_generation_eval.py,
+    eval/run_insight_eval.py, eval/score_guardrails.py, eval/score_research_order.py,
+    eval/run_live_sample_eval.py, and eval/score_classification.py - the last of which
+    still needs a human labeling pass at least once (see eval/export_labels.py) before
+    its own trigger route can re-score anything."""
     return get_recent_eval_runs(eval_type=eval_type, limit=20)
 
 
@@ -122,6 +128,17 @@ def trigger_generation_eval(admin_user_id: str = Depends(require_admin)):
     return run_generation_eval(DEFAULT_GENERATION_EVAL_FIXTURE)["summary"]
 
 
+@router.post("/eval/insight/trigger")
+def trigger_insight_eval(limit: int = 20, admin_user_id: str = Depends(require_admin)):
+    """Runs the insight-synthesis-quality eval (groundedness/relevance/completeness,
+    same judges as generation eval) against the `limit` most recent REAL ticker_insights
+    rows right now, synchronously, and returns the summary. Pipeline-side counterpart to
+    /eval/generation/trigger - samples real pipeline output instead of a fixed question
+    set, since there's no fixed list of "tickers to synthesize" the way there's a fixed
+    question fixture for chat. Makes real, live JUDGE_MODEL calls per sampled insight."""
+    return run_insight_eval(limit=limit)["summary"]
+
+
 @router.post("/eval/guardrails/trigger")
 def trigger_guardrail_eval(admin_user_id: str = Depends(require_admin)):
     """Runs per-layer TP/FP scoring for both guardrails (regex + LLM layer,
@@ -132,6 +149,38 @@ def trigger_guardrail_eval(admin_user_id: str = Depends(require_admin)):
     production near-misses once there's traffic. Makes real, live Groq calls for the
     LLM-layer half of the scoring."""
     return run_guardrail_eval(DEFAULT_INPUT_GUARDRAIL_FIXTURE, DEFAULT_OUTPUT_GUARDRAIL_FIXTURE)
+
+
+@router.post("/eval/classification/trigger")
+def trigger_classification_eval(admin_user_id: str = Depends(require_admin)):
+    """Re-scores the classification eval (precision/recall/false-skip-rate + a full
+    ROC curve/AUC) against the most recently hand-labeled worksheet
+    (agent/eval/labeling_worksheet_filled.csv by convention - see export_labels.py)
+    right now, synchronously, and returns the summary. Needs no NEW human labeling to
+    re-run - safe to trigger repeatedly after changing common_feed_templates.match_threshold
+    or the classifier's embedding/prompt, as long as that file's correct_feed ground
+    truth is still valid. 404s if the file doesn't exist yet - a first labeling pass
+    (export_labels.py, then a human filling in correct_feed) is still required once,
+    same reason this is the one eval type with no "first run" button."""
+    if not os.path.exists(DEFAULT_LABELS_PATH):
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                f"No labeled worksheet found at {DEFAULT_LABELS_PATH}. Run "
+                "`python -m agent.eval.export_labels`, fill in the correct_feed column, "
+                "save it at that path, then try again."
+            ),
+        )
+    return run_classification_eval(DEFAULT_LABELS_PATH)
+
+
+@router.post("/eval/research-order/trigger")
+def trigger_research_order_eval(admin_user_id: str = Depends(require_admin)):
+    """Runs the research-order guardrail's labeled call-sequence eval (see
+    agent/eval/fixtures/research_order_test_set.json) right now, synchronously, and
+    returns the summary. The guard itself is deterministic - this is a regression check,
+    not judgment against ambiguous input - so it's fast and makes no LLM calls at all."""
+    return run_research_order_eval()
 
 
 @router.post("/eval/live-sample/trigger")
@@ -160,6 +209,43 @@ def recent_alerts(admin_user_id: str = Depends(require_admin)):
     what the admin page's Alerts subsection renders. No question/answer content in
     these rows at all - see ops_alerts in schema.sql."""
     return get_recent_ops_alerts()
+
+
+def _metric_window(hours: int, start: Optional[str], end: Optional[str]) -> tuple[datetime, datetime, str, str]:
+    if start or end:
+        if not start or not end:
+            raise HTTPException(status_code=422, detail="start and end are required together.")
+        try:
+            start_dt = datetime.fromisoformat(start.replace("Z", "+00:00"))
+            end_dt = datetime.fromisoformat(end.replace("Z", "+00:00"))
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail="start and end must be valid ISO timestamps.") from exc
+        if start_dt.tzinfo is None or end_dt.tzinfo is None or end_dt <= start_dt:
+            raise HTTPException(status_code=422, detail="end must be after start, with timezone information.")
+    else:
+        if hours <= 0:
+            raise HTTPException(status_code=422, detail="hours must be greater than zero.")
+        end_dt = datetime.now(timezone.utc)
+        start_dt = end_dt - timedelta(hours=hours)
+    return start_dt, end_dt, start_dt.isoformat(), end_dt.isoformat()
+
+
+@router.get("/metrics/summary")
+def metrics_summary(
+    hours: int = 24,
+    start: Optional[str] = None,
+    end: Optional[str] = None,
+    admin_user_id: str = Depends(require_admin),
+):
+    """Returns model monitoring, efficiency, and alerts for one shared time window."""
+    start_dt, end_dt, since, until = _metric_window(hours, start, end)
+    return {
+        "start": start_dt.isoformat(),
+        "end": end_dt.isoformat(),
+        "monitoring": get_langsmith_summary(start_time=start_dt, end_time=end_dt),
+        "efficiency": get_efficiency_summary(since=since, until=until),
+        "alerts": get_recent_ops_alerts(since=since, until=until),
+    }
 
 
 def _safe_storage_name(title: str) -> str:
