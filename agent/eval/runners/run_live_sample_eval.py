@@ -5,12 +5,12 @@ answer-discovery - continuous quality monitoring on actual production traffic at
 cost that stays predictable regardless of how much real traffic there is, by sampling
 a small fixed N per run rather than judging every request live.
 
-Reuses the exact same judge functions agent/eval/run_generation_eval.py uses (agent/eval/judge.py)
+Reuses the exact same judge functions agent/eval/runners/run_generation_eval.py uses (agent/eval/judge.py)
 - one implementation, not a separately-drifting live-sample copy.
 
 Usage:
-    python -m agent.eval.run_live_sample_eval
-    python -m agent.eval.run_live_sample_eval --n 10 --hours 24
+    python -m agent.eval.runners.run_live_sample_eval
+    python -m agent.eval.runners.run_live_sample_eval --n 10 --hours 24
 """
 
 import argparse

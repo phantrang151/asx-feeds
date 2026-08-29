@@ -369,7 +369,7 @@ def get_ticker_insight_pairs() -> list[dict]:
 
 def get_recent_ticker_insights(limit: int = 20) -> list[dict]:
     """Most recent ticker_insights rows across every user/ticker, newest first - what
-    agent/eval/run_insight_eval.py samples for insight-synthesis quality scoring. Every
+    agent/eval/runners/run_insight_eval.py samples for insight-synthesis quality scoring. Every
     synthesis run inserts a new row (see insert_ticker_insight - no on_conflict), so this
     is genuinely a sample of real recent syntheses, not a snapshot of current state."""
     client = get_client()

@@ -17,7 +17,7 @@ prompt did. Continuous monitoring of real production insights is what
 monitoring/quality_sampling.py is for; this is the fixed regression-test counterpart.
 
 Usage:
-    python -m agent.eval.run_insight_eval
+    python -m agent.eval.runners.run_insight_eval
 """
 
 import argparse

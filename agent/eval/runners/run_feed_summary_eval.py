@@ -17,7 +17,7 @@ why custom feeds aren't in scope there. This eval is purely about summary qualit
 match has already happened, so the same reasoning doesn't apply here.
 
 Usage:
-    python -m agent.eval.run_feed_summary_eval
+    python -m agent.eval.runners.run_feed_summary_eval
 """
 
 import argparse

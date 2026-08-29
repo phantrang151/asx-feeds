@@ -30,12 +30,16 @@ from db.queries import (
     get_classification_samples,
     mark_classification_sample_reviewed,
 )
-from agent.eval.run_generation_eval import run_generation_eval
-from agent.eval.run_insight_eval import run_insight_eval
-from agent.eval.run_feed_summary_eval import run_feed_summary_eval
-from agent.eval.score_guardrails import run_guardrail_eval
+from agent.eval.runners.run_generation_eval import run_generation_eval, DEFAULT_FIXTURE as DEFAULT_GENERATION_EVAL_FIXTURE
+from agent.eval.runners.run_insight_eval import run_insight_eval
+from agent.eval.runners.run_feed_summary_eval import run_feed_summary_eval
+from agent.eval.score_guardrails import (
+    run_guardrail_eval,
+    DEFAULT_INPUT_FIXTURE as DEFAULT_INPUT_GUARDRAIL_FIXTURE,
+    DEFAULT_OUTPUT_FIXTURE as DEFAULT_OUTPUT_GUARDRAIL_FIXTURE,
+)
 from agent.eval.score_research_order import run_research_order_eval
-from agent.eval.run_live_sample_eval import run_live_sample_eval
+from agent.eval.runners.run_live_sample_eval import run_live_sample_eval
 from agent.eval.score_classification import run_classification_eval, DEFAULT_LABELS_PATH
 from monitoring.langsmith_summary import get_langsmith_summary
 from monitoring.quality_sampling import run_quality_sampling
@@ -43,10 +47,6 @@ from monitoring.guardrail_sampling import run_guardrail_sampling
 from monitoring.classification_sampling import run_classification_sampling
 from tools.documents import extract_text, chunk_text, fetch_link
 from tools.embeddings import embed_batch
-
-DEFAULT_GENERATION_EVAL_FIXTURE = "agent/eval/fixtures/qa_test_set.json"
-DEFAULT_INPUT_GUARDRAIL_FIXTURE = "agent/eval/fixtures/input_guardrail_test_set.json"
-DEFAULT_OUTPUT_GUARDRAIL_FIXTURE = "agent/eval/fixtures/output_guardrail_test_set.json"
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 

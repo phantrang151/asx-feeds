@@ -1,6 +1,6 @@
 """
 Shared evidence reconstruction for a ticker_insights row - used by both
-agent/eval/run_insight_eval.py (fixed-limit manual Evaluation trigger) and
+agent/eval/runners/run_insight_eval.py (fixed-limit manual Evaluation trigger) and
 monitoring/quality_sampling.py (continuous production sampling), so the two don't
 maintain separate, potentially-drifting copies of this logic.
 """

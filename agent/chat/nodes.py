@@ -100,7 +100,7 @@ def router_node(state: State, config):
     # it's threaded through configurable rather than built here. Raises
     # DailyTokenBudgetExceededError straight out of this node if it trips - deliberately
     # uncaught here, propagates to app/main.py::ask_endpoint, which turns it into a 429.
-    # .get(), not [...]: agent/eval/run_generation_eval.py and scripts/test_conduct_analysis.py
+    # .get(), not [...]: agent/eval/runners/run_generation_eval.py and scripts/test_conduct_analysis.py
     # invoke this graph directly without setting it, same as they already intentionally
     # bypass the rate limiter and citation check - offline runs aren't a live user's
     # daily spend.

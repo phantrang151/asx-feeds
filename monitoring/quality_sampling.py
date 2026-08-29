@@ -180,7 +180,7 @@ def sample_common_feed_quality(hours: int = QUALITY_SAMPLE_WINDOW_HOURS) -> dict
 
 def sample_insight_quality(hours: int = QUALITY_SAMPLE_WINDOW_HOURS) -> dict:
     """Judges a rate-capped sample of recent ticker_insights rows, reusing the same
-    evidence reconstruction agent/eval/run_insight_eval.py uses (build_insight_evidence)
+    evidence reconstruction agent/eval/runners/run_insight_eval.py uses (build_insight_evidence)
     so both surfaces are graded against the exact same evidence shape."""
     chosen = _select_candidates(get_recent_ticker_insights_in_window(hours), "insight")
 
