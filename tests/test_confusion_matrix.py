@@ -9,10 +9,13 @@ def test_perfect_predictor():
 
     result = score_binary(rows, predict)
 
-    assert result == {
-        "n": 4, "tp": 2, "fp": 0, "tn": 2, "fn": 0,
-        "true_positive_rate": 1.0, "false_positive_rate": 0.0,
-    }
+    assert result["n"] == 4
+    assert result["tp"] == 2
+    assert result["fp"] == 0
+    assert result["tn"] == 2
+    assert result["fn"] == 0
+    assert result["true_positive_rate"] == 1.0
+    assert result["false_positive_rate"] == 0.0
 
 
 def test_imperfect_predictor_mixed_errors():
