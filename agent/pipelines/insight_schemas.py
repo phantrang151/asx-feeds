@@ -41,6 +41,11 @@ class InsightState(TypedDict):
     # feed_name -> that feed's own description_embedding (reused for supplementary-source
     # queries in execute_step_node instead of a fresh embed() call)
     feed_embeddings: dict[str, list[float]]
+    # feed_name -> that feed's own feed_description, set once by planner_node - passed to
+    # summarize_feed_items alongside feed_name so its sufficiency judgment isn't made on
+    # the bare feed name alone (the same name can carry a different description per
+    # company - see decide_feed_sources, which already does this).
+    feed_descriptions: dict[str, str]
     # feed_name -> decide_feed_sources' verdict on needs_reports/needs_peer_news, set once
     # by planner_node
     source_decisions: dict[str, FeedSourceDecision]
@@ -52,7 +57,7 @@ class InsightState(TypedDict):
     # [{"step": feed_name, "items": [...], "summary": str, "sufficient": bool}, ...]
     step_results: list[dict]
     insight_text: Optional[str]
-    # Strictly real feed_items/common_feed_items ids - never document_chunks or another
+    # Strictly real custom_feed_items/common_feed_items ids - never document_chunks or another
     # ticker's ticker_news ids, since frontend/pages/alerts.js only resolves ids against
     # the user_feed_items view. See synthesize_node and execute_step_node in
     # insight_nodes.py for how this invariant is kept.

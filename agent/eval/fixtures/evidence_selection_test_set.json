@@ -1,0 +1,46 @@
+[
+  {
+    "ticker": "NAB.AX",
+    "feeds": [
+      {
+        "feed_name": "Business Strategy",
+        "feed_description": "News about the company's strategic moves - partnerships, expansions, new products, acquisitions, or shifts in direction."
+      },
+      {
+        "feed_name": "Investment in AI",
+        "feed_description": "Any news about its investment in Data and AI"
+      },
+      {
+        "feed_name": "Revenue Trend",
+        "feed_description": "News and signals about the company's revenue performance, growth drivers, and composition, including business segments, products, services, customers, geographic markets, pricing, volumes, acquisitions, and other factors affecting revenue."
+      }
+    ],
+    "expected": {
+      "Business Strategy": {"needs_reports": false, "needs_peer_news": true},
+      "Investment in AI": {"needs_reports": false, "needs_peer_news": false},
+      "Revenue Trend": {"needs_reports": true, "needs_peer_news": false}
+    }
+  },
+  {
+    "ticker": "CBA.AX",
+    "feeds": [
+      {
+        "feed_name": "Business Strategy",
+        "feed_description": "News about the company's strategic moves - partnerships, expansions, new products, acquisitions, or shifts in direction."
+      },
+      {
+        "feed_name": "Investment in AI",
+        "feed_description": "News about its investment/divestment in Data, Analytics, and AI to streamline its processes, reduce cost, identify new opportunities,etc."
+      },
+      {
+        "feed_name": "Revenue Trend",
+        "feed_description": "News and signals about the company's revenue performance, growth drivers, and composition, including business segments, products, services, customers, geographic markets, pricing, volumes, acquisitions, and other factors affecting revenue."
+      }
+    ],
+    "expected": {
+      "Business Strategy": {"needs_reports": false, "needs_peer_news": true},
+      "Investment in AI": {"needs_reports": false, "needs_peer_news": false},
+      "Revenue Trend": {"needs_reports": true, "needs_peer_news": false}
+    }
+  }
+]

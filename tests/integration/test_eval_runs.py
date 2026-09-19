@@ -6,7 +6,7 @@ This test would have caught it immediately."""
 
 from db.queries import insert_eval_run
 
-REAL_EVAL_TYPES = ["classification", "generation", "insight_quality", "guardrails", "research_order", "live_sample"]
+REAL_EVAL_TYPES = ["classification", "chat_answer", "insight_quality", "guardrails", "research_order", "live_sample"]
 
 
 def test_every_real_eval_type_is_accepted_by_the_db_constraint(client):

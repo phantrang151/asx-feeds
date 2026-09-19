@@ -1,10 +1,10 @@
 """
 Continuous production quality monitoring: samples a bounded percentage of each
-surface's recent LLM-generated text - custom feed item summaries, common feed item
-summaries, pipeline insight summaries, and chat answers - judges it with the same
-groundedness/completeness judges eval/judge.py already uses, and persists one row per
-judged item to quality_samples (see schema.sql) so the admin page's Monitoring section
-can browse specific flagged examples, not just an aggregate score.
+surface's recent LLM-generated text - per-feed combined summaries, pipeline insight
+summaries, and chat answers - judges it with the same groundedness/completeness judges
+eval/judge.py already uses, and persists one row per judged item to quality_samples (see
+schema.sql) so the admin page's Monitoring section can browse specific flagged examples,
+not just an aggregate score.
 
 Complements agent/eval/ (fixed test cases / manually-triggered aggregate scoring,
 re-run on prompt or code change) rather than replacing it - this module is purely
@@ -22,9 +22,7 @@ from config import (
     QUALITY_COMPLETENESS_THRESHOLD_PCT,
 )
 from db.queries import (
-    get_recent_custom_feed_items_for_sampling,
-    get_recent_common_feed_items_for_sampling,
-    get_ticker_news_titles,
+    get_items_by_ids,
     get_recent_ticker_insights_in_window,
     get_eligible_request_traces_for_sampling,
     get_sampled_source_ids,
@@ -73,7 +71,7 @@ def _judge_and_build_row(
     JUDGE_MODEL's structured-output parsing occasionally returns a malformed shape (e.g.
     a stringified list instead of an actual list), which is rare but real, and losing
     one sample to it shouldn't cost the rest of this run's already-judged items across
-    every surface (run_quality_sampling calls all four samplers in one request)."""
+    every surface (run_quality_sampling calls all three samplers in one request)."""
     try:
         groundedness = judge_groundedness(text, evidence)
         completeness_pct = None
@@ -112,64 +110,64 @@ def _select_candidates(candidates: list[dict], surface_type: str, id_key: str = 
     return random.sample(fresh, _sample_size(len(fresh)))
 
 
-def sample_custom_feed_quality(hours: int = QUALITY_SAMPLE_WINDOW_HOURS) -> dict:
-    """Judges a rate-capped sample of recent custom feed_items' content_summary against
-    the source article title reconstructed from ticker_news (feed_items itself only
-    stores the summary, not the source text - see get_ticker_news_titles)."""
-    chosen = _select_candidates(get_recent_custom_feed_items_for_sampling(hours), "custom_feed")
+def sample_feed_combine_quality(hours: int = QUALITY_SAMPLE_WINDOW_HOURS) -> dict:
+    """Judges a rate-capped sample of real summarize_feed_items() output - the per-feed
+    combined summary stored in ticker_insights.feed_summaries (see synthesize_node in
+    agent/pipelines/insight_nodes.py) - against the real underlying news items it was
+    built from, reconstructed by their item_ids via get_items_by_ids.
 
-    by_ticker: dict[str, list[str]] = {}
-    for item in chosen:
-        if item.get("source_url"):
-            by_ticker.setdefault(item["ticker"], []).append(item["source_url"])
-    titles_by_ticker = {ticker: get_ticker_news_titles(ticker, urls) for ticker, urls in by_ticker.items()}
+    Replaces the old sample_custom_feed_quality/sample_common_feed_quality: those judged
+    the per-article content_summary, but classification time now stores content_summary
+    as plain format_news_content(title, snippet) with no LLM call of its own (see
+    ingestion_steps.py) - there's nothing left to audit at that stage. The only
+    summarization LLM call left in the feed pipeline is summarize_feed_items, so that's
+    what this audits instead.
 
-    rows = []
-    for item in chosen:
-        source = titles_by_ticker.get(item["ticker"], {}).get(item.get("source_url"))
-        if not source:
-            # No matching ticker_news row (e.g. no source_url) - nothing to judge
-            # groundedness/completeness against, so skip rather than unfairly flag it.
-            continue
-        row = _judge_and_build_row(
-            surface_type="custom_feed",
-            source_id=item["id"],
-            ticker=item["ticker"],
-            question=f"Why is this news item relevant to the '{item['feed_name']}' feed?",
-            context=item.get("feed_description"),
-            text=item["content_summary"],
-            evidence=[{"source": "ticker_news", "content": source["title"], "url": item.get("source_url")}],
-        )
-        if row:
-            rows.append(row)
+    Candidates are individual (ticker_insight, feed_name) pairs flattened out of recent
+    ticker_insights rows, not whole rows - one insight can have several feeds worth
+    auditing independently, unlike sample_insight_quality which judges the god-summary
+    as a whole. Each candidate's `id` (what _select_candidates dedupes on) is the FIRST
+    id in that feed's item_ids - there's no id of its own for "this feed's combined
+    summary in this run", so its first underlying item is used as a stable anchor (see
+    schema.sql's quality_samples.source_id comment)."""
+    insight_rows = get_recent_ticker_insights_in_window(hours)
+    candidates = [
+        {
+            "id": fs["item_ids"][0],
+            "ticker": insight_row["ticker"],
+            "feed_name": fs["feed_name"],
+            "summary": fs["summary"],
+            "item_ids": fs["item_ids"],
+        }
+        for insight_row in insight_rows
+        for fs in (insight_row.get("feed_summaries") or [])
+        if fs.get("status") == "sufficient" and fs.get("summary") and fs.get("item_ids")
+    ]
+    chosen = _select_candidates(candidates, "feed_combine")
 
-    inserted = insert_quality_samples(rows)
-    return {"n_sampled": len(inserted), "n_flagged": sum(1 for r in inserted if r["flagged"])}
-
-
-def sample_common_feed_quality(hours: int = QUALITY_SAMPLE_WINDOW_HOURS) -> dict:
-    """Same as sample_custom_feed_quality above, for common_feed_items."""
-    chosen = _select_candidates(get_recent_common_feed_items_for_sampling(hours), "common_feed")
-
-    by_ticker: dict[str, list[str]] = {}
-    for item in chosen:
-        if item.get("source_url"):
-            by_ticker.setdefault(item["ticker"], []).append(item["source_url"])
-    titles_by_ticker = {ticker: get_ticker_news_titles(ticker, urls) for ticker, urls in by_ticker.items()}
+    all_item_ids = [item_id for c in chosen for item_id in c["item_ids"]]
+    content_by_id = get_items_by_ids(all_item_ids)
 
     rows = []
-    for item in chosen:
-        source = titles_by_ticker.get(item["ticker"], {}).get(item.get("source_url"))
-        if not source:
+    for c in chosen:
+        evidence = [
+            {"source": "news", "content": content_by_id[item_id]}
+            for item_id in c["item_ids"]
+            if item_id in content_by_id
+        ]
+        if not evidence:
+            # Every underlying item was deleted/unreachable since this insight ran -
+            # nothing to judge groundedness/completeness against, so skip rather than
+            # unfairly flag it.
             continue
         row = _judge_and_build_row(
-            surface_type="common_feed",
-            source_id=item["id"],
-            ticker=item["ticker"],
-            question=f"Why is this news item relevant to the '{item['feed_name']}' feed?",
-            context=item.get("feed_description"),
-            text=item["content_summary"],
-            evidence=[{"source": "ticker_news", "content": source["title"], "url": item.get("source_url")}],
+            surface_type="feed_combine",
+            source_id=c["id"],
+            ticker=c["ticker"],
+            question=f"What do these items say about the '{c['feed_name']}' feed, and is the evidence sufficient?",
+            context=c["feed_name"],
+            text=c["summary"],
+            evidence=evidence,
         )
         if row:
             rows.append(row)
@@ -231,12 +229,11 @@ def sample_chat_answer_quality(hours: int = QUALITY_SAMPLE_WINDOW_HOURS) -> dict
 
 
 def run_quality_sampling(hours: int = QUALITY_SAMPLE_WINDOW_HOURS) -> dict:
-    """Runs all four samplers - the one function both the admin trigger route and a
+    """Runs all three samplers - the one function both the admin trigger route and a
     future scheduled job would call. Makes real, live JUDGE_MODEL calls (up to
-    QUALITY_SAMPLE_CAP * 4 total) - not free, not instant."""
+    QUALITY_SAMPLE_CAP * 3 total) - not free, not instant."""
     return {
-        "custom_feed": sample_custom_feed_quality(hours),
-        "common_feed": sample_common_feed_quality(hours),
+        "feed_combine": sample_feed_combine_quality(hours),
         "insight": sample_insight_quality(hours),
         "chat_answer": sample_chat_answer_quality(hours),
     }

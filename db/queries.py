@@ -95,7 +95,7 @@ def update_feed(
 def delete_feed(feed_id: str, user_id: str) -> Optional[dict]:
     """Deletes one feed, scoped to ownership only (unlike update_feed, common feeds are
     deletable too - the frontend's delete button shows for both feed types). Cascades to
-    the feed's feed_items via schema.sql's ON DELETE CASCADE. Returns the deleted row (so
+    the feed's custom_feed_items via schema.sql's ON DELETE CASCADE. Returns the deleted row (so
     the caller has its ticker to re-synthesize the cross-feed insight with) or None if it
     didn't exist / wasn't the caller's."""
     client = get_client()
@@ -129,7 +129,7 @@ def delete_ticker_for_user(ticker: str, user_id: str) -> bool:
 
 
 def set_feed_needs_rematch(feed_id: str, user_id: str) -> Optional[dict]:
-    """Flags a custom feed so the next pipeline run wipes its feed_items and re-matches its
+    """Flags a custom feed so the next pipeline run wipes its custom_feed_items and re-matches its
     entire ticker_news history under its current description/threshold (see
     classify_and_store). Same ownership+custom-only scoping as update_feed."""
     client = get_client()
@@ -158,11 +158,17 @@ def get_common_feed_template(template_id: str) -> Optional[dict]:
 
 
 def upsert_common_feed_template(
-    name: str, description: str, description_embedding: list[float], match_threshold: float = 0.22
+    name: str, description: str, description_embedding: list[float], match_threshold: float = 0.1685
 ) -> dict:
     """Used only by the one-off seed script - common_feed_templates is fixed, curated
     content (Revenue Trend, Business Strategy, Red Flags), not something created via
-    the API."""
+    the API. Default match_threshold (0.1685) is the recall-weighted best threshold
+    from run_classification_eval.py::compute_pr_auc's PR-AUC sweep, not an arbitrary
+    starting point - see agent/eval/fixtures/labeling_worksheet.csv for the labeled
+    sample it was picked from. Keeping this default in sync with what's actually
+    deployed matters: seed_common_feed_templates.py calls this without passing
+    match_threshold explicitly, so a stale default here would silently revert a
+    deliberate threshold change the next time someone re-runs the seed script."""
     client = get_client()
     result = (
         client.table("common_feed_templates")
@@ -189,7 +195,7 @@ def insert_feed_item(
 ) -> dict:
     client = get_client()
     result = (
-        client.table("feed_items")
+        client.table("custom_feed_items")
         .insert(
             {
                 "feed_id": feed_id,
@@ -207,7 +213,7 @@ def insert_feed_item(
 def get_custom_feed_items(feed_id: str) -> list[dict]:
     client = get_client()
     return (
-        client.table("feed_items")
+        client.table("custom_feed_items")
         .select("*")
         .eq("feed_id", feed_id)
         .order("created_at", desc=True)
@@ -217,9 +223,10 @@ def get_custom_feed_items(feed_id: str) -> list[dict]:
 
 
 def get_common_feed_items(common_feed_template_id: str, ticker: str) -> list[dict]:
-    """A 'common' feed's items - unlike a custom feed, these never land in feed_items
-    (see feeds.feed_type in schema.sql), so a caller walking a user's feeds needs this
-    instead of get_custom_feed_items() whenever feed_type == 'common'."""
+    """A 'common' feed's items - unlike a custom feed, these never land in
+    custom_feed_items (see feeds.feed_type in schema.sql), so a caller walking a
+    user's feeds needs this instead of get_custom_feed_items() whenever feed_type ==
+    'common'."""
     client = get_client()
     return (
         client.table("common_feed_items")
@@ -233,12 +240,13 @@ def get_common_feed_items(common_feed_template_id: str, ticker: str) -> list[dic
 
 
 def get_recent_custom_feed_items_for_sampling(hours: int = 24, limit: int = 500) -> list[dict]:
-    """feed_items created in the last `hours` for CUSTOM feeds only, joined (in Python -
-    feed_items has no ticker/feed_name of its own) to their parent feeds row - the
-    candidate pool for monitoring/quality_sampling.py's sample_custom_feed_quality."""
+    """custom_feed_items created in the last `hours` for CUSTOM feeds only, joined (in
+    Python - custom_feed_items has no ticker/feed_name of its own) to their parent
+    feeds row - the candidate pool for monitoring/quality_sampling.py's
+    sample_custom_feed_quality."""
     client = get_client()
     items = (
-        client.table("feed_items")
+        client.table("custom_feed_items")
         .select("id, feed_id, content_summary, source_url, created_at")
         .gte("created_at", (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat())
         .limit(limit)
@@ -300,17 +308,34 @@ def get_recent_common_feed_items_for_sampling(hours: int = 24, limit: int = 500)
     ]
 
 
+def get_items_by_ids(ids: list[str]) -> dict[str, str]:
+    """Bulk content_summary lookup by id, across BOTH custom_feed_items (custom) and
+    common_feed_items (common) - a ticker_insights.feed_summaries entry's item_ids
+    doesn't record which table they came from (see synthesize_node in
+    insight_nodes.py), so this tries both rather than requiring the caller to know.
+    An id only ever exists in one of the two tables, so there's no collision risk.
+    Used by monitoring/quality_sampling.py's sample_feed_combine_quality to
+    reconstruct the real evidence a real summarize_feed_items() call combined."""
+    if not ids:
+        return {}
+    client = get_client()
+    custom = client.table("custom_feed_items").select("id, content_summary").in_("id", ids).execute().data
+    common = client.table("common_feed_items").select("id, content_summary").in_("id", ids).execute().data
+    return {row["id"]: row["content_summary"] for row in (*custom, *common)}
+
+
 def get_ticker_news_titles(ticker: str, source_urls: list[str]) -> dict[str, dict]:
     """Bulk-fetches ticker_news rows for this ticker by source_url (unique(ticker,
     source_url) in schema.sql), keyed by source_url - reconstructs the source article's
     title/publisher as "evidence" for a feed/common-feed item's content_summary, since
-    feed_items/common_feed_items only store the summary itself, not the source text."""
+    custom_feed_items/common_feed_items only store the summary itself, not the source
+    text."""
     if not source_urls:
         return {}
     client = get_client()
     rows = (
         client.table("ticker_news")
-        .select("title, publisher, source_url")
+        .select("title, publisher, source_url, snippet")
         .eq("ticker", ticker)
         .in_("source_url", source_urls)
         .execute()
@@ -495,7 +520,7 @@ def match_common_feed_template_for_embedding(
 def upsert_ticker_news(rows: list[dict]) -> None:
     """
     Upserts pre-shaped ticker_news rows (ticker, title, publisher, source_url,
-    published_at, content_embedding), silently skipping ones that already exist for a
+    published_at, snippet, content_embedding), silently skipping ones that already exist for a
     (ticker, source_url) pair - this is what stops the same handful of yfinance
     headlines from being re-embedded and re-inserted on every pipeline run. Articles
     with no source_url can't be deduped this way (a unique constraint never treats two
@@ -561,7 +586,7 @@ def delete_feed_items(feed_ids: list[str]) -> None:
     if not feed_ids:
         return
     client = get_client()
-    client.table("feed_items").delete().in_("feed_id", feed_ids).execute()
+    client.table("custom_feed_items").delete().in_("feed_id", feed_ids).execute()
 
 
 def reset_feed_watermarks(feed_ids: list[str]) -> None:
@@ -858,16 +883,20 @@ def get_classified_ticker_news_sample(limit: int) -> list[dict]:
     )
 
 
-def insert_eval_run(eval_type: str, summary: dict) -> dict:
-    """Logs one eval run - called by eval/score_classification.py (eval_type=
-    'classification') and eval/run_generation_eval.py (eval_type='generation') after
+def insert_eval_run(eval_type: str, summary: dict, fixture_version: Optional[str] = None) -> dict:
+    """Logs one eval run - called by eval/run_classification_eval.py (eval_type=
+    'classification') and eval/run_chat_answer_eval.py (eval_type='chat_answer') after
     they finish scoring, so the admin page's Evaluation section has something to read.
     `summary` is whatever shape that eval type's own output looks like - see each
-    script - not a fixed schema, since the two eval types measure different things."""
+    script - not a fixed schema, since the two eval types measure different things.
+    `fixture_version` is a content hash of the fixture file(s) the run was scored
+    against (see agent/eval/fixture_version.py) - None for eval types with no fixture of
+    their own (live_sample samples real traffic; judge_drift diffs other runs)."""
     client = get_client()
-    result = (
-        client.table("eval_runs").insert({"eval_type": eval_type, "summary": summary}).execute()
-    )
+    row = {"eval_type": eval_type, "summary": summary}
+    if fixture_version is not None:
+        row["fixture_version"] = fixture_version
+    result = client.table("eval_runs").insert(row).execute()
     return result.data[0]
 
 
@@ -1186,10 +1215,21 @@ def insert_request_trace_steps(request_trace_id: str, steps: list[dict]) -> None
     client.table("request_trace_steps").insert(rows).execute()
 
 
-def insert_ops_alert(request_trace_id: str, user_id: str, alert_type: str, threshold: float, actual_value: float) -> dict:
+def insert_ops_alert(
+    request_trace_id: str | None,
+    user_id: str,
+    alert_type: str,
+    threshold: float,
+    actual_value: float,
+    details: dict | None = None,
+) -> dict:
     """One row per tripped ALERT_* threshold (see agent/guardrails/alerts.py) -
     persists what was previously only an ephemeral logger.warning when the matching
-    hard guardrail aborted a request."""
+    hard guardrail aborted a request. request_trace_id is None for alert types raised
+    outside a chat request - e.g. 'structured_output_parse_failure' from the
+    background ingestion pipeline (see agent/shared/structured_output.py) - and
+    `details` carries whatever extra context that alert type needs (ticker, schema
+    name, raw args) that doesn't fit threshold/actual_value."""
     client = get_client()
     result = (
         client.table("ops_alerts")
@@ -1200,6 +1240,7 @@ def insert_ops_alert(request_trace_id: str, user_id: str, alert_type: str, thres
                 "alert_type": alert_type,
                 "threshold": threshold,
                 "actual_value": actual_value,
+                "details": details or {},
             }
         )
         .execute()
@@ -1310,7 +1351,7 @@ def get_recent_request_traces_for_input_guardrail_sampling(hours: int = 24, limi
 def sample_recent_request_traces(n: int, hours: int = 24) -> list[dict]:
     """Random sample of up to `n` completed conduct_analysis requests from the last
     `hours` - what eval/run_live_sample_eval.py judges for groundedness/relevance/
-    answer-discovery against REAL traffic, not just eval/run_generation_eval.py's fixed
+    answer-discovery against REAL traffic, not just eval/run_chat_answer_eval.py's fixed
     fixture set. Random, not most-recent-N: most-recent would just re-judge whatever
     happened to come in right before the audit ran, biasing toward one time-of-day/one
     user's traffic pattern. Sampled in Python from a bounded pull, not a DB-side

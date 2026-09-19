@@ -1,20 +1,27 @@
 """
 Fixed-fixture regression eval for feed item summarization
-(agent/pipelines/ingestion_steps.py::_summarize_for_feed) - the LLM call that produces
-content_summary for both custom feed_items and shared common_feed_items rows. Reuses
-the exact same function the live pipeline calls, on a fixed set of (article, feed)
-pairs, so a prompt/model change shows up here before it reaches production - unlike
-monitoring/quality_sampling.py's sample_custom_feed_quality/sample_common_feed_quality,
-which continuously judge whatever the live pipeline already produced from real, changing
-news.
+(agent/pipelines/insight_nodes.py::summarize_feed_items) - the LLM call that combines a
+feed's own news items (title+snippet, concatenated - see
+agent/shared/news_text.py::format_news_content) into one summary + sufficiency
+judgment, for both custom feeds and common-feed-template items. Reuses the exact same
+function the live insight pipeline calls, on a fixed set of (feed, [news items]) pairs,
+so a prompt/model change shows up here before it reaches production - unlike
+monitoring/quality_sampling.py's sample_feed_combine_quality, which continuously judges
+whatever the live pipeline already produced from real, changing news.
 
-One fixture, not two (custom vs common) - _summarize_for_feed itself doesn't distinguish
-between the two (same function, same prompt, regardless of which table the caller will
-insert into), so there's nothing to test separately. Classification correctness (which
-feed an article gets matched to) is scored separately by score_classification.py,
+One fixture, not two (custom vs common) - summarize_feed_items itself doesn't
+distinguish between the two (same function, same prompt, regardless of which table the
+items came from), so there's nothing to test separately. Classification correctness
+(which feed an article gets matched to) is scored separately by run_classification_eval.py,
 deliberately scoped to common_feed_templates only - see that script's own docstring for
-why custom feeds aren't in scope there. This eval is purely about summary quality once a
-match has already happened, so the same reasoning doesn't apply here.
+why custom feeds aren't in scope there. This eval is purely about combine-quality once a
+feed's items are already known, so the same reasoning doesn't apply here.
+
+There's no separate per-article summarization step to test any more - classification
+time now stores each item's content_summary as format_news_content(title, snippet)
+directly (see ingestion_steps.py), with no LLM call of its own. summarize_feed_items is
+the only summarization LLM call left in the feed pipeline, which is why this eval calls
+it directly instead of a per-article function.
 
 Usage:
     python -m agent.eval.runners.run_feed_summary_eval
@@ -23,28 +30,32 @@ Usage:
 import argparse
 import json
 
-from agent.pipelines.ingestion_steps import summarize_for_feed
+from agent.pipelines.insight_nodes import summarize_feed_items
 from agent.eval.judge import judge_groundedness, judge_completeness, dump_unsupported_claims
+from agent.shared.news_text import format_news_content
+from agent.eval.fixture_version import compute_fixture_version
 from db.queries import insert_eval_run
 
 DEFAULT_FIXTURE = "agent/eval/fixtures/feed_summary_test_set.json"
 
 
 def run_one(row: dict) -> dict:
-    article = {"title": row["article_title"], "publisher": row.get("publisher")}
-    summary = summarize_for_feed(article, row["feed_name"], row["feed_description"])
-    evidence = [{"source": "article", "content": row["article_title"]}]
-    question = f"Why is this news item relevant to the '{row['feed_name']}' feed?"
+    items = [{"content_summary": format_news_content(n["title"], n.get("snippet"))} for n in row["news"]]
+    result = summarize_feed_items(row["feed_name"], row["feed_description"], row["ticker"], items)
+    evidence = [{"source": "news", "content": item["content_summary"]} for item in items]
+    question = f"What do these items say about the '{row['feed_name']}' feed, and is the evidence sufficient?"
 
-    groundedness = judge_groundedness(summary, evidence)
-    completeness = judge_completeness(question, summary, evidence)
+    groundedness = judge_groundedness(result.summary, evidence)
+    completeness = judge_completeness(question, result.summary, evidence)
 
     return {
+        "id": row.get("id"),
         "ticker": row.get("ticker"),
         "feed_name": row["feed_name"],
         "feed_description": row["feed_description"],
-        "article_title": row["article_title"],
-        "summary": summary,
+        "news_titles": [n["title"] for n in row["news"]],
+        "summary": result.summary,
+        "sufficient": result.sufficient,
         "groundedness": {
             "grounded": groundedness.grounded,
             "groundedness_pct": groundedness.groundedness_pct,
@@ -72,7 +83,7 @@ def summarize(results: list[dict]) -> dict:
 
 
 def _print_summary(summary: dict) -> None:
-    print(f"Total pairs:        {summary['n_total']}")
+    print(f"Total feeds:        {summary['n_total']}")
     print(f"% fully grounded:   {summary['pct_grounded']}")
     print(f"Avg groundedness:   {summary['avg_groundedness_pct']}%")
     print(f"Avg completeness:   {summary['avg_completeness_pct']}%")
@@ -82,7 +93,7 @@ def run_feed_summary_eval(fixture_path: str = DEFAULT_FIXTURE, persist: bool = T
     """Runs the fixed fixture and returns {"summary", "results"} - the one function both
     this script's __main__ block AND the admin-triggered
     POST /api/admin/eval/feed-summary/trigger route call. Makes real, live Claude calls
-    (ROUTER_MODEL for the summary itself, JUDGE_MODEL for judging) - not free, not instant."""
+    (ANALYSIS_MODEL for the summary itself, JUDGE_MODEL for judging) - not free, not instant."""
     with open(fixture_path, encoding="utf-8") as f:
         rows = json.load(f)
 
@@ -90,7 +101,10 @@ def run_feed_summary_eval(fixture_path: str = DEFAULT_FIXTURE, persist: bool = T
     summary = summarize(results)
 
     if persist:
-        insert_eval_run("feed_summary", {"fixture": fixture_path, "summary": summary, "results": results})
+        insert_eval_run(
+            "feed_summary", {"fixture": fixture_path, "summary": summary, "results": results},
+            fixture_version=compute_fixture_version(fixture_path),
+        )
 
     return {"summary": summary, "results": results}
 

@@ -2,10 +2,10 @@
 Fixed-fixture regression eval for the pipeline's insight synthesis
 (agent/pipelines/insight_nodes.py::synthesize_node, which calls
 agent/shared/synthesize.py::synthesize_insight with no `question` - the proactive "god
-summary" path, as opposed to conduct_analysis's Q&A path that run_generation_eval.py
+summary" path, as opposed to conduct_analysis's Q&A path that run_chat_answer_eval.py
 already scores). Runs a fixed set of (ticker, evidence) pairs through
 synthesize_insight() FRESH each time and judges the result - the pipeline-side
-counterpart to run_generation_eval.py's chat-answer scoring, same reasoning: a
+counterpart to run_chat_answer_eval.py's chat-answer scoring, same reasoning: a
 reproducible, controlled input so a prompt/model change shows up here before it reaches
 production.
 
@@ -16,6 +16,14 @@ before/after a prompt change could differ just because the news changed, not bec
 prompt did. Continuous monitoring of real production insights is what
 monitoring/quality_sampling.py is for; this is the fixed regression-test counterpart.
 
+Each fixture row holds `feed_summaries` (the same {feed_name, status, summary,
+item_count} shape a real ticker_insights row persists), not hand-authored evidence text -
+the same summaries agent/eval/runners/run_feed_summary_eval.py's own fixture produces via
+summarize_feed_items(). evidence/no_evidence_feeds/insufficient_evidence_feeds are derived
+from it exactly the way agent/pipelines/insight_nodes.py::synthesize_node does, so this
+eval calls synthesize_insight() the same way the live pipeline does, not a simplified
+stand-in.
+
 Usage:
     python -m agent.eval.runners.run_insight_eval
 """
@@ -24,7 +32,9 @@ import argparse
 import json
 
 from agent.shared.synthesize import synthesize_insight
-from agent.eval.judge import judge_groundedness, judge_relevance, judge_completeness, dump_unsupported_claims
+from agent.eval.insight_evidence import build_insight_evidence
+from agent.eval.judge import judge_groundedness, judge_completeness, dump_unsupported_claims
+from agent.eval.fixture_version import compute_fixture_version
 from db.queries import insert_eval_run
 
 DEFAULT_FIXTURE = "agent/eval/fixtures/insight_test_set.json"
@@ -32,26 +42,41 @@ DEFAULT_FIXTURE = "agent/eval/fixtures/insight_test_set.json"
 
 def run_one(row: dict) -> dict:
     ticker = row["ticker"]
-    evidence = row["evidence"]
+    feed_summaries = row["feed_summaries"]
     question = f"What's happening with {ticker} and why?"
 
-    insight_text = synthesize_insight(ticker, evidence)
+    evidence = [
+        {"source": fs["feed_name"], "content": fs["summary"]}
+        for fs in feed_summaries
+        if fs["status"] == "sufficient" and fs.get("summary")
+    ]
+    no_evidence_feeds = [fs["feed_name"] for fs in feed_summaries if fs["status"] == "insufficient" and not fs["item_count"]]
+    insufficient_evidence_feeds = [
+        fs["feed_name"] for fs in feed_summaries if fs["status"] == "insufficient" and fs["item_count"]
+    ]
 
-    groundedness = judge_groundedness(insight_text, evidence)
-    relevance = judge_relevance(question, insight_text)
-    completeness = judge_completeness(question, insight_text, evidence)
+    insight_text = synthesize_insight(
+        ticker, evidence,
+        no_evidence_feeds=no_evidence_feeds or None,
+        insufficient_evidence_feeds=insufficient_evidence_feeds or None,
+    )
+
+    judge_evidence = build_insight_evidence(feed_summaries)
+    groundedness = judge_groundedness(insight_text, judge_evidence)
+    completeness = judge_completeness(question, insight_text, judge_evidence)
 
     return {
+        "id": row.get("id"),
         "ticker": ticker,
         "question": question,
         "insight_text": insight_text,
-        "evidence": evidence,
+        "feed_summaries": feed_summaries,
+        "evidence": judge_evidence,
         "groundedness": {
             "grounded": groundedness.grounded,
             "groundedness_pct": groundedness.groundedness_pct,
             "unsupported_claims": dump_unsupported_claims(groundedness.unsupported_claims),
         },
-        "relevance": {"score": relevance.score, "reasoning": relevance.reasoning},
         "completeness": {
             "coverage_pct": completeness.coverage_pct,
             "omitted_points": completeness.omitted_points,
@@ -63,7 +88,6 @@ def summarize(results: list[dict]) -> dict:
     n = len(results)
     return {
         "n_total": n,
-        "avg_relevance": round(sum(r["relevance"]["score"] for r in results) / n, 2) if n else None,
         "pct_grounded": round(100 * sum(1 for r in results if r["groundedness"]["grounded"]) / n, 1) if n else None,
         "avg_completeness_pct": (
             round(sum(r["completeness"]["coverage_pct"] for r in results) / n, 1) if n else None
@@ -73,7 +97,6 @@ def summarize(results: list[dict]) -> dict:
 
 def _print_summary(summary: dict) -> None:
     print(f"Total insights judged:  {summary['n_total']}")
-    print(f"Avg relevance (1-5):    {summary['avg_relevance']}")
     print(f"% grounded:             {summary['pct_grounded']}")
     print(f"Avg evidence coverage:  {summary['avg_completeness_pct']}%")
 
@@ -90,7 +113,10 @@ def run_insight_eval(fixture_path: str = DEFAULT_FIXTURE, persist: bool = True) 
     summary = summarize(results)
 
     if persist:
-        insert_eval_run("insight_quality", {"fixture": fixture_path, "summary": summary, "results": results})
+        insert_eval_run(
+            "insight_quality", {"fixture": fixture_path, "summary": summary, "results": results},
+            fixture_version=compute_fixture_version(fixture_path),
+        )
 
     return {"summary": summary, "results": results}
 

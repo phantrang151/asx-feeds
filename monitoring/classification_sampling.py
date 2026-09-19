@@ -1,9 +1,9 @@
 """
-Continuous production monitoring for feed classification correctness (custom feed_items
-and common_feed_items). Complements agent/eval/score_classification.py's Evaluation
+Continuous production monitoring for feed classification correctness (custom_feed_items
+and common_feed_items). Complements agent/eval/runners/run_classification_eval.py's Evaluation
 panel (same live classifier - db/queries.py::match_feed_for_embedding /
 match_common_feed_template_for_embedding - scored against a hand-labeled CSV) rather
-than replacing it: that's still the source of truth for precision/recall/ROC-AUC, but it
+than replacing it: that's still the source of truth for precision/recall/PR-AUC, but it
 needs a human labeling pass first. This samples real recent classifications and judges
 each with agent/eval/judge.py::judge_feed_classification (JUDGE_MODEL) - no labeling
 required, so it can run continuously against whatever the pipeline just classified.
@@ -13,7 +13,7 @@ get_recent_common_feed_items_for_sampling / get_ticker_news_titles - the exact s
 candidate-fetching and evidence-reconstruction monitoring/quality_sampling.py already
 built for judging these same feed items' summary quality, since both need the same
 underlying data (the item, its parent feed's name/description, and the source article's
-title).
+title+snippet, via agent/shared/news_text.py::format_news_content).
 """
 
 import logging
@@ -29,6 +29,7 @@ from db.queries import (
     insert_classification_samples,
 )
 from agent.eval.judge import judge_feed_classification
+from agent.shared.news_text import format_news_content
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +69,8 @@ def _sample_feed_classification(classification_type: str, items: list[dict]) -> 
             # classification against, so skip rather than guessing.
             continue
         try:
-            evaluation = judge_feed_classification(source["title"], item["feed_name"], item["feed_description"])
+            article_content = format_news_content(source["title"], source.get("snippet"))
+            evaluation = judge_feed_classification(article_content, item["feed_name"], item["feed_description"])
         except Exception:
             logger.warning(
                 "classification_sampling: judge call failed for %s source_id=%s",

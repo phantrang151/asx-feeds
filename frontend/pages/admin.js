@@ -58,50 +58,125 @@ async function authedFetchMultipart(path, formData) {
   }
 }
 
-// Plain inline SVG - no charting library in this project's dependencies (see
-// package.json) and a ROC curve is simple enough not to need one. fpr/tpr are both
-// already 0-1 (see agent/eval/score_classification.py::compute_roc_auc), so the plot
-// area maps directly with no scale computation.
-function RocCurve({ rocAuc }) {
-  if (!rocAuc || !rocAuc.roc_points || rocAuc.roc_points.length === 0) {
-    return null;
+// Streams agent/eval/fixtures/labeling_worksheet.csv from the server through the
+// authenticated fetch helper (a plain <a href> can't carry the Bearer token) and hands
+// the browser a Blob to save - the standard SPA pattern for an auth-gated download.
+async function downloadClassificationLabelsFile() {
+  const res = await authedFetch('/api/admin/eval/classification/labels-file');
+  if (!res.ok) {
+    alert('Could not download the labeled worksheet - it may not exist on the server yet.');
+    return;
   }
-  const size = 180;
-  const pad = 24;
-  const plot = size - pad * 2;
-  const toX = (fpr) => pad + fpr * plot;
-  const toY = (tpr) => pad + (1 - tpr) * plot;
-  const points = rocAuc.roc_points.map((p) => `${toX(p.fpr)},${toY(p.tpr)}`).join(' ');
-  const best = rocAuc.best_threshold_metrics;
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'labeling_worksheet_filled.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Three columns for one classification eval run: the labeled CSV it was scored against,
+// every observed similarity value swept as a threshold (see
+// agent/eval/runners/run_classification_eval.py::compute_pr_auc) with its Recall/Precision, and a
+// plain-language explanation of the two "best threshold" picks that curve implies.
+// Reuses the same .quality-sample-columns/-column layout QualitySampleCard uses below,
+// rather than a chart - recall/precision are exact numbers; a 180px inline SVG plot
+// couldn't show them precisely enough to actually pick a threshold from.
+//
+// Precision-recall, not ROC/FPR: real news is heavily skewed toward "belongs to none of
+// the 3 templates" (see the labeled worksheet's own class balance), which dilutes FPR's
+// denominator and makes an ROC curve look better than the classifier actually performs.
+// Precision and recall never involve a true-negative count, so they stay honest about
+// the tradeoff that matters on an imbalanced feed - see compute_pr_auc's docstring.
+function ClassificationThresholdPanel({ summary }) {
+  const prAuc = summary.pr_auc;
+  const points = (prAuc?.pr_points || []).filter((p) => p.threshold != null);
+  const best = prAuc?.best_threshold_metrics;
+  const bestRw = prAuc?.best_threshold_recall_weighted_metrics;
 
   return (
-    <div className="roc-chart">
-      <svg viewBox={`0 0 ${size} ${size}`} role="img" aria-label={`ROC curve, AUC ${rocAuc.auc ?? 'n/a'}`}>
-        {/* diagonal reference line = a coin-flip classifier */}
-        <line x1={pad} y1={size - pad} x2={size - pad} y2={pad} stroke="#eee" strokeDasharray="3 3" />
-        <line x1={pad} y1={pad} x2={pad} y2={size - pad} stroke="#ccc" />
-        <line x1={pad} y1={size - pad} x2={size - pad} y2={size - pad} stroke="#ccc" />
-        <polyline points={points} fill="none" stroke="var(--accent)" strokeWidth="2" />
-        {best && <circle cx={toX(best.fpr)} cy={toY(best.tpr)} r="3.5" fill="#b3261e" />}
-        <text x={pad} y={size - 8} fontSize="9" fill="#888">
-          FPR &rarr;
-        </text>
-        <text x={4} y={pad - 6} fontSize="9" fill="#888">
-          TPR
-        </text>
-      </svg>
-      <p className="info">
-        AUC {rocAuc.auc ?? 'n/a'}
-        {rocAuc.best_threshold != null &&
-          ` – best threshold (Youden's J) ${rocAuc.best_threshold} (red dot: tpr=${best?.tpr ?? 'n/a'}, fpr=${best?.fpr ?? 'n/a'})`}
-      </p>
+    <div className="quality-sample-columns">
+      <div className="quality-sample-column">
+        <h4>Labeled worksheet</h4>
+        <p>
+          <button type="button" className="link-button" onClick={downloadClassificationLabelsFile}>
+            {summary.labels_file || 'labeling_worksheet_filled.csv'}
+          </button>
+        </p>
+        <p>Hand-labeled CSV this run was scored against (see export_labels.py).</p>
+      </div>
+
+      <div className="quality-sample-column">
+        <h4>Recall / Precision by threshold</h4>
+        {points.length === 0 ? (
+          <p>No PR data on this run - re-run with --pr-auc.</p>
+        ) : (
+          <table className="quality-evidence-list" style={{ width: '100%' }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: 'left' }}>Threshold</th>
+                <th style={{ textAlign: 'left' }}>Recall</th>
+                <th style={{ textAlign: 'left' }}>Precision</th>
+              </tr>
+            </thead>
+            <tbody>
+              {points.map((p, i) => (
+                <tr key={i} className={p.threshold === prAuc.best_threshold ? 'quality-score good' : undefined}>
+                  <td>{p.threshold.toFixed(4)}</td>
+                  <td>{p.recall.toFixed(4)}</td>
+                  <td>{p.precision == null ? '—' : p.precision.toFixed(4)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      <div className="quality-sample-column">
+        <h4>Best threshold</h4>
+        {prAuc ? (
+          <>
+            <p>PR AUC (Average Precision) {prAuc.auc ?? 'n/a'}</p>
+            {prAuc.best_threshold != null && (
+              <p>
+                Best F1: <strong>{prAuc.best_threshold}</strong> (recall={best?.recall ?? 'n/a'}, precision=
+                {best?.precision ?? 'n/a'}) - treats a missed match and a
+                wrongly-accepted one as equally costly.
+              </p>
+            )}
+            {prAuc.best_threshold_recall_weighted != null && (
+              <p>
+                Recall-weighted (F{prAuc.beta ?? '?'}): <strong>{prAuc.best_threshold_recall_weighted}</strong>{' '}
+                (recall={bestRw?.recall ?? 'n/a'}, precision={bestRw?.precision ?? 'n/a'}) -
+                weights recall higher, since a missed match silently drops real evidence from a feed while a
+                wrongly-accepted one is just noise a user skims past.
+              </p>
+            )}
+            <p className="info">
+              Recall here is narrower than the summary line above it - it only covers rows where the
+              classifier&rsquo;s own top-1 candidate already matched the correct feed, so a threshold change can
+              raise it to 1.0 by accepting those. Rows where the embedding search picked the wrong feed entirely
+              aren&rsquo;t counted here at all - no threshold can fix a wrong top-1 guess, only better matching
+              can - which is why the summary line&rsquo;s recall can still sit well below this panel&rsquo;s.
+            </p>
+          </>
+        ) : (
+          <p>No PR data on this run.</p>
+        )}
+      </div>
     </div>
   );
 }
 
 const QUALITY_SURFACE_LABELS = {
-  custom_feed: 'Custom feed',
-  common_feed: 'Common feed',
+  // custom_feed/common_feed are retired (sample_custom_feed_quality/
+  // sample_common_feed_quality were replaced by sample_feed_combine_quality - see
+  // monitoring/quality_sampling.py) but kept here so historical quality_samples rows
+  // from before the change still render a real label instead of the raw surface_type.
+  custom_feed: 'Custom feed (retired)',
+  common_feed: 'Common feed (retired)',
+  feed_combine: 'Feed summary',
   insight: 'Insight',
   chat_answer: 'Chat answer',
 };
@@ -152,12 +227,12 @@ function QualityClaim({ claim }) {
 }
 
 function QualitySampleCard({ sample: s, onReview }) {
-  const isFeed = s.surface_type === 'custom_feed' || s.surface_type === 'common_feed';
+  const isFeed = s.surface_type === 'custom_feed' || s.surface_type === 'common_feed' || s.surface_type === 'feed_combine';
   const isInsight = s.surface_type === 'insight';
   const isChat = s.surface_type === 'chat_answer';
 
-  const col1Title = isChat ? 'Question' : isFeed ? 'Feed description' : 'Feed summaries';
-  const col2Title = isChat ? 'Answer & references' : isFeed ? 'Feed summary & source' : 'Insight ("god summary")';
+  const col1Title = isChat ? 'Question' : isFeed ? 'Feed' : 'Feed summaries';
+  const col2Title = isChat ? 'Answer & references' : isFeed ? 'Feed summary & source news' : 'Insight ("god summary")';
 
   return (
     <div className={`quality-sample-card${s.flagged ? ' flagged' : ''}`}>
@@ -349,75 +424,65 @@ function ClassificationSampleCard({ sample: s, onReview }) {
 // skeleton as the Monitoring cards, reusing QualitySampleEvidence/QualityClaim so the
 // claim-badge/highlight styling can't drift between the two sections.
 
-function GenerationEvalItemCard({ item }) {
-  const judged = item.category === 'conduct_analysis';
+function ChatAnswerEvalItemCard({ item }) {
+  // item.groundedness/completeness can be null on a run persisted before this eval was
+  // rewritten to call synthesize_insight() directly (see run_chat_answer_eval.py) - the
+  // old shape left them null for any question the live router declined instead of
+  // routing to conduct_analysis. Old eval_runs rows stay in history (that's what the
+  // judge-drift check compares against), so this card has to tolerate that shape too,
+  // not just the current one - re-run the eval to get a fresh, fully-scored row.
+  const judged = item.groundedness != null;
   return (
     <div className={`quality-sample-card${judged && !item.groundedness.grounded ? ' flagged' : ''}`}>
       <div className="quality-sample-header">
-        <span className="quality-badge">{item.category}</span>
         <strong>{item.ticker}</strong>
       </div>
       <div className="quality-sample-columns">
         <div className="quality-sample-column">
           <h4>Question</h4>
           <p>{item.question}</p>
+          <h4>Sample facts given</h4>
+          <QualitySampleEvidence evidence={item.evidence} />
         </div>
         <div className="quality-sample-column">
-          <h4>Answer &amp; references</h4>
+          <h4>Answer</h4>
           <p>{item.answer}</p>
-          {judged && (
-            <>
-              <h4>References</h4>
-              <QualitySampleEvidence evidence={item.evidence} />
-            </>
-          )}
         </div>
         <div className="quality-sample-column">
           <h4>Scores &amp; explanation</h4>
           {!judged ? (
-            <p>Not judged - routed to &quot;{item.category}&quot; instead of conduct_analysis.</p>
+            <p>Not scored - this run predates the current chat-answer eval; re-run to see scores.</p>
           ) : (
+          <>
+          <div className="quality-score-row">
+            <p className={`quality-score ${(item.groundedness.groundedness_pct ?? (item.groundedness.grounded ? 100 : 0)) === 100 ? 'good' : 'bad'}`}>
+              Groundedness {item.groundedness.groundedness_pct != null ? `${item.groundedness.groundedness_pct}%` : (item.groundedness.grounded ? '100%' : 'n/a')}
+            </p>
+            <p className={`quality-score ${item.completeness && item.completeness.coverage_pct >= 80 ? 'good' : 'bad'}`}>
+              Completeness {item.completeness ? `${item.completeness.coverage_pct}%` : 'n/a'}
+            </p>
+          </div>
+          {item.groundedness.unsupported_claims && item.groundedness.unsupported_claims.length > 0 && (
             <>
-              <div className="quality-score-row">
-                <p className={`quality-score ${(item.groundedness.groundedness_pct ?? (item.groundedness.grounded ? 100 : 0)) === 100 ? 'good' : 'bad'}`}>
-                  Groundedness {item.groundedness.groundedness_pct != null ? `${item.groundedness.groundedness_pct}%` : (item.groundedness.grounded ? '100%' : 'n/a')}
-                </p>
-                <p className={`quality-score ${item.completeness && item.completeness.coverage_pct >= 80 ? 'good' : 'bad'}`}>
-                  Completeness {item.completeness ? `${item.completeness.coverage_pct}%` : 'n/a'}
-                </p>
-              </div>
-              <p className={`quality-score ${item.relevance.score >= 4 ? 'good' : 'bad'}`}>
-                Relevance {item.relevance.score}/5
-              </p>
-              <p className={`quality-score ${item.advice_avoidance_passed ? 'good' : 'bad'}`}>
-                Advice-avoidance: {item.advice_avoidance_passed ? 'Passed' : 'Failed'}
-              </p>
-              {item.answer_found && (
-                <p className={`quality-score ${item.answer_found.found_answer ? 'good' : 'bad'}`}>
-                  Answer found: {item.answer_found.found_answer ? 'Yes' : 'No'}
-                </p>
-              )}
-              {item.groundedness.unsupported_claims && item.groundedness.unsupported_claims.length > 0 && (
-                <>
-                  <h4>Groundedness issues</h4>
-                  <ul className="quality-claims-list">
-                    {item.groundedness.unsupported_claims.map((c, i) => (
-                      <QualityClaim key={i} claim={c} />
-                    ))}
-                  </ul>
-                </>
-              )}
-              {item.completeness && item.completeness.omitted_points.length > 0 && (
-                <>
-                  <h4>Omitted from answer</h4>
-                  <ul className="quality-omitted-list">
-                    {item.completeness.omitted_points.map((p, i) => (
-                      <li key={i}>{p}</li>
-                    ))}
-                  </ul>
-                </>
-              )}
+              <h4>Groundedness issues</h4>
+              <ul className="quality-claims-list">
+                {item.groundedness.unsupported_claims.map((c, i) => (
+                  <QualityClaim key={i} claim={c} />
+                ))}
+              </ul>
             </>
+          )}
+          {item.completeness && item.completeness.omitted_points.length > 0 && (
+            <>
+              <h4>Omitted from answer</h4>
+              <ul className="quality-omitted-list">
+                {item.completeness.omitted_points.map((p, i) => (
+                  <li key={i}>{p}</li>
+                ))}
+              </ul>
+            </>
+          )}
+          </>
           )}
         </div>
       </div>
@@ -450,9 +515,6 @@ function InsightEvalItemCard({ item }) {
               Completeness {item.completeness ? `${item.completeness.coverage_pct}%` : 'n/a'}
             </p>
           </div>
-          <p className={`quality-score ${item.relevance.score >= 4 ? 'good' : 'bad'}`}>
-            Relevance {item.relevance.score}/5
-          </p>
           {item.groundedness.unsupported_claims && item.groundedness.unsupported_claims.length > 0 && (
             <>
               <h4>Groundedness issues</h4>
@@ -485,16 +547,24 @@ function FeedSummaryEvalItemCard({ item }) {
       <div className="quality-sample-header">
         <span className="quality-badge">{item.feed_name}</span>
         <strong>{item.ticker}</strong>
+        <span className="info">{(item.news_titles || []).length} news item(s)</span>
       </div>
       <div className="quality-sample-columns">
         <div className="quality-sample-column">
-          <h4>Article &amp; feed description</h4>
-          <p>{item.article_title}</p>
+          <h4>News &amp; feed description</h4>
+          <ul className="quality-evidence-list">
+            {(item.news_titles || []).map((title, i) => (
+              <li key={i}>{title}</li>
+            ))}
+          </ul>
           <p>{item.feed_description}</p>
         </div>
         <div className="quality-sample-column">
           <h4>Generated summary</h4>
           <p>{item.summary}</p>
+          <p className={`quality-score ${item.sufficient ? 'good' : 'bad'}`}>
+            {item.sufficient ? 'Sufficient' : 'Insufficient'} evidence
+          </p>
         </div>
         <div className="quality-sample-column">
           <h4>Scores &amp; explanation</h4>
@@ -606,40 +676,94 @@ function GuardrailEvalItemCard({ text, isBad, regexPredicted, llmPredicted }) {
   );
 }
 
-function ResearchOrderEvalItemCard({ item }) {
+// Research-order guardrail eval still exists and is triggerable via CLI/API
+// (agent/eval/runners/run_research_order_eval.py, POST /api/admin/eval/research-order/trigger) -
+// just deprioritized out of this dropdown, not deleted (see docs/pipeline_guardrails.csv).
+
+function EvidenceSelectionEvalItemCard({ item }) {
+  const allCorrect = item.per_feed.every((f) => f.reports_correct && f.peer_news_correct);
   return (
-    <div className={`quality-sample-card${!item.correct ? ' flagged' : ''}`}>
+    <div className={`quality-sample-card${!allCorrect ? ' flagged' : ''}`}>
       <div className="quality-sample-header">
-        <span className={`quality-badge${item.is_bad ? ' flagged' : ''}`}>
-          {item.is_bad ? 'Should block' : 'Should allow'}
-        </span>
+        <strong>{item.ticker}</strong>
       </div>
-      <div className="quality-sample-columns">
-        <div className="quality-sample-column">
-          <h4>Scenario</h4>
-          <p>{item.description}</p>
-        </div>
-        <div className="quality-sample-column">
-          <h4>Call sequence</h4>
-          <ul className="quality-evidence-list">
-            {item.steps.map((s, i) => (
-              <li key={i}>
-                {s.action}
-                {s.source ? ` (${s.source})` : ''}
-                {s.found !== undefined ? ` found=${String(s.found)}` : ''}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="quality-sample-column">
-          <h4>Result</h4>
-          <p>Expected: {item.is_bad ? 'Blocked' : 'Allowed'}</p>
-          <p className={`quality-score ${item.correct ? 'good' : 'bad'}`}>
-            Actual: {item.predicted_bad ? 'Blocked' : 'Allowed'} ({item.correct ? 'correct' : 'WRONG'})
-          </p>
-        </div>
+      <table className="quality-evidence-list" style={{ width: '100%' }}>
+        <thead>
+          <tr>
+            <th style={{ textAlign: 'left' }}>Feed</th>
+            <th style={{ textAlign: 'left' }}>needs_reports (expected / actual)</th>
+            <th style={{ textAlign: 'left' }}>needs_peer_news (expected / actual)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {item.per_feed.map((f, i) => (
+            <tr key={i}>
+              <td>{f.feed_name}</td>
+              <td className={`quality-score ${f.reports_correct ? 'good' : 'bad'}`}>
+                {String(f.expected.needs_reports)} / {String(f.predicted.needs_reports)}
+              </td>
+              <td className={`quality-score ${f.peer_news_correct ? 'good' : 'bad'}`}>
+                {String(f.expected.needs_peer_news)} / {String(f.predicted.needs_peer_news)}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// Judge-drift reports aren't a labeled/predicted fixture the way other eval types are -
+// they diff two ALREADY-SCORED runs against each other (see run_judge_drift_check.py), so
+// this renders that diff shape directly rather than reusing the generic ItemCard
+// pattern above.
+function JudgeDriftItemCard({ item }) {
+  const g = item.deltas.groundedness_pct;
+  const c = item.deltas.completeness_pct;
+  return (
+    <div className={`quality-sample-card${item.flagged ? ' flagged' : ''}`}>
+      <div className="quality-sample-header">
+        <strong>{item.id}</strong>
+        {item.flagged && <span className="quality-badge flagged">Flagged for review</span>}
+      </div>
+      <div className="quality-score-row">
+        <p className={`quality-score ${g.delta == null || Math.abs(g.delta) < 10 ? 'good' : 'bad'}`}>
+          Groundedness {g.old} → {g.new} (Δ{g.delta})
+        </p>
+        <p className={`quality-score ${c.delta == null || Math.abs(c.delta) < 10 ? 'good' : 'bad'}`}>
+          Completeness {c.old} → {c.new} (Δ{c.delta})
+        </p>
       </div>
     </div>
+  );
+}
+
+function JudgeDriftReport({ report }) {
+  if (!report) return <p>No judge-drift check run yet for this eval type.</p>;
+  if (report.status === 'no_baseline') {
+    return <p className="info">{report.message}</p>;
+  }
+  return (
+    <>
+      {report.fixture_changed && (
+        <p className="info" style={{ color: '#b3261e', fontWeight: 600 }}>
+          Fixture changed between these two runs ({report.old_fixture_version} → {report.new_fixture_version}) -
+          deltas below may reflect an edited test case, not judge/prompt drift.
+        </p>
+      )}
+      <p className="info">
+        Comparing run {new Date(report.old_run_created_at).toLocaleString()} →{' '}
+        {new Date(report.new_run_created_at).toLocaleString()}: {report.n_matched} matched items,{' '}
+        {report.n_flagged} flagged (≥{report.threshold} pt delta), rate {report.flagged_rate ?? 'n/a'}.
+        {report.new_items_no_baseline.length > 0 &&
+          ` ${report.new_items_no_baseline.length} item(s) have no prior baseline yet.`}
+      </p>
+      <div className="quality-sample-list">
+        {report.matched.map((item, i) => (
+          <JudgeDriftItemCard key={i} item={item} />
+        ))}
+      </div>
+    </>
   );
 }
 
@@ -665,7 +789,7 @@ export default function Admin() {
   const [debugPlannerResult, setDebugPlannerResult] = useState(null);
   const [debugPlannerError, setDebugPlannerError] = useState('');
 
-  const [generationRuns, setGenerationRuns] = useState([]);
+  const [chatAnswerRuns, setChatAnswerRuns] = useState([]);
   const [triggeringEval, setTriggeringEval] = useState(false);
   const [evalError, setEvalError] = useState('');
 
@@ -681,9 +805,17 @@ export default function Admin() {
   const [triggeringGuardrailEval, setTriggeringGuardrailEval] = useState(false);
   const [guardrailEvalError, setGuardrailEvalError] = useState('');
 
-  const [researchOrderRuns, setResearchOrderRuns] = useState([]);
-  const [triggeringResearchOrderEval, setTriggeringResearchOrderEval] = useState(false);
-  const [researchOrderEvalError, setResearchOrderEvalError] = useState('');
+  const [evidenceSelectionRuns, setEvidenceSelectionRuns] = useState([]);
+  const [triggeringEvidenceSelectionEval, setTriggeringEvidenceSelectionEval] = useState(false);
+  const [evidenceSelectionEvalError, setEvidenceSelectionEvalError] = useState('');
+
+  // Both judge-drift variants share one eval_type column value ('judge_drift') in the
+  // DB - the payload's own summary.eval_type field (either 'feed_summary' or
+  // 'insight_quality') is what tells them apart, so one fetch/state covers both and the
+  // two dropdown entries just filter this same array.
+  const [judgeDriftRuns, setJudgeDriftRuns] = useState([]);
+  const [triggeringJudgeDrift, setTriggeringJudgeDrift] = useState(false);
+  const [judgeDriftEvalError, setJudgeDriftEvalError] = useState('');
 
   const [feedSummaryRuns, setFeedSummaryRuns] = useState([]);
   const [triggeringFeedSummaryEval, setTriggeringFeedSummaryEval] = useState(false);
@@ -696,7 +828,7 @@ export default function Admin() {
   // (not all 6 together - unlike Monitoring's capped/cheap samplers, these are full,
   // uncapped fixture runs, so batching them into one click would be both expensive and,
   // for Classification, likely to fail if no labeled worksheet exists yet).
-  const [evalFilterType, setEvalFilterType] = useState('generation');
+  const [evalFilterType, setEvalFilterType] = useState('chat_answer');
 
   // Unified panel: one filter bar/list over BOTH quality_samples (business-metric
   // surfaces) and guardrail_samples (input/output guardrails) - `monitorFilterType`
@@ -717,7 +849,6 @@ export default function Admin() {
   const [monitorEndDate, setMonitorEndDate] = useState('');
   const [monitorReviewedFilter, setMonitorReviewedFilter] = useState('');
   const [triggeringSampling, setTriggeringSampling] = useState(false);
-  const [samplingResult, setSamplingResult] = useState(null);
   const [samplingError, setSamplingError] = useState('');
 
 
@@ -836,20 +967,23 @@ export default function Admin() {
   }
 
   async function loadEvalRuns() {
-    const [genData, classData, insightData, feedSummaryData, guardrailData, researchOrderData] = await Promise.all([
-      fetchJsonOrForbidden('/api/admin/eval/runs?eval_type=generation'),
-      fetchJsonOrForbidden('/api/admin/eval/runs?eval_type=classification'),
-      fetchJsonOrForbidden('/api/admin/eval/runs?eval_type=insight_quality'),
-      fetchJsonOrForbidden('/api/admin/eval/runs?eval_type=feed_summary'),
-      fetchJsonOrForbidden('/api/admin/eval/runs?eval_type=guardrails'),
-      fetchJsonOrForbidden('/api/admin/eval/runs?eval_type=research_order'),
-    ]);
-    if (genData) setGenerationRuns(genData);
+    const [chatAnswerData, classData, insightData, feedSummaryData, guardrailData, evidenceSelectionData, judgeDriftData] =
+      await Promise.all([
+        fetchJsonOrForbidden('/api/admin/eval/runs?eval_type=chat_answer'),
+        fetchJsonOrForbidden('/api/admin/eval/runs?eval_type=classification'),
+        fetchJsonOrForbidden('/api/admin/eval/runs?eval_type=insight_quality'),
+        fetchJsonOrForbidden('/api/admin/eval/runs?eval_type=feed_summary'),
+        fetchJsonOrForbidden('/api/admin/eval/runs?eval_type=guardrails'),
+        fetchJsonOrForbidden('/api/admin/eval/runs?eval_type=evidence_selection'),
+        fetchJsonOrForbidden('/api/admin/eval/runs?eval_type=judge_drift'),
+      ]);
+    if (chatAnswerData) setChatAnswerRuns(chatAnswerData);
     if (classData) setClassificationRuns(classData);
     if (insightData) setInsightRuns(insightData);
     if (feedSummaryData) setFeedSummaryRuns(feedSummaryData);
     if (guardrailData) setGuardrailRuns(guardrailData);
-    if (researchOrderData) setResearchOrderRuns(researchOrderData);
+    if (evidenceSelectionData) setEvidenceSelectionRuns(evidenceSelectionData);
+    if (judgeDriftData) setJudgeDriftRuns(judgeDriftData);
   }
 
   async function loadMetrics() {
@@ -927,8 +1061,6 @@ export default function Admin() {
       setSamplingError(body.detail || 'Failed to run sampling.');
       return;
     }
-    const [qData, gData, cData] = await Promise.all([qRes.json(), gRes.json(), cRes.json()]);
-    setSamplingResult({ ...qData, ...gData, ...cData });
     loadMonitorSamples();
   }
 
@@ -971,10 +1103,10 @@ export default function Admin() {
     if (data) setMonitorSamples(data.map((s) => ({ ...s, _kind: 'quality' })));
   }
 
-  async function handleTriggerGenerationEval() {
+  async function handleTriggerChatAnswerEval() {
     setTriggeringEval(true);
     setEvalError('');
-    const res = await authedFetch('/api/admin/eval/generation/trigger', { method: 'POST' });
+    const res = await authedFetch('/api/admin/eval/chat-answer/trigger', { method: 'POST' });
     setTriggeringEval(false);
 
     if (res.status === 403) {
@@ -983,7 +1115,7 @@ export default function Admin() {
     }
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      setEvalError(body.detail || 'Failed to run the generation eval.');
+      setEvalError(body.detail || 'Failed to run the chat-answer eval.');
       return;
     }
     loadEvalRuns();
@@ -1045,11 +1177,11 @@ export default function Admin() {
     loadEvalRuns();
   }
 
-  async function handleTriggerResearchOrderEval() {
-    setTriggeringResearchOrderEval(true);
-    setResearchOrderEvalError('');
-    const res = await authedFetch('/api/admin/eval/research-order/trigger', { method: 'POST' });
-    setTriggeringResearchOrderEval(false);
+  async function handleTriggerEvidenceSelectionEval() {
+    setTriggeringEvidenceSelectionEval(true);
+    setEvidenceSelectionEvalError('');
+    const res = await authedFetch('/api/admin/eval/evidence-selection/trigger', { method: 'POST' });
+    setTriggeringEvidenceSelectionEval(false);
 
     if (res.status === 403) {
       setForbidden(true);
@@ -1057,7 +1189,27 @@ export default function Admin() {
     }
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      setResearchOrderEvalError(body.detail || 'Failed to run the research-order eval.');
+      setEvidenceSelectionEvalError(body.detail || 'Failed to run the evidence-selection eval.');
+      return;
+    }
+    loadEvalRuns();
+  }
+
+  // Shared by both "Judge drift" dropdown entries - which eval_type to diff is the only
+  // thing that differs between them (see evalTypeConfig below).
+  async function handleTriggerJudgeDrift(evalType) {
+    setTriggeringJudgeDrift(true);
+    setJudgeDriftEvalError('');
+    const res = await authedFetch(`/api/admin/eval/judge-drift/trigger?eval_type=${evalType}`, { method: 'POST' });
+    setTriggeringJudgeDrift(false);
+
+    if (res.status === 403) {
+      setForbidden(true);
+      return;
+    }
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      setJudgeDriftEvalError(body.detail || 'Failed to run the judge-drift check.');
       return;
     }
     loadEvalRuns();
@@ -1154,16 +1306,16 @@ export default function Admin() {
   // trigger/triggering/error come from that eval type's own existing state/handler
   // (unchanged), this just dispatches to the right one based on evalFilterType.
   const evalTypeConfig = {
-    generation: {
+    chat_answer: {
       description:
-        'Judges chat answers on a fixed set of test questions for groundedness, relevance, and advice-avoidance.',
-      trigger: handleTriggerGenerationEval,
+        'Judges chat-answer synthesis for groundedness and completeness, on a fixed set of (question, sample facts) pairs answered fresh each run via synthesize_insight() directly - not the live retrieval/routing agent, so results reflect the synthesis prompt, not whatever retrieval happens to find. See eval/runners/run_chat_answer_eval.py for why.',
+      trigger: handleTriggerChatAnswerEval,
       triggering: triggeringEval,
       error: evalError,
     },
     insight: {
       description:
-        'Applies the same quality judges to the pipeline’s own insight synthesis, on a fixed set of (ticker, evidence) pairs synthesized fresh each run - not real ticker_insights rows, so results reflect the prompt, not whatever news exists right now.',
+        'Judges the pipeline’s own insight synthesis for groundedness and completeness, on a fixed set of (ticker, evidence) pairs synthesized fresh each run - not real ticker_insights rows, so results reflect the prompt, not whatever news exists right now.',
       trigger: handleTriggerInsightEval,
       triggering: triggeringInsightEval,
       error: insightEvalError,
@@ -1189,12 +1341,26 @@ export default function Admin() {
       triggering: triggeringGuardrailEval,
       error: guardrailEvalError,
     },
-    research_order: {
+    evidence_selection: {
       description:
-        'Regression-checks that research always checks internal news before external, peer, or report sources.',
-      trigger: handleTriggerResearchOrderEval,
-      triggering: triggeringResearchOrderEval,
-      error: researchOrderEvalError,
+        'Checks whether decide_feed_sources() correctly decides which supplementary sources (financial reports, peer-industry news) a feed needs, per feed type, against a hand-labeled sample. Deterministic scoring - no judge LLM.',
+      trigger: handleTriggerEvidenceSelectionEval,
+      triggering: triggeringEvidenceSelectionEval,
+      error: evidenceSelectionEvalError,
+    },
+    judge_drift_feed_summary: {
+      description:
+        'Diffs the latest feed-summary eval run against the one before it, item by item, flagging groundedness/completeness swings for human review. Never auto-blocks - see eval/run_judge_drift_check.py.',
+      trigger: () => handleTriggerJudgeDrift('feed_summary'),
+      triggering: triggeringJudgeDrift,
+      error: judgeDriftEvalError,
+    },
+    judge_drift_insight_quality: {
+      description:
+        'Same judge-drift check as above, but for the insight-synthesis eval instead of feed-summary.',
+      trigger: () => handleTriggerJudgeDrift('insight_quality'),
+      triggering: triggeringJudgeDrift,
+      error: judgeDriftEvalError,
     },
   };
 
@@ -1535,8 +1701,7 @@ export default function Admin() {
                   onChange={(e) => setMonitorFilterType(e.target.value)}
                 >
                   <option value="">All biz metrics</option>
-                  <option value="custom_feed">Custom feed</option>
-                  <option value="common_feed">Common feed</option>
+                  <option value="feed_combine">Feed summary</option>
                   <option value="insight">Insight</option>
                   <option value="chat_answer">Chat answer</option>
                   <option value="guardrail_input">Input guardrail</option>
@@ -1597,13 +1762,6 @@ export default function Admin() {
             </div>
           </div>
           {samplingError && <p className="error">{samplingError}</p>}
-          {samplingResult && (
-            <p className="info">
-              {Object.entries(samplingResult).map(
-                ([type, r]) => `${type}: ${r.n_flagged}/${r.n_sampled} flagged`
-              ).join(' - ')}
-            </p>
-          )}
 
           {monitorSamples.length === 0 ? (
             <p>No samples yet.</p>
@@ -1640,12 +1798,14 @@ export default function Admin() {
                 value={evalFilterType}
                 onChange={(e) => setEvalFilterType(e.target.value)}
               >
-                <option value="generation">Generation quality</option>
+                <option value="chat_answer">Chat answer quality</option>
                 <option value="insight">Insight quality</option>
                 <option value="feed_summary">Feed summary quality</option>
                 <option value="classification">Classification quality</option>
                 <option value="guardrails">Guardrail effectiveness</option>
-                <option value="research_order">Research-order guardrail</option>
+                <option value="evidence_selection">Evidence selection</option>
+                <option value="judge_drift_feed_summary">Judge drift – feed summary</option>
+                <option value="judge_drift_insight_quality">Judge drift – insight quality</option>
               </select>
               <button
                 type="button"
@@ -1661,22 +1821,35 @@ export default function Admin() {
           {evalTypeConfig[evalFilterType].error && (
             <p className="error">{evalTypeConfig[evalFilterType].error}</p>
           )}
+          {evalTypeConfig[evalFilterType].triggering && (
+            <p className="info">
+              Running a fresh evaluation now (real LLM calls - this can take a minute or two). The
+              results below are still the PREVIOUS run until this one finishes and the page refreshes.
+            </p>
+          )}
 
-          {evalFilterType === 'generation' && (
-            generationRuns.length === 0 ? (
-              <p>No generation eval runs yet.</p>
+          <div
+            style={
+              evalTypeConfig[evalFilterType].triggering
+                ? { opacity: 0.45, pointerEvents: 'none' }
+                : undefined
+            }
+          >
+          {evalFilterType === 'chat_answer' && (
+            chatAnswerRuns.length === 0 ? (
+              <p>No chat-answer eval runs yet.</p>
             ) : (
               <>
                 <p className="info">
-                  Latest run ({new Date(generationRuns[0].created_at).toLocaleString()}):{' '}
-                  {generationRuns[0].summary.summary.n_judged}/{generationRuns[0].summary.summary.n_total} judged,
-                  avg relevance {generationRuns[0].summary.summary.avg_relevance ?? 'n/a'}/5,{' '}
-                  {generationRuns[0].summary.summary.pct_grounded ?? 'n/a'}% grounded,{' '}
-                  {generationRuns[0].summary.summary.avg_completeness_pct ?? 'n/a'}% avg completeness.
+                  Latest run ({new Date(chatAnswerRuns[0].created_at).toLocaleString()}):{' '}
+                  {chatAnswerRuns[0].summary.summary.n_total} questions judged,{' '}
+                  {chatAnswerRuns[0].summary.summary.pct_grounded ?? 'n/a'}% fully grounded, avg groundedness{' '}
+                  {chatAnswerRuns[0].summary.summary.avg_groundedness_pct ?? 'n/a'}%, avg completeness{' '}
+                  {chatAnswerRuns[0].summary.summary.avg_completeness_pct ?? 'n/a'}%.
                 </p>
                 <div className="quality-sample-list">
-                  {generationRuns[0].summary.results.map((item, i) => (
-                    <GenerationEvalItemCard key={i} item={item} />
+                  {chatAnswerRuns[0].summary.results.map((item, i) => (
+                    <ChatAnswerEvalItemCard key={i} item={item} />
                   ))}
                 </div>
               </>
@@ -1690,8 +1863,7 @@ export default function Admin() {
               <>
                 <p className="info">
                   Latest run ({new Date(insightRuns[0].created_at).toLocaleString()}):{' '}
-                  {insightRuns[0].summary.summary.n_total} insights judged, avg relevance{' '}
-                  {insightRuns[0].summary.summary.avg_relevance ?? 'n/a'}/5,{' '}
+                  {insightRuns[0].summary.summary.n_total} insights judged,{' '}
                   {insightRuns[0].summary.summary.pct_grounded ?? 'n/a'}% grounded,{' '}
                   {insightRuns[0].summary.summary.avg_completeness_pct ?? 'n/a'}% avg completeness.
                 </p>
@@ -1732,15 +1904,17 @@ export default function Admin() {
               <>
                 <p className="info">
                   Latest run ({new Date(classificationRuns[0].created_at).toLocaleString()}):{' '}
-                  threshold {classificationRuns[0].summary.results[0].threshold ?? 'as-deployed'} (n=
-                  {classificationRuns[0].summary.results[0].n}), precision{' '}
+                  threshold {classificationRuns[0].summary.results[0].threshold ?? 'as-deployed'}{' '}
+                  (deployed: {(classificationRuns[0].summary.results[0].deployed_thresholds || []).join(', ') || 'n/a'},
+                  n={classificationRuns[0].summary.results[0].n}), precision{' '}
                   {classificationRuns[0].summary.results[0].precision ?? 'n/a'}, recall{' '}
-                  {classificationRuns[0].summary.results[0].recall ?? 'n/a'}
-                  {classificationRuns[0].summary.roc_auc &&
-                    ` - ROC AUC ${classificationRuns[0].summary.roc_auc.auc ?? 'n/a'}`}
+                  {classificationRuns[0].summary.results[0].recall ?? 'n/a'}, false-skip rate{' '}
+                  {classificationRuns[0].summary.results[0].false_skip_rate ?? 'n/a'}
+                  {classificationRuns[0].summary.pr_auc &&
+                    ` - PR AUC ${classificationRuns[0].summary.pr_auc.auc ?? 'n/a'}`}
                   .
                 </p>
-                <RocCurve rocAuc={classificationRuns[0].summary.roc_auc} />
+                <ClassificationThresholdPanel summary={classificationRuns[0].summary} />
                 {classificationRuns[0].summary.results[0].rows ? (
                   <div className="quality-sample-list">
                     {classificationRuns[0].summary.results[0].rows.map((item, i) => (
@@ -1815,29 +1989,37 @@ export default function Admin() {
             )
           )}
 
-          {evalFilterType === 'research_order' && (
-            researchOrderRuns.length === 0 ? (
-              <p>No research-order eval runs yet.</p>
+          {evalFilterType === 'evidence_selection' && (
+            evidenceSelectionRuns.length === 0 ? (
+              <p>No evidence-selection eval runs yet.</p>
             ) : (
               <>
                 <p className="info">
-                  Latest run ({new Date(researchOrderRuns[0].created_at).toLocaleString()}): TPR{' '}
-                  {researchOrderRuns[0].summary.summary.true_positive_rate ?? 'n/a'}, FPR{' '}
-                  {researchOrderRuns[0].summary.summary.false_positive_rate ?? 'n/a'} (n=
-                  {researchOrderRuns[0].summary.summary.n}).
+                  Latest run ({new Date(evidenceSelectionRuns[0].created_at).toLocaleString()}):{' '}
+                  {evidenceSelectionRuns[0].summary.summary.n_feeds} feeds scored, needs_reports accuracy{' '}
+                  {evidenceSelectionRuns[0].summary.summary.needs_reports_accuracy ?? 'n/a'}, needs_peer_news
+                  accuracy {evidenceSelectionRuns[0].summary.summary.needs_peer_news_accuracy ?? 'n/a'}, exact
+                  match {evidenceSelectionRuns[0].summary.summary.exact_match_accuracy ?? 'n/a'}.
                 </p>
-                {researchOrderRuns[0].summary.summary.rows ? (
-                  <div className="quality-sample-list">
-                    {researchOrderRuns[0].summary.summary.rows.map((item, i) => (
-                      <ResearchOrderEvalItemCard key={i} item={item} />
-                    ))}
-                  </div>
-                ) : (
-                  <p>This run predates per-item detail - re-run to see item cards.</p>
-                )}
+                <div className="quality-sample-list">
+                  {evidenceSelectionRuns[0].summary.results.map((item, i) => (
+                    <EvidenceSelectionEvalItemCard key={i} item={item} />
+                  ))}
+                </div>
               </>
             )
           )}
+
+          {evalFilterType === 'judge_drift_feed_summary' && (
+            <JudgeDriftReport report={judgeDriftRuns.find((r) => r.summary.eval_type === 'feed_summary')?.summary} />
+          )}
+
+          {evalFilterType === 'judge_drift_insight_quality' && (
+            <JudgeDriftReport
+              report={judgeDriftRuns.find((r) => r.summary.eval_type === 'insight_quality')?.summary}
+            />
+          )}
+          </div>
         </section>
       </main>
     </div>

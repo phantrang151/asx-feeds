@@ -1,8 +1,8 @@
-"""Pure-arithmetic tests for score_classification.py's predict_label/score/compute_roc_auc -
+"""Pure-arithmetic tests for run_classification_eval.py's predict_label/score/compute_pr_auc -
 no I/O, no mocks needed. See docs/test_case_catalog.md (U2-U4) for the case list this
 covers."""
 
-from agent.eval.score_classification import predict_label, score, compute_roc_auc
+from agent.eval.runners.run_classification_eval import predict_label, score, compute_pr_auc
 
 
 def test_predict_label_boundary_is_inclusive():
@@ -58,7 +58,10 @@ def test_score_precision_recall_false_skip_rate():
     assert result["false_skip_rate"] == 0.25
 
 
-def test_compute_roc_auc_perfect_separation():
+def test_compute_pr_auc_perfect_separation():
+    """Positives (Revenue Trend matches) score strictly higher than negatives (Scandal
+    matches on rows whose correct_feed is "none") - precision stays 1.0 all the way to
+    full recall, so Average Precision is 1.0."""
     rows = [
         _row("Revenue Trend", "Revenue Trend", "0.9"),
         _row("Revenue Trend", "Revenue Trend", "0.8"),
@@ -66,14 +69,18 @@ def test_compute_roc_auc_perfect_separation():
         _row("none", "Scandal", "0.3"),
     ]
 
-    result = compute_roc_auc(rows)
+    result = compute_pr_auc(rows)
 
     assert result["auc"] == 1.0
     assert result["best_threshold"] == 0.8
-    assert result["best_threshold_metrics"] == {"tpr": 1.0, "fpr": 0.0}
+    assert result["best_threshold_metrics"] == {"recall": 1.0, "precision": 1.0}
 
 
-def test_compute_roc_auc_imperfect_separation_with_missing_candidate():
+def test_compute_pr_auc_imperfect_separation_with_missing_candidate():
+    """One relevant row (correct_feed="Revenue Trend") is outscored by two negatives and
+    a missing-candidate row (scores 0.0, can never be accepted) - precision starts at
+    0.0 before the true positive is captured, so Average Precision reflects that cost
+    even though recall reaches 1.0 by the end."""
     rows = [
         _row("Revenue Trend", "Revenue Trend", "0.6"),
         _row("Revenue Trend", "Growth", "0.55"),
@@ -82,14 +89,24 @@ def test_compute_roc_auc_imperfect_separation_with_missing_candidate():
         _row("Growth", None, None),  # no candidate at all - scores 0.0, can never be accepted
     ]
 
-    result = compute_roc_auc(rows)
+    result = compute_pr_auc(rows)
 
-    assert result["auc"] == 0.75
+    assert result["auc"] == 0.5
     assert result["best_threshold"] == 0.6
-    assert result["best_threshold_metrics"] == {"tpr": 1.0, "fpr": 0.25}
+    assert result["best_threshold_metrics"] == {"recall": 1.0, "precision": 0.5}
 
 
-def test_compute_roc_auc_degenerate_when_no_positives_or_no_negatives():
+def test_compute_pr_auc_degenerate_when_no_positives():
+    """No row is genuinely relevant (every correct_feed is "none") - Average Precision
+    is undefined with zero positives, unlike ROC-AUC this no longer also degenerates on
+    zero negatives, since precision/recall never use a negative count at all."""
     all_irrelevant = [_row("none", "Scandal", "0.9"), _row("none", "Scandal", "0.1")]
-    result = compute_roc_auc(all_irrelevant)
-    assert result == {"auc": None, "best_threshold": None, "best_threshold_metrics": None, "roc_points": []}
+
+    result = compute_pr_auc(all_irrelevant)
+
+    assert result["auc"] is None
+    assert result["best_threshold"] is None
+    assert result["best_threshold_metrics"] is None
+    assert result["best_threshold_recall_weighted"] is None
+    assert result["best_threshold_recall_weighted_metrics"] is None
+    assert result["pr_points"] == []

@@ -1,8 +1,8 @@
 """
-Continuous production monitoring for the two advice-avoidance guardrails, reusing the
-exact same functions the live gates run (same strategy as agent/eval/score_guardrails.py's
-fixed-fixture Evaluation panel - one implementation per layer, not a separately-drifting
-copy):
+Continuous production monitoring for the two advice-avoidance guardrails. The live-gate
+half of each check reuses the exact same functions the live gates run (same strategy as
+agent/eval/runners/run_guardrail_eval.py's fixed-fixture Evaluation panel - one
+implementation per layer, not a separately-drifting copy):
 
 - input:  agent/guardrails/advice_check.py::keyword_scan_advice_seeking (regex) +
           agent/chat/nodes.py::classify_request (the live LLM layer, ROUTER_MODEL)
@@ -10,12 +10,21 @@ copy):
           agent/guardrails/advice_check.py::llm_judge_advice_check (the live LLM layer,
           already JUDGE_MODEL-tier)
 
-Each sample also gets an independent JUDGE_MODEL-tier "evaluation" verdict - for output
-this is simply llm_judge_advice_check re-run fresh (it's already the strong tier); for
-input, agent/eval/judge.py::judge_advice_seeking fills a real gap, since the live input
-gate's own LLM layer never rises above ROUTER_MODEL. A sample is flagged when the
-evaluation verdict disagrees with what the live gate actually decided for that request -
-the actionable "this may have been misclassified" signal.
+Each sample also gets an independent "evaluation" verdict from agent/eval/judge.py -
+a separately-implemented judge the live gate never calls, so this is never just the live
+gate grading its own homework a second time:
+
+- input:  eval_judge_advice_seeking - a genuinely stronger tier than the live input
+          gate's own LLM layer, since that one never rises above ROUTER_MODEL.
+- output: eval_judge_advice_check - same JUDGE_MODEL tier as the live output gate (that's
+          already the strongest tier this app uses anywhere, so there's no stronger tier
+          left to reach for), but still its own prompt/implementation rather than a
+          re-run of llm_judge_advice_check itself. See eval_judge_advice_check's own
+          docstring for exactly what that does and doesn't buy you.
+
+A sample is flagged when the evaluation verdict disagrees with what the live gate
+actually decided for that request - the actionable "this may have been misclassified"
+signal.
 
 Output-guardrail sampling can only audit PASSED requests: a blocked response's text is
 never persisted (request_trace.answer is only set on status='completed'), by design, so
@@ -35,9 +44,9 @@ from db.queries import (
     get_sampled_guardrail_source_ids,
     insert_guardrail_samples,
 )
-from agent.guardrails.advice_check import keyword_scan, keyword_scan_advice_seeking, llm_judge_advice_check
+from agent.guardrails.advice_check import keyword_scan, keyword_scan_advice_seeking
 from agent.chat.nodes import classify_request
-from agent.eval.judge import judge_advice_seeking
+from agent.eval.judge import eval_judge_advice_seeking, eval_judge_advice_check
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +74,7 @@ def sample_input_guardrail(hours: int = QUALITY_SAMPLE_WINDOW_HOURS) -> dict:
     request_trace row, since that field is null whenever a bypass path skipped the
     router entirely (e.g. a known-shape latest-news lookup), which would otherwise leave
     column 2 empty for a lot of real traffic. Then judges each independently with
-    judge_advice_seeking (JUDGE_MODEL) - see this module's docstring for why that's a
+    eval_judge_advice_seeking (JUDGE_MODEL) - see this module's docstring for why that's a
     genuinely new check, not a duplicate of the live gate's own (cheaper) LLM layer."""
     chosen = _select_candidates(get_recent_request_traces_for_input_guardrail_sampling(hours), "input")
 
@@ -75,7 +84,7 @@ def sample_input_guardrail(hours: int = QUALITY_SAMPLE_WINDOW_HOURS) -> dict:
         try:
             regex_flagged = bool(keyword_scan_advice_seeking(question))
             router_result = classify_request([HumanMessage(content=question)])
-            evaluation = judge_advice_seeking(question)
+            evaluation = eval_judge_advice_seeking(question)
         except Exception:
             logger.warning("guardrail_sampling: judge call failed for input source_id=%s", row["id"], exc_info=True)
             continue
@@ -101,7 +110,11 @@ def sample_input_guardrail(hours: int = QUALITY_SAMPLE_WINDOW_HOURS) -> dict:
 
 def sample_output_guardrail(hours: int = QUALITY_SAMPLE_WINDOW_HOURS) -> dict:
     """Same as sample_input_guardrail above, for completed (passed) chat answers only -
-    see this module's docstring for why blocked responses can't be sampled at all."""
+    see this module's docstring for why blocked responses can't be sampled at all. Judged
+    with eval_judge_advice_check rather than re-running the live gate's own
+    llm_judge_advice_check - see this module's docstring and eval_judge_advice_check's own
+    docstring for why that still isn't a stronger tier here, just a separate
+    implementation."""
     chosen = _select_candidates(get_eligible_request_traces_for_sampling(hours), "output")
 
     rows = []
@@ -109,7 +122,7 @@ def sample_output_guardrail(hours: int = QUALITY_SAMPLE_WINDOW_HOURS) -> dict:
         answer = row["answer"]
         try:
             regex_flagged = bool(keyword_scan(answer))
-            evaluation = llm_judge_advice_check(answer)
+            evaluation = eval_judge_advice_check(answer)
         except Exception:
             logger.warning("guardrail_sampling: judge call failed for output source_id=%s", row["id"], exc_info=True)
             continue

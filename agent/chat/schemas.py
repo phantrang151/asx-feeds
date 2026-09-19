@@ -28,7 +28,7 @@ class State(TypedDict):
     references: Optional[list[Reference]]
     # Full, unfiltered evidence conduct_analysis_node gathered (see
     # _extract_tool_evidence) - unlike `references`, not deduped/filtered for the UI.
-    # Exposed on State so agent/eval/runners/run_generation_eval.py can judge groundedness against it
+    # Exposed on State so agent/eval/runners/run_chat_answer_eval.py can judge groundedness against it
     # from outside the node.
     evidence: Optional[list[dict]]
 

@@ -13,9 +13,11 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from config import TOKEN_CEILING_WINDOW_HOURS
 from tools.embeddings import embed
+from agent.shared.news_text import format_feed_content
 from db.queries import (
     create_feed,
     get_common_feed_template,
+    get_feed,
     update_feed,
     delete_feed,
     delete_ticker_for_user,
@@ -209,7 +211,7 @@ def create_feed_endpoint(req: FeedCreateRequest, authorization: str = Header(...
 
     if not req.feed_name or not req.feed_description:
         raise HTTPException(status_code=422, detail="feed_name and feed_description are required for custom feeds.")
-    embedding = embed(req.feed_description)
+    embedding = embed(format_feed_content(req.feed_name, req.feed_description))
     feed = create_feed(user_id, req.ticker, req.feed_name, req.feed_description, embedding)
     return feed
 
@@ -223,12 +225,21 @@ def update_feed_endpoint(feed_id: str, req: FeedUpdateRequest, authorization: st
     doesn't own returns None here, surfaced as the same 404 (no need to distinguish "not
     yours" from "not editable" to the caller).
 
-    Recomputes the embedding when feed_description changes, same as feed creation - this
-    is why editing goes through the backend rather than a direct Supabase update from the
-    frontend.
+    Recomputes the embedding when either feed_name or feed_description changes, same as
+    feed creation - the embedding is over BOTH fields together (see
+    agent/shared/news_text.py::format_feed_content), so changing just the name alone
+    still needs a fresh embedding, not only a description change. This is why editing
+    goes through the backend rather than a direct Supabase update from the frontend.
     """
     user_id = get_user_id_from_token(authorization)
-    embedding = embed(req.feed_description) if req.feed_description else None
+    embedding = None
+    if req.feed_name is not None or req.feed_description is not None:
+        current = get_feed(feed_id, user_id)
+        if not current:
+            raise HTTPException(status_code=404, detail="Feed not found.")
+        final_name = req.feed_name if req.feed_name is not None else current["feed_name"]
+        final_description = req.feed_description if req.feed_description is not None else current["feed_description"]
+        embedding = embed(format_feed_content(final_name, final_description))
     feed = update_feed(
         feed_id,
         user_id,
@@ -245,7 +256,7 @@ def update_feed_endpoint(feed_id: str, req: FeedUpdateRequest, authorization: st
 @app.post("/api/feeds/{feed_id}/refresh")
 def refresh_feed_endpoint(feed_id: str, authorization: str = Header(...)):
     """
-    Flags a CUSTOM feed so the next pipeline run wipes its feed_items and re-matches its
+    Flags a CUSTOM feed so the next pipeline run wipes its custom_feed_items and re-matches its
     entire ticker_news history under its current description/threshold - lets a user see
     the effect of an edit on past news, not just newly-fetched articles. Not synchronous:
     the actual re-match happens on the next scheduled or admin-triggered pipeline run (see
@@ -262,7 +273,7 @@ def refresh_feed_endpoint(feed_id: str, authorization: str = Header(...)):
 def delete_feed_endpoint(feed_id: str, authorization: str = Header(...)):
     """
     Deletes a feed (either type - ownership is the only check, see delete_feed). Custom
-    feed_items are removed by the database foreign-key cascade; common feed items are
+    custom_feed_items are removed by the database foreign-key cascade; common feed items are
     shared and remain available to other users. Re-synthesize after deletion so the next
     ticker insight no longer includes the removed feed.
     """

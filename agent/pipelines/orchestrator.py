@@ -7,6 +7,7 @@ from db.queries import (
     get_ticker_insight_pairs,
     create_pipeline_run,
     update_pipeline_run,
+    insert_ops_alert,
 )
 from .ingestion_steps import (
     fetch_and_cache_news,
@@ -15,6 +16,7 @@ from .ingestion_steps import (
     ensure_company_sector_cached,
 )
 from .insight_graph import synthesize_insight_for
+from agent.shared.structured_output import StructuredOutputError
 
 logger = logging.getLogger(__name__)
 
@@ -111,6 +113,26 @@ def _synthesize_insights(entries_needing_insight: list[dict], errors: list[dict]
             }
             logger.exception("Pipeline failed for %s during %s", entry["ticker"], error["phase"])
             errors.append(error)
+
+            if isinstance(e, StructuredOutputError):
+                # Repair-then-retry (see agent/shared/structured_output.py) already
+                # failed twice by the time this is raised - not a transient blip worth
+                # silently swallowing into the generic errors list alone. Surfaced as
+                # an ops_alert so it shows up on the admin Alerts page for review,
+                # with the raw unparseable args attached since that's what someone
+                # would actually need to diagnose it.
+                insert_ops_alert(
+                    request_trace_id=None,
+                    user_id=entry["user_id"],
+                    alert_type="structured_output_parse_failure",
+                    threshold=e.attempts,
+                    actual_value=e.attempts,
+                    details={
+                        "ticker": entry["ticker"],
+                        "schema": e.schema_name,
+                        "raw_args": e.raw_args,
+                    },
+                )
 
     return total_insights_generated
 

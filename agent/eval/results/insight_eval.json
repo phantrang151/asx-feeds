@@ -1,77 +1,130 @@
 {
   "summary": {
-    "n_total": 3,
-    "avg_relevance": 2.33,
-    "pct_grounded": 33.3,
-    "avg_completeness_pct": 96.7
+    "n_total": 2,
+    "pct_grounded": 0.0,
+    "avg_completeness_pct": 90.0
   },
   "results": [
     {
-      "ticker_insight_id": "9978fdcb-1a36-49cf-9b8f-63b18e2160e9",
-      "ticker": "NAB.AX",
-      "created_at": "2026-08-25T04:22:54.719821+00:00",
-      "n_sufficient_feeds": 2,
+      "id": "cba_insight",
+      "ticker": "CBA.AX",
+      "question": "What's happening with CBA.AX and why?",
+      "insight_text": "Commonwealth Bank's recent profit uptick and reputation for dividend reliability are occurring alongside a push into AI/automation that has included replacing some customer service roles, with new CIO/CTO hires now tasked with deepening that tech transformation. This pattern echoes a broader banking-sector trend of using automation to support margins and shareholder returns rather than relying on faster loan or deposit growth to drive earnings. However, the evidence also flags a countervailing industry signal\u2014reports of companies rehiring after automation underdelivered\u2014raising the question of whether CBA's cost-driven efficiency gains are as durable as they appear, or whether some of the labor-cost savings underpinning recent profit strength could unwind if similar rehiring pressures emerge. There isn't enough detail here to confirm how much of CBA's profit improvement is specifically attributable to automation versus rate-driven margin effects, so the link between its AI investment and its earnings/dividend narrative should be seen as a plausible but unconfirmed connection rather than a established cause-and-effect.",
+      "feed_summaries": [
+        {
+          "feed_name": "Revenue Trend",
+          "status": "sufficient",
+          "summary": "Based on limited information, the items note a recent uptick in Commonwealth Bank's profit, which along with anticipated RBA rate decisions is seen as a factor shaping its earnings outlook. CBA is also highlighted for its dividend reliability among income-focused stocks, though this touches more on payout attractiveness than underlying revenue drivers. The LGT profit report is unrelated to CBA and provides no on-topic signal.",
+          "item_count": 3
+        },
+        {
+          "feed_name": "Investment in AI",
+          "status": "sufficient",
+          "summary": "Reports indicate CBA has used AI/automation to replace some customer service roles, though a related item suggests companies (potentially including CBA) are rehiring workers after automation fell short of expectations. Separately, CBA appointed new CIO and CTO executives specifically tasked with advancing its technology and AI strategy, signaling continued organizational investment in AI-driven transformation. The broader Altman/Goldman Sachs commentary is industry-level and not specific to CBA's own actions.",
+          "item_count": 4
+        }
+      ],
+      "evidence": [
+        {
+          "source": "Revenue Trend",
+          "content": "Based on limited information, the items note a recent uptick in Commonwealth Bank's profit, which along with anticipated RBA rate decisions is seen as a factor shaping its earnings outlook. CBA is also highlighted for its dividend reliability among income-focused stocks, though this touches more on payout attractiveness than underlying revenue drivers. The LGT profit report is unrelated to CBA and provides no on-topic signal."
+        },
+        {
+          "source": "Investment in AI",
+          "content": "Reports indicate CBA has used AI/automation to replace some customer service roles, though a related item suggests companies (potentially including CBA) are rehiring workers after automation fell short of expectations. Separately, CBA appointed new CIO and CTO executives specifically tasked with advancing its technology and AI strategy, signaling continued organizational investment in AI-driven transformation. The broader Altman/Goldman Sachs commentary is industry-level and not specific to CBA's own actions."
+        }
+      ],
       "groundedness": {
         "grounded": false,
+        "groundedness_pct": 70,
         "unsupported_claims": [
-          "\"suggesting management is moving toward automation while trying to manage the associated operational risks\" \u2014 the evidence mentions safeguards/risk controls for AI agents, but does not characterize this as management moving toward automation or attribute intent to management, nor does it label the risks as 'operational'",
-          "The claim that there is no \"comparable peer data\" or reference to an \"industry-wide AI adoption trend\" \u2014 the evidence says nothing about peer comparisons or industry adoption trends",
-          "The framing that the AI initiative could be tied to \"cost-cutting, growth ambitions, or a defensive response to competitive pressure\" \u2014 these possible motivations are not mentioned anywhere in the evidence",
-          "\"cannot be characterized as evidence of a broader technology or efficiency strategy\" \u2014 the evidence only states it is not evidence of a broader AI investment strategy; 'technology or efficiency strategy' is a broadened restatement",
-          "Conclusions about implications for \"NAB's underlying financial performance or sustainability of results\" \u2014 the evidence contains no information on financial performance or sustainability of results"
+          {
+            "statement": "This pattern echoes a broader banking-sector trend of using automation to support margins and shareholder returns rather than relying on faster loan or deposit growth to drive earnings.",
+            "issue_type": "unsupported",
+            "explanation": "The evidence never describes any banking-sector trend of automation supporting margins/shareholder returns, nor does it mention loan or deposit growth at all."
+          },
+          {
+            "statement": "some of the labor-cost savings underpinning recent profit strength could unwind",
+            "issue_type": "unsupported",
+            "explanation": "The evidence never states that labor-cost savings underpin CBA's recent profit uptick; it only notes a profit uptick and separately that AI replaced some service roles."
+          },
+          {
+            "statement": "whether CBA's cost-driven efficiency gains are as durable as they appear",
+            "issue_type": "unsupported",
+            "explanation": "The evidence does not document any realized cost-driven efficiency gains at CBA, only role replacement and executive appointments."
+          },
+          {
+            "statement": "rate-driven margin effects",
+            "issue_type": "unsupported",
+            "explanation": "The evidence mentions anticipated RBA rate decisions as shaping the earnings outlook but says nothing about margin effects from rates."
+          }
         ]
       },
-      "relevance": {
-        "score": 2,
-        "reasoning": "The question asks what's happening with NAB.AX and why; the answer offers only one thin data point about agentic AI adoption and then largely explains why it cannot answer the \"why,\" leaving the question mostly unaddressed."
-      },
       "completeness": {
-        "coverage_pct": 95,
+        "coverage_pct": 85,
         "omitted_points": [
-          "The specific detail that the AI safeguards relate to implementing controls for AI agents as the bank deploys agentic AI systems is only loosely paraphrased; the 'implementing safeguards' framing is not explicitly stated"
+          "The evidence's mention that anticipated RBA rate decisions are seen as a factor shaping CBA's earnings outlook is only alluded to vaguely ('rate-driven margin effects') rather than stated as a distinct driver",
+          "The evidence's caveat that the dividend point speaks to payout attractiveness rather than underlying revenue drivers is not reflected",
+          "The evidence explicitly notes the underlying information is limited/thin on revenue drivers; the answer frames its uncertainty differently and doesn't convey this limitation on the revenue-trend signal itself"
         ]
       }
     },
     {
-      "ticker_insight_id": "46fefa8a-1a85-4ccb-be49-1acdcdd9530f",
+      "id": "nab_insight",
       "ticker": "NAB.AX",
-      "created_at": "2026-08-25T01:49:08.516199+00:00",
-      "n_sufficient_feeds": 2,
-      "groundedness": {
-        "grounded": true,
-        "unsupported_claims": []
-      },
-      "relevance": {
-        "score": 2,
-        "reasoning": "The answer engages the ticker and one AI-related item but largely explains why it cannot answer \"what's happening and why,\" offering no clear account of price/business developments or drivers."
-      },
-      "completeness": {
-        "coverage_pct": 100,
-        "omitted_points": []
-      }
-    },
-    {
-      "ticker_insight_id": "48ad0be6-a980-4faf-a30d-1e0c033f147a",
-      "ticker": "NAB.AX",
-      "created_at": "2026-08-25T01:31:59.363472+00:00",
-      "n_sufficient_feeds": 2,
+      "question": "What's happening with NAB.AX and why?",
+      "insight_text": "NAB appears to be following an industry-wide push toward AI-driven automation in banking operations, reportedly piloting safeguards for AI agents at a point when peer Westpac is already using bots for mortgage and credit card application reviews\u2014suggesting NAB may be a step behind rather than ahead in operational AI deployment. However, this single data point doesn't reveal whether the investment is translating into cost savings, efficiency gains, or competitive advantage. Notably, there isn't enough evidence here to assess Red Flags (e.g., regulatory, credit quality, or governance concerns) or the Revenue Trend, so it's not possible to connect this AI initiative to actual financial performance or to judge whether it reflects a broader strategic strength or weakness at NAB.",
+      "feed_summaries": [
+        {
+          "feed_name": "Red Flags",
+          "status": "insufficient",
+          "summary": "The single item provided is about Victoria's delay of proposed work-from-home laws due to business pushback, and does not mention NAB, its operations, or any company-specific controversy, regulatory action, lawsuit, breach, or misconduct. This is not relevant to NAB's specific reputational or operational risk profile.",
+          "item_count": 1
+        },
+        {
+          "feed_name": "Revenue Trend",
+          "status": "insufficient",
+          "summary": "The provided item is a generic stock comparison (value screening between FBP and NABZY) and does not report any actual revenue, profit, earnings, segment, or margin figures for NAB. It offers no genuine signal on NAB's revenue trend.",
+          "item_count": 1
+        },
+        {
+          "feed_name": "Investment in AI",
+          "status": "sufficient",
+          "summary": "Based on limited information (a single report), NAB is reportedly testing safeguards for AI agents, suggesting the bank is actively piloting AI agent technology within its operations. The item also notes a competitor, Westpac, already using bots for mortgage and credit card application reviews, though this competitor detail is not itself a signal about NAB's own AI adoption.",
+          "item_count": 1
+        }
+      ],
+      "evidence": [
+        {
+          "source": "Investment in AI",
+          "content": "Based on limited information (a single report), NAB is reportedly testing safeguards for AI agents, suggesting the bank is actively piloting AI agent technology within its operations. The item also notes a competitor, Westpac, already using bots for mortgage and credit card application reviews, though this competitor detail is not itself a signal about NAB's own AI adoption."
+        },
+        {
+          "source": "pipeline note",
+          "content": "Evidence was found but judged too thin or off-topic for: Red Flags, Revenue Trend."
+        }
+      ],
       "groundedness": {
         "grounded": false,
+        "groundedness_pct": 80,
         "unsupported_claims": [
-          "That the AI adoption pattern is 'consistent with what other major banks have been signaling as they roll out AI' - the evidence contains no information about peer banks or industry-wide AI signaling.",
-          "That NAB is 'trying to capture efficiency or service gains from AI' - the evidence only states NAB is investing in AI with safeguards for AI agents; it does not identify efficiency or customer-service motivations.",
-          "That the safeguards address 'compliance risk' specifically - the evidence mentions 'governance or risk-control aspects' but does not reference compliance.",
-          "Framing the Revenue Trend gap as leaving open whether 'the bank is growing organically' - the evidence only notes revenue evidence was too thin/off-topic, with no mention of organic vs. inorganic growth."
+          {
+            "statement": "NAB appears to be following an industry-wide push toward AI-driven automation in banking operations",
+            "issue_type": "unsupported",
+            "explanation": "The evidence mentions only NAB and one competitor, Westpac, and never characterizes an industry-wide trend or push."
+          },
+          {
+            "statement": "suggesting NAB may be a step behind rather than ahead in operational AI deployment",
+            "issue_type": "unsupported",
+            "explanation": "The evidence explicitly states the Westpac detail is not itself a signal about NAB's own AI adoption, so it cannot support a relative-positioning conclusion that NAB lags."
+          }
         ]
-      },
-      "relevance": {
-        "score": 3,
-        "reasoning": "The answer does address the \"what and why\" for NAB by reporting the one available signal (AI adoption with agent safeguards) and explaining why deeper causal/financial context is unavailable, though it's largely a statement of insufficient evidence rather than a substantive account of what is happening."
       },
       "completeness": {
         "coverage_pct": 95,
         "omitted_points": [
-          "The evidence explicitly notes the AI finding rests on a single article and that broader detail on the scale or strategy of the AI deployment is not yet available; the answer conveys the single-report basis but does not spell out the scale/strategy limitation"
+          "Does not explicitly note that the AI-agent finding rests on a single report/limited information (though it does say 'single data point')",
+          "Does not state the evidence's caveat that the Westpac detail is not itself a signal about NAB's own AI adoption"
         ]
       }
     }

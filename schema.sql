@@ -18,7 +18,11 @@ create table if not exists common_feed_templates (
   -- cosine similarity even for an obviously on-topic article, since the two texts are
   -- different styles rather than paraphrases of each other. 0.35 here made every common
   -- feed template permanently unmatchable (see common_items_classified in pipeline_runs).
-  match_threshold float not null default 0.22,
+  -- 0.1685 (not 0.22) is the recall-weighted best threshold from
+  -- run_classification_eval.py::compute_pr_auc's PR-AUC sweep against the hand-labeled
+  -- worksheet - see db/queries.py::upsert_common_feed_template for why this default
+  -- must stay in sync with what's actually deployed.
+  match_threshold float not null default 0.1685,
   created_at timestamptz not null default now()
 );
 
@@ -40,7 +44,7 @@ create table if not exists feeds (
   -- full-history pass against ticker_news instead of an incremental one.
   last_classified_at timestamptz,
   -- Set by the user's "Refresh" action after editing a custom feed's description or
-  -- threshold: the next pipeline run wipes this feed's feed_items and re-matches its
+  -- threshold: the next pipeline run wipes this feed's custom_feed_items and re-matches its
   -- entire ticker_news history under the feed's current settings, then clears this flag.
   needs_rematch boolean not null default false,
   -- 'common' feeds link to a shared common_feed_templates row and are classified once
@@ -59,7 +63,9 @@ create table if not exists watchlist_stocks (
   unique (user_id, ticker)
 );
 
-create table if not exists feed_items (
+-- Classification results for CUSTOM feeds only - common feeds' results live in
+-- common_feed_items instead (see below), never here.
+create table if not exists custom_feed_items (
   id uuid primary key default gen_random_uuid(),
   feed_id uuid not null references feeds(id) on delete cascade,
   source_type text not null,       -- 'news' | 'financial'
@@ -89,7 +95,7 @@ create table if not exists ticker_news (
 
 -- Classification results for common_feed_templates, computed once per (ticker, article,
 -- template) and shared by every user whose feed for that ticker is 'common' - instead of
--- once per user's feed the way feed_items works for 'custom' feeds.
+-- once per user's feed the way custom_feed_items works for 'custom' feeds.
 create table if not exists common_feed_items (
   id uuid primary key default gen_random_uuid(),
   common_feed_template_id uuid not null references common_feed_templates(id) on delete cascade,
@@ -105,8 +111,8 @@ create table if not exists common_feed_items (
 create index if not exists feeds_embedding_idx
   on feeds using ivfflat (description_embedding vector_cosine_ops);
 
-create index if not exists feed_items_embedding_idx
-  on feed_items using ivfflat (content_embedding vector_cosine_ops);
+create index if not exists custom_feed_items_embedding_idx
+  on custom_feed_items using ivfflat (content_embedding vector_cosine_ops);
 
 create index if not exists ticker_news_embedding_idx
   on ticker_news using ivfflat (content_embedding vector_cosine_ops);
@@ -171,7 +177,7 @@ create table if not exists documents (
 create table if not exists document_chunks (
   id uuid primary key default gen_random_uuid(),
   document_id uuid not null references documents(id) on delete cascade,
-  ticker text not null,                -- denormalized for direct filtering, same as feed_items
+  ticker text not null,                -- denormalized for direct filtering, same as custom_feed_items
   chunk_index int not null,
   content text not null,
   content_embedding vector(384) not null,
@@ -262,12 +268,13 @@ returns table (
   publisher text,
   source_url text,
   published_at timestamptz,
+  snippet text,
   similarity float
 )
 language sql stable
 as $$
   with peer_news as materialized (
-    select id, ticker, title, publisher, source_url, published_at, content_embedding
+    select id, ticker, title, publisher, source_url, published_at, snippet, content_embedding
     from ticker_news
     where ticker = any(match_tickers)
       and published_at >= news_since
@@ -279,6 +286,7 @@ as $$
     peer_news.publisher,
     peer_news.source_url,
     peer_news.published_at,
+    peer_news.snippet,
     1 - (peer_news.content_embedding <=> query_embedding) as similarity
   from peer_news
   where 1 - (peer_news.content_embedding <=> query_embedding) >= similarity_threshold
@@ -302,43 +310,56 @@ create table if not exists ticker_insights (
 -- insights_generated migration above for the same pattern.
 alter table ticker_insights add column if not exists feed_summaries jsonb not null default '[]';
 
--- One row per eval run (see eval/score_classification.py, eval/run_generation_eval.py,
--- eval/score_guardrails.py, eval/run_live_sample_eval.py) - what the admin page's
+-- One row per eval run (see eval/run_classification_eval.py, eval/run_chat_answer_eval.py,
+-- eval/run_guardrail_eval.py, eval/run_live_sample_eval.py) - what the admin page's
 -- Evaluation section reads to show quality metrics over time, same "one row per run"
 -- shape as pipeline_runs below. `summary` holds whatever each eval type's own
 -- summarize()/score() output looks like (see each script) rather than a fixed schema,
 -- since each eval type measures something fundamentally different. 'guardrails' =
--- per-layer TP/FP against a labeled adversarial+quality set (eval/score_guardrails.py).
+-- per-layer TP/FP against a labeled adversarial+quality set (eval/run_guardrail_eval.py).
 -- 'live_sample' = the daily N-sample judge audit against real recent traffic
--- (eval/run_live_sample_eval.py), as opposed to 'generation''s fixed fixture set.
+-- (eval/run_live_sample_eval.py), as opposed to 'chat_answer''s fixed fixture set.
 -- 'insight_quality' = groundedness/relevance/completeness over a fixed set of
 -- (ticker, evidence) pairs, synthesized fresh each run (eval/run_insight_eval.py), the
--- pipeline-side counterpart to 'generation'. 'feed_summary' = groundedness/completeness
+-- pipeline-side counterpart to 'chat_answer'. 'feed_summary' = groundedness/completeness
 -- over a fixed set of (article, feed) pairs, summarized fresh each run
 -- (eval/run_feed_summary_eval.py) - the regression-test counterpart to
 -- monitoring/quality_sampling.py's continuous custom_feed/common_feed sampling.
 -- 'research_order' = the deterministic ordering guard's labeled call-sequence
--- regression check (eval/score_research_order.py) - no LLM calls, unlike 'guardrails'.
+-- regression check (eval/run_research_order_eval.py) - no LLM calls, unlike 'guardrails'.
 create table if not exists eval_runs (
   id uuid primary key default gen_random_uuid(),
   eval_type text not null check (
     eval_type in (
-      'classification', 'generation', 'insight_quality', 'feed_summary', 'guardrails',
-      'research_order', 'live_sample'
+      'classification', 'chat_answer', 'insight_quality', 'feed_summary', 'guardrails',
+      'research_order', 'live_sample', 'evidence_selection', 'judge_drift'
     )
   ),
   summary jsonb not null,
   created_at timestamptz not null default now()
 );
 
+-- Content hash of the fixture file(s) an eval run was scored against (see
+-- agent/eval/fixture_version.py) - lets run_judge_drift_check.py tell whether two runs it's
+-- comparing actually used the same test cases, so a score delta caused by editing the
+-- fixture isn't mistaken for judge/prompt drift. Null for eval types with no fixture of
+-- their own (live_sample samples real traffic; judge_drift diffs other runs).
+alter table eval_runs add column if not exists fixture_version text;
+
 -- Safe to re-run against a database created before insight_quality/research_order/
--- feed_summary existed as eval types - drops and recreates the check constraint with
--- the wider set, same pattern as the other "safe to re-run" migrations in this file.
+-- feed_summary/evidence_selection/judge_drift existed as eval types - drops the
+-- constraint (not the rows), renames any pre-existing 'generation' rows to
+-- 'chat_answer' (run_generation_eval.py/qa_test_set.json were renamed to
+-- run_chat_answer_eval.py/chat_answer_test_set.json for UI/file-name consistency -
+-- this keeps already-persisted eval_runs history readable under the new name instead
+-- of orphaning it), then recreates the constraint with the wider, renamed set - same
+-- pattern as the other "safe to re-run" migrations in this file.
 alter table eval_runs drop constraint if exists eval_runs_eval_type_check;
+update eval_runs set eval_type = 'chat_answer' where eval_type = 'generation';
 alter table eval_runs add constraint eval_runs_eval_type_check check (
   eval_type in (
-    'classification', 'generation', 'insight_quality', 'feed_summary', 'guardrails',
-    'research_order', 'live_sample'
+    'classification', 'chat_answer', 'insight_quality', 'feed_summary', 'guardrails',
+    'research_order', 'live_sample', 'evidence_selection', 'judge_drift'
   )
 );
 
@@ -353,8 +374,16 @@ alter table eval_runs add constraint eval_runs_eval_type_check check (
 -- surface, so the admin panel queries one table instead of a UNION of four.
 create table if not exists quality_samples (
   id uuid primary key default gen_random_uuid(),
-  surface_type text not null check (surface_type in ('custom_feed', 'common_feed', 'insight', 'chat_answer')),
-  source_id uuid not null,      -- feed_items.id / common_feed_items.id / ticker_insights.id / request_trace.id
+  surface_type text not null check (
+    surface_type in ('custom_feed', 'common_feed', 'feed_combine', 'insight', 'chat_answer')
+  ),
+  -- custom_feed_items.id / common_feed_items.id / ticker_insights.id / request_trace.id -
+  -- for 'feed_combine' specifically, the FIRST id in that feed's item_ids (see
+  -- ticker_insights.feed_summaries) - there's no id of its own for "this feed's
+  -- combined summary in this insight run", so its first underlying item id is used as
+  -- a stable anchor, which is also what makes the unique(surface_type, source_id)
+  -- below correctly skip re-judging an unchanged summary built from the same items.
+  source_id uuid not null,
   ticker text,
   question text,                -- real question (chat) or a synthetic framing (feed/insight), fed to judge_completeness
   -- Display-only context for the admin panel's first column - the feed's own
@@ -387,6 +416,14 @@ create table if not exists quality_samples (
 -- existed - same pattern as the other "safe to re-run" migrations in this file.
 alter table quality_samples add column if not exists context text;
 alter table quality_samples add column if not exists groundedness_pct int;
+-- Safe to re-run against a database created before 'feed_combine' existed as a surface
+-- type (sample_custom_feed_quality/sample_common_feed_quality were retired and replaced
+-- by sample_feed_combine_quality - see monitoring/quality_sampling.py) - widens the
+-- constraint without touching existing rows, same pattern as eval_runs above.
+alter table quality_samples drop constraint if exists quality_samples_surface_type_check;
+alter table quality_samples add constraint quality_samples_surface_type_check check (
+  surface_type in ('custom_feed', 'common_feed', 'feed_combine', 'insight', 'chat_answer')
+);
 create index if not exists quality_samples_flagged_idx on quality_samples (flagged, created_at);
 create index if not exists quality_samples_surface_idx on quality_samples (surface_type, created_at);
 
@@ -400,13 +437,15 @@ create index if not exists quality_samples_surface_idx on quality_samples (surfa
 --
 -- Samples recent request_trace rows and re-checks each with BOTH the live production
 -- regex layer (re-run fresh, not read from the historical row, so a regex pattern
--- added after the fact still gets credit for catching old text) and an independent
--- evaluation-tier judge (judge_advice_seeking for input - the live input gate's LLM
--- layer only runs the cheap ROUTER_MODEL, so this is the first JUDGE_MODEL-tier check
--- for that side; llm_judge_advice_check re-run fresh for output, which already IS
--- JUDGE_MODEL-tier live). `llm_flagged` is what the live gate's LLM layer actually
--- decided for THIS historical request (null if that layer was never reached, e.g. the
--- regex layer already fail-fast declined it).
+-- added after the fact still gets credit for catching old text) and an independent,
+-- separately-implemented eval-tier judge that the live gate never calls
+-- (eval_judge_advice_seeking for input - the live input gate's LLM layer only runs the
+-- cheap ROUTER_MODEL, so this is a genuinely stronger tier for that side;
+-- eval_judge_advice_check for output - same JUDGE_MODEL tier as the live output gate
+-- (already the strongest tier this app uses), but its own prompt rather than a re-run of
+-- the live gate's own function). `llm_flagged` is what the live gate's LLM layer
+-- actually decided for THIS historical request (null if that layer was never reached,
+-- e.g. the regex layer already fail-fast declined it).
 --
 -- Output-guardrail sampling can only audit PASSED requests - a blocked response's text
 -- is never persisted to request_trace.answer by design (status only reaches
@@ -433,20 +472,20 @@ create table if not exists guardrail_samples (
 create index if not exists guardrail_samples_flagged_idx on guardrail_samples (flagged, created_at);
 create index if not exists guardrail_samples_type_idx on guardrail_samples (guardrail_type, created_at);
 
--- Continuous production monitoring for feed classification correctness (custom feed_items
+-- Continuous production monitoring for feed classification correctness (custom_feed_items
 -- and common_feed_items) - see monitoring/classification_sampling.py. The live classifier
 -- (db/queries.py::match_feed_for_embedding / match_common_feed_template_for_embedding)
 -- only checks embedding similarity against a threshold, with no semantic verification -
 -- this samples real recent classifications and independently judges (judge_feed_classification,
 -- JUDGE_MODEL) whether the match is actually genuine, catching false positives the
--- similarity threshold let through. Complements score_classification.py's Evaluation
+-- similarity threshold let through. Complements run_classification_eval.py's Evaluation
 -- panel (same live classifier, scored against a hand-labeled CSV) rather than
 -- replacing it - that's still the source of truth for precision/recall/ROC-AUC; this is
 -- the continuous, no-labeling-required companion for real traffic.
 create table if not exists classification_samples (
   id uuid primary key default gen_random_uuid(),
   classification_type text not null check (classification_type in ('custom_feed', 'common_feed')),
-  source_id uuid not null,      -- feed_items.id / common_feed_items.id
+  source_id uuid not null,      -- custom_feed_items.id / common_feed_items.id
   ticker text,
   article_title text not null,
   feed_name text not null,
@@ -479,6 +518,12 @@ create table if not exists pipeline_runs (
 -- orchestrator - `create table if not exists` above is a no-op there, so the column
 -- needs adding separately.
 alter table pipeline_runs add column if not exists insights_generated int not null default 0;
+
+-- Source's own editorial dek (yfinance's `summary` field), not an LLM-authored recap -
+-- used together with the headline (see agent/shared/news_text.py::format_news_content)
+-- for embeddings and as custom_feed_items/common_feed_items.content_summary directly, without
+-- the cost/reliability risk of scraping full article bodies.
+alter table ticker_news add column if not exists snippet text;
 
 -- One row per accepted /api/ask call, per user - what the rate-limit guardrail
 -- (agent/guardrails/rate_limit.py::enforce_rate_limit) counts over a trailing window
@@ -522,7 +567,7 @@ create table if not exists request_trace (
   question text not null,
   -- Final answer text + the evidence it was synthesized from - stored so
   -- eval/run_live_sample_eval.py can re-judge groundedness/relevance/answer-discovery
-  -- against REAL past requests after the fact, not just eval/run_generation_eval.py's
+  -- against REAL past requests after the fact, not just eval/run_chat_answer_eval.py's
   -- fixed fixture set. Same "already storing user content for debugging" posture as
   -- `question` above - deliberately NOT duplicated onto ops_alerts, which stays
   -- content-free (see that table's own comment).
@@ -580,15 +625,23 @@ create index if not exists request_trace_steps_trace_idx on request_trace_steps 
 -- Carries no question/answer content, only ids and numbers - keeps this within the
 -- admin's existing operational-visibility scope (see project_admin_privacy_scope
 -- memory) even though request_trace itself stores the question text for debugging.
+--
+-- request_trace_id is nullable because 'structured_output_parse_failure' alerts (see
+-- agent/shared/structured_output.py) come from the background ingestion pipeline, not
+-- a chat request - there's no request_trace row to point at. `details` carries the
+-- context those need (ticker, schema name, the raw unparseable args) that doesn't fit
+-- the threshold/actual_value numeric shape the original four alert types use.
 create table if not exists ops_alerts (
   id uuid primary key default gen_random_uuid(),
-  request_trace_id uuid not null references request_trace(id) on delete cascade,
+  request_trace_id uuid references request_trace(id) on delete cascade,
   user_id uuid not null references auth.users(id) on delete cascade,
   alert_type text not null check (alert_type in (
-    'cost_per_request', 'cost_per_user_per_day', 'latency', 'step_count'
+    'cost_per_request', 'cost_per_user_per_day', 'latency', 'step_count',
+    'structured_output_parse_failure'
   )),
   threshold numeric not null,     -- the configured limit at the time this fired
   actual_value numeric not null,  -- tokens, milliseconds, or step count - whichever crossed it
+  details jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()
 );
 create index if not exists ops_alerts_type_time_idx on ops_alerts (alert_type, created_at);
@@ -644,13 +697,13 @@ create policy "select own watchlist" on watchlist_stocks for select using (auth.
 create policy "insert own watchlist" on watchlist_stocks for insert with check (auth.uid() = user_id);
 create policy "delete own watchlist" on watchlist_stocks for delete using (auth.uid() = user_id);
 
-alter table feed_items enable row level security;
--- feed_items has no user_id column of its own - ownership is via its parent feed,
--- so the policy checks that the parent feed belongs to the requesting user.
-create policy "select own feed items" on feed_items for select using (
+alter table custom_feed_items enable row level security;
+-- custom_feed_items has no user_id column of its own - ownership is via its parent
+-- feed, so the policy checks that the parent feed belongs to the requesting user.
+create policy "select own feed items" on custom_feed_items for select using (
   exists (
     select 1 from feeds
-    where feeds.id = feed_items.feed_id
+    where feeds.id = custom_feed_items.feed_id
       and feeds.user_id = auth.uid()
   )
 );
@@ -741,7 +794,7 @@ as $$
   limit match_count;
 $$;
 
--- Unions each user's own custom feed_items with the shared common_feed_items their
+-- Unions each user's own custom_feed_items with the shared common_feed_items their
 -- 'common' feeds link to, so the frontend can query one thing for a user's whole alert
 -- feed. security_invoker is required, not optional: without it Postgres evaluates RLS as
 -- the view's (privileged) owner rather than the querying user, which would let any
@@ -751,14 +804,14 @@ $$;
 -- user's own common feeds.
 create view user_feed_items with (security_invoker = true) as
   select
-    feed_items.id,
-    feed_items.content_summary,
-    feed_items.source_url,
-    feed_items.created_at,
+    custom_feed_items.id,
+    custom_feed_items.content_summary,
+    custom_feed_items.source_url,
+    custom_feed_items.created_at,
     feeds.feed_name,
     feeds.ticker
-  from feed_items
-  join feeds on feeds.id = feed_items.feed_id
+  from custom_feed_items
+  join feeds on feeds.id = custom_feed_items.feed_id
   where feeds.feed_type = 'custom'
   union all
   select

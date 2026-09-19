@@ -1,0 +1,87 @@
+[
+  {
+    "id": "tls_profit_increase",
+    "ticker": "TLS.AX",
+    "question": "Why is Telstra's profit increasing? TLS.AX",
+    "evidence": [
+      {
+        "source": "Revenue Trend",
+        "content": "Telstra posted a 3.2% rise in profit and announced an A$1 billion share buyback, alongside continued growth in its core mobile and infrastructure segments."
+      }
+    ]
+  },
+  {
+    "id": "tls_profit_sustainability",
+    "ticker": "TLS.AX",
+    "question": "Is Telstra's profit growth sustainable? TLS.AX",
+    "evidence": [
+      {
+        "source": "Revenue Trend",
+        "content": "Telstra posted a 3.2% rise in profit and announced an A$1 billion share buyback."
+      },
+      {
+        "source": "Business Strategy",
+        "content": "Telstra continues expanding its mobile and infrastructure segments, with management citing subscriber growth as the primary driver of recent results."
+      }
+    ]
+  },
+  {
+    "id": "tls_share_price_drop",
+    "ticker": "TLS.AX",
+    "question": "Why did Telstra's share price drop recently? TLS.AX",
+    "evidence": [
+      {
+        "source": "Red Flags",
+        "content": "Telstra shares slipped 1.2% following a network outage affecting mobile customers in several states; the company attributed the outage to a routine software update, not a security incident."
+      }
+    ]
+  },
+  {
+    "id": "tls_revenue_trend_drivers",
+    "ticker": "TLS.AX",
+    "question": "What's driving Telstra's revenue trend this year? TLS.AX",
+    "evidence": [
+      {
+        "source": "Revenue Trend",
+        "content": "Telstra posted a 3.2% rise in profit and announced an A$1 billion share buyback, alongside continued growth in its core mobile and infrastructure segments."
+      }
+    ]
+  },
+  {
+    "id": "tls_network_outage",
+    "ticker": "TLS.AX",
+    "question": "What happened with the Telstra network outage? TLS.AX",
+    "evidence": [
+      {
+        "source": "Red Flags",
+        "content": "Telstra shares slipped 1.2% following a network outage affecting mobile customers in several states; the company attributed the outage to a routine software update, not a security incident."
+      }
+    ]
+  },
+  {
+    "id": "tls_digital_infra_partnerships",
+    "ticker": "TLS.AX",
+    "question": "Why is Telstra investing in digital infrastructure partnerships? TLS.AX",
+    "evidence": [
+      {
+        "source": "Business Strategy",
+        "content": "Telstra announced an expanded partnership with a cloud infrastructure provider to build out edge-computing capacity for enterprise customers, part of a broader push to diversify revenue beyond core mobile services."
+      }
+    ]
+  },
+  {
+    "id": "tls_latest_news",
+    "ticker": "TLS.AX",
+    "question": "What's the latest news on Telstra? TLS.AX",
+    "evidence": [
+      {
+        "source": "Revenue Trend",
+        "content": "Telstra posted a 3.2% rise in profit and announced an A$1 billion share buyback."
+      },
+      {
+        "source": "Red Flags",
+        "content": "Telstra shares slipped 1.2% following a network outage affecting mobile customers in several states; attributed to a routine software update, not a security incident."
+      }
+    ]
+  }
+]

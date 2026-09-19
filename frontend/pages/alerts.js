@@ -108,7 +108,7 @@ export default function Alerts() {
   useEffect(() => {
     if (!user) return;
 
-    // user_feed_items is a view unioning per-user feed_items (custom feeds) with the
+    // user_feed_items is a view unioning per-user custom_feed_items (custom feeds) with the
     // shared common_feed_items (common feeds) - see schema.sql. It has no FK for
     // PostgREST to embed through, so feed_name/ticker come back as flat columns here
     // instead of a nested `feeds` relation.

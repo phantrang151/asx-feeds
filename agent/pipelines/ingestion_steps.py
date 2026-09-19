@@ -1,10 +1,8 @@
 from datetime import datetime, timezone
 
-from langchain_anthropic import ChatAnthropic
-
-from config import ROUTER_MODEL, ANTHROPIC_API_KEY
 from tools.search import search_news
 from tools.embeddings import embed_batch
+from agent.shared.news_text import format_news_content
 from db.queries import (
     get_feeds_for_user,
     match_feed_for_embedding,
@@ -38,11 +36,14 @@ def _parse_published_at(published) -> str | None:
 
 def fetch_and_cache_news(ticker: str) -> int:
     """Phase 1: pull this ticker's latest headlines ONCE - not once per user watching
-    it - and cache them in ticker_news, embedding every title in a single batch call.
-    Returns the number of articles cached."""
+    it - and cache them in ticker_news, embedding format_news_content(title, snippet)
+    (title alone is too thin a signal for classify_common_feeds/classify_and_store's
+    feed matching below) in a single batch call. Returns the number of articles cached."""
     articles = [a for a in search_news(ticker) if a.get("title")]
 
-    embeddings = embed_batch([a["title"] for a in articles]) if articles else []
+    embeddings = (
+        embed_batch([format_news_content(a["title"], a.get("snippet")) for a in articles]) if articles else []
+    )
 
     rows = [
         {
@@ -51,6 +52,7 @@ def fetch_and_cache_news(ticker: str) -> int:
             "publisher": article.get("publisher"),
             "source_url": article.get("link"),
             "published_at": _parse_published_at(article.get("published")),
+            "snippet": article.get("snippet") or None,
             "content_embedding": embedding,
         }
         for article, embedding in zip(articles, embeddings)
@@ -72,11 +74,10 @@ def classify_common_feeds(ticker: str) -> int:
         matches = match_common_feed_template_for_embedding(article["content_embedding"], match_count=1)
         if matches and matches[0]["similarity"] >= matches[0]["match_threshold"]:
             best = matches[0]
-            summary = summarize_for_feed(article, best["name"], best["description"])
             insert_common_feed_item(
                 common_feed_template_id=best["id"],
                 ticker=ticker,
-                content_summary=summary,
+                content_summary=format_news_content(article["title"], article.get("snippet")),
                 source_url=article.get("source_url"),
                 content_embedding=article["content_embedding"],
             )
@@ -116,7 +117,7 @@ def classify_and_store(user_id: str, ticker: str, run_cutoff: str) -> tuple[int,
         return 0, 0
 
     # A feed flagged by the user's "Refresh" action (after editing its description or
-    # threshold) gets its existing feed_items wiped and its watermark treated as unset for
+    # threshold) gets its existing custom_feed_items wiped and its watermark treated as unset for
     # this run, so it re-matches its entire ticker_news history under its current
     # settings instead of only newly-cached articles.
     refreshing_ids = [f["id"] for f in custom_feeds if f.get("needs_rematch")]
@@ -158,11 +159,10 @@ def classify_and_store(user_id: str, ticker: str, run_cutoff: str) -> tuple[int,
             skipped += 1
             continue
 
-        summary = summarize_for_feed(article, best["feed_name"], best["feed_description"])
         insert_feed_item(
             feed_id=best["id"],
             source_type="news",
-            content_summary=summary,
+            content_summary=format_news_content(article["title"], article.get("snippet")),
             source_url=article.get("source_url"),
             content_embedding=article["content_embedding"],
         )
@@ -172,22 +172,3 @@ def classify_and_store(user_id: str, ticker: str, run_cutoff: str) -> tuple[int,
     if refreshing_ids:
         clear_feeds_needs_rematch(refreshing_ids)
     return classified, skipped
-
-
-def summarize_for_feed(article: dict, feed_name: str, feed_description: str) -> str:
-    """One LLM call per matched article - only for items that already cleared the
-    vector-similarity threshold, to keep token usage low."""
-    llm = ChatAnthropic(model=ROUTER_MODEL, api_key=ANTHROPIC_API_KEY)
-    prompt = (
-        f"Feed: {feed_name} ({feed_description})\n"
-        f"News title: {article.get('title')}\n"
-        f"Publisher: {article.get('publisher')}\n\n"
-        "In one sentence, explain why this news item is relevant to this feed."
-    )
-    response = llm.invoke(prompt)
-    content = response.content
-    if isinstance(content, list):
-        content = "".join(
-            block.get("text", "") for block in content if isinstance(block, dict) and block.get("type") == "text"
-        )
-    return content.strip()

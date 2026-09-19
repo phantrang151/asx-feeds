@@ -3,8 +3,8 @@ mid-run - the audit's top finding, traced through the exact write order.
 classify_and_store inserts matched articles in a loop, then advances the
 last_classified_at watermark in ONE bulk call AFTER the whole loop finishes - so a crash
 between those two steps leaves the watermark un-advanced, and a retry re-fetches and
-re-inserts the same already-classified articles as duplicates (feed_items has no unique
-constraint to stop it)."""
+re-inserts the same already-classified articles as duplicates (custom_feed_items has no
+unique constraint to stop it)."""
 
 from datetime import datetime, timezone
 from unittest.mock import patch
@@ -42,8 +42,8 @@ def _seed_feed_and_news(test_user_id, test_ticker, embedding, n_articles=3):
     reason=(
         "Confirmed audit finding: classify_and_store's watermark only advances after "
         "the FULL insert loop finishes (one bulk call), so a crash between the loop "
-        "finishing and that call lands causes a retry to duplicate feed_items - "
-        "feed_items has no unique constraint to stop it. Remove this marker once the "
+        "finishing and that call lands causes a retry to duplicate custom_feed_items - "
+        "custom_feed_items has no unique constraint to stop it. Remove this marker once the "
         "watermark-per-article fix lands (this test will then genuinely pass)."
     ),
 )
@@ -73,7 +73,7 @@ def test_crash_before_watermark_update_causes_duplicate_feed_items(
         items_after_retry = get_custom_feed_items(feed["id"])
 
         assert len(items_after_retry) == 3, (
-            f"feed_items grew to {len(items_after_retry)} after retrying a crashed run - "
+            f"custom_feed_items grew to {len(items_after_retry)} after retrying a crashed run - "
             "the same 3 articles were re-classified and re-inserted as duplicates."
         )
     finally:

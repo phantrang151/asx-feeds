@@ -2,7 +2,7 @@
 TP/FP scoring for the research-order guardrail (agent/guardrails/research_order.py) -
 the ordering guard the chat ReAct agent's research tools call before running (see
 tools/react_tools.py). The guard itself is deterministic, so this isn't judging
-ambiguous natural language the way score_guardrails.py's advice checks are - it's a
+ambiguous natural language the way run_guardrail_eval.py's advice checks are - it's a
 labeled regression check reusing the same shared confusion-matrix shape, so a future
 change to research_order.py's state machine that breaks an ordering guarantee shows up
 here (and on the admin page) rather than only failing tests/test_research_order.py locally.
@@ -12,7 +12,7 @@ functions inside a fresh research_guard() context per fixture row - never reimpl
 the state machine, so this eval and the live guard can't drift apart.
 
 Usage:
-    python -m agent.eval.score_research_order
+    python -m agent.eval.runners.run_research_order_eval
 """
 
 import argparse
@@ -25,6 +25,7 @@ from agent.guardrails.research_order import (
     record_internal_news_result,
 )
 from agent.eval.confusion_matrix import load_fixture, score_binary, print_layer
+from agent.eval.fixture_version import compute_fixture_version
 from db.queries import insert_eval_run
 
 DEFAULT_FIXTURE = "agent/eval/fixtures/research_order_test_set.json"
@@ -58,7 +59,10 @@ def run_research_order_eval(fixture_path: str = DEFAULT_FIXTURE, persist: bool =
     print_layer("guard", scores)
 
     if persist:
-        insert_eval_run("research_order", {"fixture": fixture_path, "summary": scores})
+        insert_eval_run(
+            "research_order", {"fixture": fixture_path, "summary": scores},
+            fixture_version=compute_fixture_version(fixture_path),
+        )
         print("\nLogged this run to eval_runs (visible on the admin page).")
 
     return scores

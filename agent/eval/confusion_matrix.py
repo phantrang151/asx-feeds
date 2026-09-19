@@ -1,5 +1,5 @@
 """Shared binary-classification scoring for guardrail evals - every guardrail eval
-(score_guardrails.py's regex/LLM advice checks, score_research_order.py's ordering
+(run_guardrail_eval.py's regex/LLM advice checks, run_research_order_eval.py's ordering
 guard) reduces to the same question: does `predict(row)` flag/block a row that's
 labeled actually-bad in a fixture? Kept as one shared implementation so a metric
 definition (e.g. what counts as a false positive) can't drift between guardrail types.

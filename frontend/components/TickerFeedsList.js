@@ -94,7 +94,7 @@ export default function TickerFeedsList({ tickers, feeds, onFeedDeleted, onTicke
 
   async function handleDeleteFeed(feedId) {
     if (!window.confirm('Delete this feed? Its alert history will be deleted too.')) return;
-    // Goes through the backend (not a direct Supabase delete) so feed_items cascade and
+    // Goes through the backend (not a direct Supabase delete) so custom_feed_items cascade and
     // the ticker's GOD summary is rebuilt without this feed.
     let res;
     try {

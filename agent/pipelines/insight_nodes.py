@@ -16,6 +16,8 @@ from db.queries import (
     insert_ticker_insight,
 )
 from agent.shared.synthesize import synthesize_insight
+from agent.shared.news_text import format_news_content, format_feed_content
+from agent.shared.structured_output import invoke_structured_with_repair
 from agent.guardrails import check_output
 
 from .insight_schemas import FeedSummary, FeedSourceDecision, FeedSourcePlan
@@ -49,17 +51,25 @@ Never recommend buying, selling, or holding the stock, and never state or imply 
 is a good or bad time to invest."""
 
 
-def summarize_feed_items(feed_name: str, ticker: str, items: list[dict]) -> FeedSummary:
+def summarize_feed_items(feed_name: str, feed_description: str, ticker: str, items: list[dict]) -> FeedSummary:
     """One LLM call per feed that passed planner_node's cheap item-count floor. Returns a
     structured judgment, not just prose: `sufficient` is the model's own qualitative call on
     whether these items actually support a conclusion about this topic - a feed can have
     items and still come back `sufficient=False` (e.g. the one matched item isn't really
     about what the feed tracks). Only ever summarizes this one feed's own items - never
-    asked to connect across feeds, that's synthesize_node's job via synthesize_insight()."""
+    asked to connect across feeds, that's synthesize_node's job via synthesize_insight().
+
+    Takes `feed_description` (not just `feed_name`) for the same reason
+    decide_feed_sources does - the same feed_name means different things for different
+    companies (e.g. "Investment in AI" is worded differently per ticker in
+    common_feed_templates/feeds), so judging on-topic-ness from the name alone risks a
+    wrong sufficiency call."""
     items_text = "\n".join(f"- {item['content_summary']}" for item in items)
     llm = ChatAnthropic(model=ANALYSIS_MODEL, api_key=ANTHROPIC_API_KEY)
-    prompt = f"{FEED_SUMMARY_PROMPT}\n\nTicker: {ticker}\nFeed: {feed_name}\n\nItems:\n{items_text}"
-    return llm.with_structured_output(FeedSummary).invoke(prompt)
+    prompt = (
+        f"{FEED_SUMMARY_PROMPT}\n\nTicker: {ticker}\nFeed: {feed_name} ({feed_description})\n\nItems:\n{items_text}"
+    )
+    return invoke_structured_with_repair(llm, FeedSummary, prompt)
 
 
 SOURCE_DECISION_PROMPT = """You are a financial analyst deciding what EXTRA data sources
@@ -118,10 +128,10 @@ def decide_feed_sources(ticker: str, feeds: list[dict]) -> dict[str, FeedSourceD
     if not feeds:
         return {}
 
-    feed_list = "\n".join(f"- {f['feed_name']}: {f['feed_description']}" for f in feeds)
+    feed_list = "\n".join(f"- {format_feed_content(f['feed_name'], f['feed_description'])}" for f in feeds)
     llm = ChatAnthropic(model=ANALYSIS_MODEL, api_key=ANTHROPIC_API_KEY)
     prompt = SOURCE_DECISION_PROMPT.format(ticker=ticker, feed_list=feed_list)
-    plan = llm.with_structured_output(FeedSourcePlan).invoke(prompt)
+    plan = invoke_structured_with_repair(llm, FeedSourcePlan, prompt)
     by_name = {d.feed_name: d for d in plan.decisions}
 
     return {
@@ -169,6 +179,7 @@ def planner_node(state):
     }
     eligible_feeds = [f for f in feeds if items_by_feed[f["feed_name"]]]
     feed_embeddings = {f["feed_name"]: f["description_embedding"] for f in eligible_feeds}
+    feed_descriptions = {f["feed_name"]: f["feed_description"] for f in eligible_feeds}
     source_decisions = decide_feed_sources(ticker, eligible_feeds)
     plan = [f["feed_name"] for f in eligible_feeds]
 
@@ -177,6 +188,7 @@ def planner_node(state):
         update={
             "items_by_feed": items_by_feed,
             "feed_embeddings": feed_embeddings,
+            "feed_descriptions": feed_descriptions,
             "source_decisions": source_decisions,
             "supplementary_items_by_feed": {},
             "plan": plan,
@@ -196,7 +208,7 @@ def execute_step_node(state):
     `items`/step_results["items"] and stored separately in supplementary_items_by_feed -
     they have no "id" field at all, so there's nothing for synthesize_node's id-collection
     loop (which only ever reads items_by_feed) to accidentally pick up. That's what keeps
-    based_on_feed_item_ids strictly real feed_items/common_feed_items ids even though the
+    based_on_feed_item_ids strictly real custom_feed_items/common_feed_items ids even though the
     summary itself was informed by other tables.
 
     Once the plan is exhausted, routes directly to synthesize. Missing or insufficient
@@ -208,6 +220,7 @@ def execute_step_node(state):
     own_items = state["items_by_feed"].get(feed_name, [])
     decision = state["source_decisions"].get(feed_name)
     embedding = state["feed_embeddings"].get(feed_name)
+    feed_description = state["feed_descriptions"].get(feed_name, "")
 
     supplementary_items = []
     if decision and embedding:
@@ -226,9 +239,12 @@ def execute_step_node(state):
             )
             # Labeled with the source ticker so the summarizing LLM doesn't misattribute a
             # peer company's news to the subject ticker.
-            supplementary_items += [{"content_summary": f"[{m['ticker']}] {m['title']}"} for m in matches]
+            supplementary_items += [
+                {"content_summary": f"[{m['ticker']}] {format_news_content(m['title'], m.get('snippet'))}"}
+                for m in matches
+            ]
 
-    result = summarize_feed_items(feed_name, ticker, own_items + supplementary_items)
+    result = summarize_feed_items(feed_name, feed_description, ticker, own_items + supplementary_items)
     new_results = state["step_results"] + [
         {"step": feed_name, "items": own_items, "summary": result.summary, "sufficient": result.sufficient}
     ]

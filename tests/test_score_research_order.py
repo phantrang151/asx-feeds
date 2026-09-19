@@ -5,7 +5,7 @@ score_research_order - never reimplements the state machine, so this test and th
 guard can't drift apart. persist=False so running this in CI never writes to eval_runs."""
 
 from agent.eval.confusion_matrix import load_fixture
-from agent.eval.score_research_order import score_research_order, DEFAULT_FIXTURE
+from agent.eval.runners.run_research_order_eval import score_research_order, DEFAULT_FIXTURE
 
 
 def test_research_order_guard_matches_every_labeled_scenario():

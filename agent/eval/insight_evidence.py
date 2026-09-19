@@ -10,7 +10,7 @@ def build_insight_evidence(feed_summaries: list[dict]) -> list[dict]:
     """Evidence for grounding/completeness is reconstructed from a ticker_insights row's
     own persisted feed_summaries (the same {feed_name, summary} shape synthesize_node
     itself builds the "evidence" list from before calling synthesize_insight() - see
-    agent/pipelines/insight_nodes.py) rather than re-querying feed_items - what the judge
+    agent/pipelines/insight_nodes.py) rather than re-querying custom_feed_items - what the judge
     sees should match what synthesis actually had.
 
     Also includes a note naming which OTHER feeds had no/insufficient evidence,

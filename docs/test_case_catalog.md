@@ -25,9 +25,9 @@ Fast, deterministic, safe to run on every commit.
 | ID | Case | Target | Assert | Priority |
 |---|---|---|---|---|
 | U1 | Confusion-matrix arithmetic | `agent/eval/confusion_matrix.py::score_binary` | Known tp/fp/tn/fn rows -> exact TPR/FPR; all-bad and all-clean sets -> the "no positives"/"no negatives" branch returns `None`, not a divide-by-zero. | Med |
-| U2 | Threshold boundary | `agent/eval/score_classification.py::predict_label` | `similarity == threshold` counts as a match (the `>=` boundary); missing `candidate_similarity` -> `"none"`. | Med |
-| U3 | Precision/recall/false-skip arithmetic | `agent/eval/score_classification.py::score` | A hand-built 5-row set including one skipped row and one wrong-feed row -> exact expected precision/recall/false_skip_rate. | Med |
-| U4 | ROC/AUC correctness | `agent/eval/score_classification.py::compute_roc_auc` | Perfect-separation set -> `auc == 1.0`, correct best threshold; the imperfect set already hand-verified this session -> `auc == 0.75`. Values already known-good - just needs locking in. | High |
+| U2 | Threshold boundary | `agent/eval/runners/run_classification_eval.py::predict_label` | `similarity == threshold` counts as a match (the `>=` boundary); missing `candidate_similarity` -> `"none"`. | Med |
+| U3 | Precision/recall/false-skip arithmetic | `agent/eval/runners/run_classification_eval.py::score` | A hand-built 5-row set including one skipped row and one wrong-feed row -> exact expected precision/recall/false_skip_rate. | Med |
+| U4 | PR/Average-Precision correctness | `agent/eval/runners/run_classification_eval.py::compute_pr_auc` | Perfect-separation set -> `auc == 1.0`, correct best threshold; the imperfect set already hand-verified this session -> `auc == 0.5`. Values already known-good - just needs locking in. Switched from ROC-AUC to PR-AUC since real news is heavily skewed toward "none of the 3 templates," which dilutes ROC's FPR term and overstates threshold quality. | High |
 | U5 | Timestamp normalization | `agent/pipelines/ingestion_steps.py::_parse_published_at` | ISO string passes through unchanged; Unix int converts to ISO; falsy input -> `None`. | Low |
 | U6 | Guard state edge cases | `agent/guardrails/research_order.py::ResearchOrderGuard` | Calling `record_internal_news_result` twice with different `found` values -> last write wins; calling `authorize` again after an allow -> still allowed. | Low |
 | U7 | Plan-inclusion decision | `agent/pipelines/insight_nodes.py`'s planner_node floor logic | 0 own items + `needs_reports=True` -> included; 0 items + both flags `False` -> excluded. **Needs extracting into a standalone function first** - currently entangled with the DB fetch inside `planner_node`. | Med |
@@ -38,14 +38,14 @@ Against a test Supabase project. No LLM cost unless noted.
 
 | ID | Case | Target | Assert | Priority |
 |---|---|---|---|---|
-| I1 | Re-run duplication | `agent/pipelines/ingestion_steps.py::classify_and_store` | Seed one feed + a few `ticker_news` rows, run once, capture `feed_items` count; run again with no new news -> count must be **unchanged**. Proves the audit's top finding - expect this to fail until the watermark-per-article fix lands. | High |
+| I1 | Re-run duplication | `agent/pipelines/ingestion_steps.py::classify_and_store` | Seed one feed + a few `ticker_news` rows, run once, capture `custom_feed_items` count; run again with no new news -> count must be **unchanged**. Proves the audit's top finding - expect this to fail until the watermark-per-article fix lands. | High |
 | I2 | Concurrent classify race | `classify_and_store` | Two overlapping calls against the same feed -> documents the missing lock; same root cause as I1, concurrency angle. | High |
 | I3 | News cache dedup | `db/queries.py::upsert_ticker_news` | Insert the same `(ticker, source_url)` twice -> exactly one row. Proves the existing unique constraint actually holds. | Med |
 | I4 | eval_type constraint coverage | `db/queries.py::insert_eval_run` | Loop all 6 real `eval_type` strings through `insert_eval_run` -> none violate the DB check constraint. Would have caught this session's real constraint bug immediately, instead of via manual smoke test. | High |
 | I5 | Sector-cache idempotency | `ingestion_steps.py::ensure_company_sector_cached` | Call twice with `fetch_sector_industry_live` mocked -> the live-fetch mock is called exactly once. | Med |
 | I6 | Peer-ticker matching | `db/queries.py::get_peer_tickers` | Seed two same-sector companies plus one different-sector -> correct set returned, self excluded. | Med |
 | I7 | Vector-match round trip | `match_ticker_news_for_embedding`, `match_document_chunks_for_embedding` | Seed a row with a known embedding, query with a near-identical vector -> returned above the similarity threshold. | Med |
-| I8 | Guardrail eval as regression gate | `agent/eval/score_research_order.py::score_research_order` | Wrap the existing fixture run in a pytest assertion: `true_positive_rate == 1.0`, `false_positive_rate == 0.0`. No LLM cost - deterministic guard. Bridges directly into CI/CD. | High |
+| I8 | Guardrail eval as regression gate | `agent/eval/runners/run_research_order_eval.py::score_research_order` | Wrap the existing fixture run in a pytest assertion: `true_positive_rate == 1.0`, `false_positive_rate == 0.0`. No LLM cost - deterministic guard. Bridges directly into CI/CD. | High |
 
 ## Layer 3: System (full workflow, over HTTP)
 

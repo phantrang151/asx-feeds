@@ -42,7 +42,7 @@ def get_store() -> PostgresStore:
     it survives process restarts, so a fact stored last week or an episodic example from a
     previous session is still there the next time someone loads the demo.
 
-    .setup() creates the store's own tables on first run (separate from feeds/feed_items/
+    .setup() creates the store's own tables on first run (separate from feeds/custom_feed_items/
     etc.) - safe to call every time the process starts, it's a no-op after the first run.
     """
     store = PostgresStore(_get_pool(), index={"dims": 384, "embed": embed_batch})

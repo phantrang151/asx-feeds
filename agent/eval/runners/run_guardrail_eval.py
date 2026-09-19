@@ -16,8 +16,8 @@ Makes real, live Groq calls for the LLM layers (router classification, advice-ch
 judge) - not free, not instant.
 
 Usage:
-    python -m agent.eval.score_guardrails
-    python -m agent.eval.score_guardrails --output agent/eval/results/guardrail_scores.json
+    python -m agent.eval.runners.run_guardrail_eval
+    python -m agent.eval.runners.run_guardrail_eval --output agent/eval/results/guardrail_scores.json
 """
 
 import argparse
@@ -28,6 +28,7 @@ from langchain_core.messages import HumanMessage
 from agent.chat.nodes import classify_request
 from agent.guardrails.advice_check import keyword_scan, keyword_scan_advice_seeking, llm_judge_advice_check
 from agent.eval.confusion_matrix import load_fixture, score_binary, print_layer
+from agent.eval.fixture_version import compute_fixture_version
 from db.queries import insert_eval_run
 
 DEFAULT_INPUT_FIXTURE = "agent/eval/fixtures/input_guardrail_test_set.json"
@@ -69,7 +70,10 @@ def run_guardrail_eval(
     print_layer("llm  ", output_scores["llm_layer"])
 
     if persist:
-        insert_eval_run("guardrails", {"input_fixture": input_fixture, "output_fixture": output_fixture, "summary": summary})
+        insert_eval_run(
+            "guardrails", {"input_fixture": input_fixture, "output_fixture": output_fixture, "summary": summary},
+            fixture_version=compute_fixture_version(input_fixture, output_fixture),
+        )
         print("\nLogged this run to eval_runs (visible on the admin page).")
 
     return summary

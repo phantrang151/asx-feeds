@@ -1,75 +1,43 @@
 [
   {
-    "ticker": "ANZ.AX",
-    "evidence": [
-      {
-        "source": "Financial reports",
-        "content": "ANZ's FY2024 results: statutory profit of $6.5bn (down 8%), cash profit of $6,725m (down 9%), cash EPS of 224.3c (down 23c), CET1 ratio of 12.2% (down 114bps), total dividend of 166c (down 5%), and 1-year TSR of 27%. References the Suncorp Bank acquisition, the AmBank stake sale, and an ongoing $2bn share buyback."
-      },
-      {
-        "source": "Business Strategy",
-        "content": "ANZ completed its acquisition of Suncorp Bank, adding $17.9bn in net interest income, and continues its $2bn share buyback program announced earlier this year."
-      }
-    ]
-  },
-  {
-    "ticker": "TPG.AX",
-    "evidence": [
-      {
-        "source": "Financial reports",
-        "content": "TPG Telecom's FY24 Annual Report: Service Revenue of $4,702m, EBITDA of $1,988m, OFCF of $672m, a statutory NPAT loss of $(107)m, ROIC of 6.1%, and EPS of 10.7 cents. Strategic targets: reduce capex, hold opex flat, and grow OFCF/ROIC/EPS post-Vocus transaction."
-      },
-      {
-        "source": "pipeline note",
-        "content": "No evidence was found this run for: Customer Growth, Network Quality & Customer Service."
-      }
-    ]
-  },
-  {
+    "id": "cba_insight",
     "ticker": "CBA.AX",
-    "evidence": [
+    "feed_summaries": [
       {
-        "source": "Investment in AI",
-        "content": "CBA appointed a new CIO and CTO explicitly tasked with advancing the bank's technology and AI strategy, signalling increased executive focus on AI deployment across the organisation."
+        "feed_name": "Revenue Trend",
+        "status": "sufficient",
+        "summary": "Based on limited information, the items note a recent uptick in Commonwealth Bank's profit, which along with anticipated RBA rate decisions is seen as a factor shaping its earnings outlook. CBA is also highlighted for its dividend reliability among income-focused stocks, though this touches more on payout attractiveness than underlying revenue drivers. The LGT profit report is unrelated to CBA and provides no on-topic signal.",
+        "item_count": 3
       },
       {
-        "source": "Red Flags",
-        "content": "CBA faces a class action lawsuit alleging unconscionable lending practices toward small business customers, filed in the Federal Court."
+        "feed_name": "Investment in AI",
+        "status": "sufficient",
+        "summary": "Reports indicate CBA has used AI/automation to replace some customer service roles, though a related item suggests companies (potentially including CBA) are rehiring workers after automation fell short of expectations. Separately, CBA appointed new CIO and CTO executives specifically tasked with advancing its technology and AI strategy, signaling continued organizational investment in AI-driven transformation. The broader Altman/Goldman Sachs commentary is industry-level and not specific to CBA's own actions.",
+        "item_count": 4
       }
     ]
   },
   {
+    "id": "nab_insight",
     "ticker": "NAB.AX",
-    "evidence": [
+    "feed_summaries": [
       {
-        "source": "Revenue Trend",
-        "content": "NAB cut its variable home loan interest rate by 0.15% following the RBA's latest rate decision, matching moves by other major banks."
+        "feed_name": "Red Flags",
+        "status": "insufficient",
+        "summary": "The single item provided is about Victoria's delay of proposed work-from-home laws due to business pushback, and does not mention NAB, its operations, or any company-specific controversy, regulatory action, lawsuit, breach, or misconduct. This is not relevant to NAB's specific reputational or operational risk profile.",
+        "item_count": 1
       },
       {
-        "source": "pipeline note",
-        "content": "Evidence was found but judged too thin or off-topic for: Business Strategy, Investment in AI."
-      }
-    ]
-  },
-  {
-    "ticker": "TLS.AX",
-    "evidence": [
-      {
-        "source": "Revenue Trend",
-        "content": "Telstra posted a 3.2% rise in profit and announced an A$1 billion share buyback, alongside continued growth in its core mobile and infrastructure segments."
+        "feed_name": "Revenue Trend",
+        "status": "insufficient",
+        "summary": "The provided item is a generic stock comparison (value screening between FBP and NABZY) and does not report any actual revenue, profit, earnings, segment, or margin figures for NAB. It offers no genuine signal on NAB's revenue trend.",
+        "item_count": 1
       },
       {
-        "source": "Red Flags",
-        "content": "Telstra shares slipped 1.2% following a network outage affecting mobile customers in several states; the company attributed the outage to a routine software update, not a security incident."
-      }
-    ]
-  },
-  {
-    "ticker": "COL.AX",
-    "evidence": [
-      {
-        "source": "pipeline note",
-        "content": "No evidence was found this run for: Business Strategy, Revenue Trend, Red Flags, Investment in AI."
+        "feed_name": "Investment in AI",
+        "status": "sufficient",
+        "summary": "Based on limited information (a single report), NAB is reportedly testing safeguards for AI agents, suggesting the bank is actively piloting AI agent technology within its operations. The item also notes a competitor, Westpac, already using bots for mortgage and credit card application reviews, though this competitor detail is not itself a signal about NAB's own AI adoption.",
+        "item_count": 1
       }
     ]
   }

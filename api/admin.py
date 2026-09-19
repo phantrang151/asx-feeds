@@ -3,7 +3,7 @@ import re
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Response, UploadFile
 
 from api.auth import require_admin
 from config import QUALITY_SAMPLE_WINDOW_HOURS
@@ -30,17 +30,19 @@ from db.queries import (
     get_classification_samples,
     mark_classification_sample_reviewed,
 )
-from agent.eval.runners.run_generation_eval import run_generation_eval, DEFAULT_FIXTURE as DEFAULT_GENERATION_EVAL_FIXTURE
+from agent.eval.runners.run_chat_answer_eval import run_chat_answer_eval, DEFAULT_FIXTURE as DEFAULT_CHAT_ANSWER_EVAL_FIXTURE
 from agent.eval.runners.run_insight_eval import run_insight_eval
 from agent.eval.runners.run_feed_summary_eval import run_feed_summary_eval
-from agent.eval.score_guardrails import (
+from agent.eval.runners.run_guardrail_eval import (
     run_guardrail_eval,
     DEFAULT_INPUT_FIXTURE as DEFAULT_INPUT_GUARDRAIL_FIXTURE,
     DEFAULT_OUTPUT_FIXTURE as DEFAULT_OUTPUT_GUARDRAIL_FIXTURE,
 )
-from agent.eval.score_research_order import run_research_order_eval
+from agent.eval.runners.run_research_order_eval import run_research_order_eval
 from agent.eval.runners.run_live_sample_eval import run_live_sample_eval
-from agent.eval.score_classification import run_classification_eval, DEFAULT_LABELS_PATH
+from agent.eval.runners.run_classification_eval import run_classification_eval, DEFAULT_LABELS_PATH
+from agent.eval.runners.run_evidence_selection_eval import run_evidence_selection_eval
+from agent.eval.runners.run_judge_drift_check import run_judge_drift_check
 from monitoring.langsmith_summary import get_langsmith_summary
 from monitoring.quality_sampling import run_quality_sampling
 from monitoring.guardrail_sampling import run_guardrail_sampling
@@ -127,30 +129,30 @@ def langsmith_summary(admin_user_id: str = Depends(require_admin)):
 @router.get("/eval/runs")
 def list_eval_runs(eval_type: Optional[str] = None, admin_user_id: str = Depends(require_admin)):
     """Recent eval run history - what the admin page's Evaluation section renders.
-    Populated by every eval type below, all triggerable from here: eval/run_generation_eval.py,
-    eval/run_insight_eval.py, eval/score_guardrails.py, eval/score_research_order.py,
-    eval/run_live_sample_eval.py, and eval/score_classification.py - the last of which
+    Populated by every eval type below, all triggerable from here: eval/run_chat_answer_eval.py,
+    eval/run_insight_eval.py, eval/run_feed_summary_eval.py, eval/run_guardrail_eval.py,
+    eval/run_research_order_eval.py, eval/run_live_sample_eval.py, eval/run_evidence_selection_eval.py,
+    eval/run_judge_drift_check.py, and eval/run_classification_eval.py - the last of which
     still needs a human labeling pass at least once (see eval/export_labels.py) before
     its own trigger route can re-score anything."""
     return get_recent_eval_runs(eval_type=eval_type, limit=20)
 
 
-@router.post("/eval/generation/trigger")
-def trigger_generation_eval(admin_user_id: str = Depends(require_admin)):
-    """Runs the generation-quality eval (groundedness/relevance/advice-avoidance/
-    answer-discovery judged by JUDGE_MODEL) against the default fixture set right now,
-    synchronously, and returns the summary - same "blocking for now" posture as
-    /pipeline/trigger. Unlike the classification eval, this needs no hand-labeled
-    input, so it's safe to trigger on demand. Makes real, live Claude calls for every
-    fixture question - not free, not instant, and subject to the same daily token
-    quota as normal chat traffic."""
-    return run_generation_eval(DEFAULT_GENERATION_EVAL_FIXTURE)["summary"]
+@router.post("/eval/chat-answer/trigger")
+def trigger_chat_answer_eval(admin_user_id: str = Depends(require_admin)):
+    """Runs the chat-answer-quality eval (groundedness/completeness judged by
+    JUDGE_MODEL) against a fixed set of (ticker, question, evidence) triples, calling
+    synthesize_insight() directly with that fixed evidence rather than the live chat
+    graph - see run_chat_answer_eval.py's own docstring for why. Safe to trigger on
+    demand, no hand-labeled input needed. Makes real, live Claude calls for every
+    fixture question - not free, not instant."""
+    return run_chat_answer_eval(DEFAULT_CHAT_ANSWER_EVAL_FIXTURE)["summary"]
 
 
 @router.post("/eval/insight/trigger")
 def trigger_insight_eval(admin_user_id: str = Depends(require_admin)):
     """Runs the insight-synthesis-quality eval (groundedness/relevance/completeness,
-    same judges as generation eval) against a fixed set of (ticker, evidence) pairs,
+    same judges as chat-answer eval) against a fixed set of (ticker, evidence) pairs,
     synthesizing each fresh via synthesize_insight() rather than reading real
     ticker_insights rows - so this eval's result reflects the prompt/model, not
     whatever news happened to exist when it ran (that's what
@@ -162,9 +164,10 @@ def trigger_insight_eval(admin_user_id: str = Depends(require_admin)):
 @router.post("/eval/feed-summary/trigger")
 def trigger_feed_summary_eval(admin_user_id: str = Depends(require_admin)):
     """Runs the feed-summary-quality eval (groundedness/completeness, same judges as
-    generation/insight eval) against a fixed set of (article, feed) pairs, using the
-    exact same summarize_for_feed() function the live pipeline calls for both custom
-    and common feed items. Makes real, live Claude calls - not free, not instant."""
+    chat-answer/insight eval) against a fixed set of (feed, [news items]) pairs, using
+    the exact same summarize_feed_items() function the live insight pipeline calls to
+    combine a feed's news into one summary. Makes real, live Claude calls - not free,
+    not instant."""
     return run_feed_summary_eval()["summary"]
 
 
@@ -183,8 +186,8 @@ def trigger_guardrail_eval(admin_user_id: str = Depends(require_admin)):
 @router.post("/eval/classification/trigger")
 def trigger_classification_eval(admin_user_id: str = Depends(require_admin)):
     """Re-scores the classification eval (precision/recall/false-skip-rate + a full
-    ROC curve/AUC) against the most recently hand-labeled worksheet
-    (agent/eval/labeling_worksheet_filled.csv by convention - see export_labels.py)
+    precision-recall curve/Average Precision) against the most recently hand-labeled worksheet
+    (agent/eval/fixtures/labeling_worksheet.csv by convention - see export_labels.py)
     right now, synchronously, and returns the summary. Needs no NEW human labeling to
     re-run - safe to trigger repeatedly after changing common_feed_templates.match_threshold
     or the classifier's embedding/prompt, as long as that file's correct_feed ground
@@ -203,6 +206,50 @@ def trigger_classification_eval(admin_user_id: str = Depends(require_admin)):
     return run_classification_eval(DEFAULT_LABELS_PATH)
 
 
+@router.get("/eval/classification/labels-file")
+def download_classification_labels_file(admin_user_id: str = Depends(require_admin)):
+    """Serves the raw labeling worksheet CSV (agent/eval/fixtures/labeling_worksheet.csv
+    by convention) that classification eval runs are scored against - a run's own summary
+    only records the file's path (labels_file), not its content, and the admin page has
+    no other way to let someone download the exact file behind a given run."""
+    if not os.path.exists(DEFAULT_LABELS_PATH):
+        raise HTTPException(status_code=404, detail=f"No labeled worksheet found at {DEFAULT_LABELS_PATH}.")
+    with open(DEFAULT_LABELS_PATH, "rb") as f:
+        content = f.read()
+    filename = os.path.basename(DEFAULT_LABELS_PATH)
+    return Response(
+        content=content,
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@router.post("/eval/evidence-selection/trigger")
+def trigger_evidence_selection_eval(admin_user_id: str = Depends(require_admin)):
+    """Runs the evidence-selection eval (does decide_feed_sources() correctly decide
+    needs_reports/needs_peer_news per feed - see agent/pipelines/insight_nodes.py)
+    against a small hand-labeled fixture right now, synchronously, and returns the
+    summary. Deterministic scoring - no judge LLM - but decide_feed_sources() itself
+    makes a real, live Claude call per ticker."""
+    return run_evidence_selection_eval()["summary"]
+
+
+@router.post("/eval/judge-drift/trigger")
+def trigger_judge_drift_eval(
+    eval_type: str, threshold: int = 10, admin_user_id: str = Depends(require_admin)
+):
+    """Diffs the latest persisted eval_runs row for `eval_type` (must be 'feed_summary'
+    or 'insight_quality' - the two eval types that carry a stable per-item `id`) against
+    the run before it, item-by-item, flagging groundedness/completeness deltas >=
+    `threshold` percentage points for human review. No judge LLM call - see
+    run_judge_drift_check.py's own docstring for why a second judge grading the first isn't
+    used here. Never blocks anything - purely informational, and safe to trigger
+    repeatedly (reads eval_runs, doesn't require a fresh eval run first)."""
+    if eval_type not in ("feed_summary", "insight_quality"):
+        raise HTTPException(status_code=422, detail="eval_type must be 'feed_summary' or 'insight_quality'.")
+    return run_judge_drift_check(eval_type, threshold=threshold)
+
+
 @router.post("/eval/research-order/trigger")
 def trigger_research_order_eval(admin_user_id: str = Depends(require_admin)):
     """Runs the research-order guardrail's labeled call-sequence eval (see
@@ -217,7 +264,7 @@ def trigger_live_sample_eval(n: int = 10, hours: int = 24, admin_user_id: str = 
     """Samples up to `n` random completed conduct_analysis requests from the last
     `hours` of REAL traffic and judges each for groundedness/relevance/answer-discovery
     - continuous quality monitoring at a predictable cost, as opposed to
-    /eval/generation/trigger's fixed fixture set. `n` defaults to 10/day scale
+    /eval/chat-answer/trigger's fixed fixture set. `n` defaults to 10/day scale
     deliberately - see eval/run_live_sample_eval.py's own docstring for why judging
     every request live would get expensive fast."""
     return run_live_sample_eval(n=n, hours=hours)["summary"]
@@ -287,7 +334,7 @@ def trigger_quality_sampling(
     insights, and chat answers for groundedness/completeness, and persists one
     quality_samples row per judged item. `hours` is independent of the Monitoring
     section's cost/latency Time window (metrics_summary above) - sampling reads
-    directly from each surface's own source table (feed_items, ticker_insights,
+    directly from each surface's own source table (custom_feed_items, ticker_insights,
     request_trace), not from LangSmith/request_trace aggregates, so it has its own
     window rather than sharing that one. Makes real, live JUDGE_MODEL calls - not free,
     not instant."""

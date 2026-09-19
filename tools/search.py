@@ -35,12 +35,18 @@ def search_news(ticker: str, max_results: int = 20) -> list[dict]:
 
             published = content.get("pubDate") or content.get("providerPublishTime", "")
 
+            # yfinance's own editorial dek - a real sentence about what the article says,
+            # not just the headline. Free (already in the response), unlike the full
+            # article body which would need scraping canonicalUrl.
+            snippet = content.get("summary") or ""
+
             articles.append(
                 {
                     "title": title,
                     "publisher": publisher,
                     "link": link,
                     "published": published,
+                    "snippet": snippet,
                 }
             )
 

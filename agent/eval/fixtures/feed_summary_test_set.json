@@ -1,72 +1,87 @@
 [
   {
+    "id": "cba_revenue_trend",
     "ticker": "CBA.AX",
-    "feed_name": "Business Strategy",
-    "feed_description": "News about the company's strategic moves - partnerships, expansions, new products, acquisitions, or shifts in direction.",
-    "article_title": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy",
-    "publisher": "Reuters"
-  },
-  {
-    "ticker": "TLS.AX",
     "feed_name": "Revenue Trend",
-    "feed_description": "News and signals about the company's revenue performance, growth drivers, and composition, including business segments, products, services, customers, geographic markets, pricing, volumes, acquisitions, and other factors affecting revenue.",
-    "article_title": "Telstra posts 3.2% profit rise, dials up shareholder returns with A$1 billion buyback",
-    "publisher": "AFR"
+    "feed_description": "News reporting the company's actual financial results and what's driving them - quarterly or annual revenue/profit/earnings figures, segment or product-line revenue breakdowns, subscriber or customer growth numbers, pricing or sales-volume changes, margin or cost trends, or the reported financial impact of a past deal (e.g. added revenue from a completed acquisition). About financial RESULTS, not the strategic decision itself - a newly announced acquisition or partnership belongs to Business Strategy instead, even though it will eventually affect revenue.",
+    "news": [
+      {
+        "title": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative?",
+        "publisher": "Simply Wall St."
+      },
+      {
+        "title": "Commonwealth Bank Stock And 2 More Dividend Shares For Reliable Income",
+        "publisher": "Simply Wall St.",
+        "snippet": "Rising yields in major markets are pushing income investors to think harder about where their cash flow comes from. With bond markets adjusting to tighter policy signals, dependable company dividends can feel more valuable than ever. That is where the Dividend Powerhouses 3%+ Yield screener comes in. This article walks through three high income stocks on that list and what makes their dividend profiles worth a closer look. The three stocks below are just a starting sample, and the full..."
+      },
+      {
+        "title": "LGT reports 17% rise in H1 profit as assets reach record level",
+        "publisher": "Private Banker International",
+        "snippet": "Net new assets came in at SFr12.3bn, equal to an annualised growth rate of 6.4%."
+      }
+    ]
   },
   {
-    "ticker": "TPG.AX",
-    "feed_name": "Red Flags",
-    "feed_description": "Controversies, scandals, outages, regulatory issues, lawsuits, or other reputational or operational risks affecting the company.",
-    "article_title": "TPG Telecom hit with ACMA fine over mobile network outage affecting emergency calls",
-    "publisher": "ABC News"
-  },
-  {
+    "id": "nab_red_flags",
     "ticker": "NAB.AX",
-    "feed_name": "Investment in AI",
-    "feed_description": "Any news about the company's investment in Data and AI, including new tools, partnerships, or pilot programs.",
-    "article_title": "Australia's NAB to test AI agent safeguards - report",
-    "publisher": "Reuters"
-  },
-  {
-    "ticker": "COL.AX",
-    "feed_name": "Business Strategy",
-    "feed_description": "News about the company's strategic moves - partnerships, expansions, new products, acquisitions, or shifts in direction.",
-    "article_title": "Coles Group Limited's (ASX:COL) Stock On An Uptrend: Could Fundamentals Be Driving The Momentum?",
-    "publisher": "Simply Wall St."
-  },
-  {
-    "ticker": "ANZ.AX",
-    "feed_name": "Revenue Trend",
-    "feed_description": "News and signals about the company's revenue performance, growth drivers, and composition, including business segments, products, services, customers, geographic markets, pricing, volumes, acquisitions, and other factors affecting revenue.",
-    "article_title": "ANZ Group Holdings completes Suncorp Bank acquisition, adding $17.9bn in net interest income",
-    "publisher": "AFR"
-  },
-  {
-    "ticker": "CBA.AX",
     "feed_name": "Red Flags",
-    "feed_description": "Controversies, scandals, outages, regulatory issues, lawsuits, or other reputational or operational risks affecting the company.",
-    "article_title": "CBA faces class action over alleged unconscionable lending practices to small business customers",
-    "publisher": "AFR"
+    "feed_description": "News about a controversy, scandal, service or network outage, regulatory investigation or fine, lawsuit or class action, executive misconduct, data breach, or other reputational or operational risk to the company.",
+    "news": [
+      {
+        "title": "World-First Work From Home Laws Delayed After Business Outcry",
+        "publisher": "Bloomberg",
+        "snippet": "(Bloomberg) -- The Australian state of Victoria has postponed world-leading working from home laws less than a month before they were due to start, following fierce opposition from business groups and calls for more consultation."
+      }
+    ]
   },
   {
-    "ticker": "TLS.AX",
-    "feed_name": "Investment in AI",
-    "feed_description": "Any news about the company's investment in Data and AI, including new tools, partnerships, or pilot programs.",
-    "article_title": "Telstra shares slip 1.2% after network outage, no link to AI systems reported",
-    "publisher": "Reuters"
-  },
-  {
-    "ticker": "TPG.AX",
-    "feed_name": "Business Strategy",
-    "feed_description": "News about the company's strategic moves - partnerships, expansions, new products, acquisitions, or shifts in direction.",
-    "article_title": "Private companies own 28% of TPG Telecom Limited (ASX:TPG) shares but public companies control 35% of the company",
-    "publisher": "Simply Wall St."
-  },
-  {
+    "id": "nab_revenue_trend",
     "ticker": "NAB.AX",
     "feed_name": "Revenue Trend",
-    "feed_description": "News and signals about the company's revenue performance, growth drivers, and composition, including business segments, products, services, customers, geographic markets, pricing, volumes, acquisitions, and other factors affecting revenue.",
-    "article_title": "NAB cuts variable home loan rate by 0.15% following RBA decision",
-    "publisher": "AFR"
+    "feed_description": "News reporting the company's actual financial results and what's driving them - quarterly or annual revenue/profit/earnings figures, segment or product-line revenue breakdowns, subscriber or customer growth numbers, pricing or sales-volume changes, margin or cost trends, or the reported financial impact of a past deal (e.g. added revenue from a completed acquisition). About financial RESULTS, not the strategic decision itself - a newly announced acquisition or partnership belongs to Business Strategy instead, even though it will eventually affect revenue.",
+    "news": [
+      {
+        "title": "FBP or NABZY: Which Is the Better Value Stock Right Now?",
+        "publisher": "Zacks",
+        "snippet": "FBP vs. NABZY: Which Stock Is the Better Value Option?"
+      }
+    ]
+  },
+  {
+    "id": "cba_custom_investment_in_ai",
+    "ticker": "CBA.AX",
+    "feed_name": "Investment in AI",
+    "feed_description": "News about the company adopting, piloting, or investing in AI, machine learning, data analytics, or software automation for its own operations - e.g. launching an AI-powered or automated product or platform, migrating or modernizing its data/IT systems, using machine learning or analytics to understand customer sentiment, predict demand, detect fraud, or protect assets, using AI or bots to do work previously done by staff (including replacing jobs), streamlining processes or reducing costs through automation, or hiring executives such as a CIO or CTO specifically to drive AI/tech strategy. Must describe something THIS company is actually doing with AI/automation/data - not general AI-industry commentary, a competitor's AI news, or a market piece that only mentions AI in passing.",
+    "news": [
+      {
+        "title": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber",
+        "publisher": "Quartz"
+      },
+      {
+        "title": "Companies rehire workers laid off for AI as automation falls short",
+        "publisher": "Quartz"
+      },
+      {
+        "title": "Billionaire Sam Altman Says OpenAI Was 'Pretty Wrong' About AI Jobs, But Goldman Sachs Warns AI is Still Wiping Out 11,000 Jobs Per Month",
+        "publisher": "Barchart"
+      },
+      {
+        "title": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy",
+        "publisher": "Reuters"
+      }
+    ]
+  },
+  {
+    "id": "nab_custom_investment_in_ai",
+    "ticker": "NAB.AX",
+    "feed_name": "Investment in AI",
+    "feed_description": "News about the company adopting, piloting, or investing in AI, machine learning, data analytics, or software automation for its own operations - e.g. launching an AI-powered or automated product or platform, migrating or modernizing its data/IT systems, using machine learning or analytics to understand customer sentiment, predict demand, detect fraud, or protect assets, using AI or bots to do work previously done by staff (including replacing jobs), streamlining processes or reducing costs through automation, or hiring executives such as a CIO or CTO specifically to drive AI/tech strategy. Must describe something THIS company is actually doing with AI/automation/data - not general AI-industry commentary, a competitor's AI news, or a market piece that only mentions AI in passing.",
+    "news": [
+      {
+        "title": "Australia's NAB to test AI agent safeguards - report",
+        "publisher": "Retail Banker International",
+        "snippet": "According to a AFR report, thousands of Westpac bankers are using bots to review mortgage and credit card applications."
+      }
+    ]
   }
 ]

@@ -10,6 +10,7 @@ from db.queries import (
     match_document_chunks_for_embedding,
     match_ticker_news_for_embedding,
 )
+from agent.shared.news_text import format_news_content
 from db.storage import DOCUMENTS_BUCKET
 from agent.guardrails import (
     authorize_peer_news,
@@ -53,9 +54,15 @@ def search_internal_news_tool(ticker: str, query: str):
     record_internal_news_result(bool(matches))
     if not matches:
         return f"No relevant cached news found for {ticker}.", []
-    content = "\n".join(f"- {m['title']} ({m.get('publisher') or 'Unknown'})" for m in matches)
+    content = "\n".join(
+        f"- {format_news_content(m['title'], m.get('snippet'))} ({m.get('publisher') or 'Unknown'})"
+        for m in matches
+    )
     references = [
-        {"content": f"{m['title']} ({m.get('publisher') or 'Unknown'})", "url": m.get("source_url")}
+        {
+            "content": f"{format_news_content(m['title'], m.get('snippet'))} ({m.get('publisher') or 'Unknown'})",
+            "url": m.get("source_url"),
+        }
         for m in matches
     ]
     return content, references
@@ -83,11 +90,13 @@ def search_internal_peer_news_tool(ticker: str, query: str):
     if not matches:
         return f"No relevant cached peer news found for {ticker}.", []
     content = "\n".join(
-        f"- [{m['ticker']}] {m['title']} ({m.get('publisher') or 'Unknown'})" for m in matches
+        f"- [{m['ticker']}] {format_news_content(m['title'], m.get('snippet'))} ({m.get('publisher') or 'Unknown'})"
+        for m in matches
     )
     references = [
         {
-            "content": f"[{m['ticker']}] {m['title']} ({m.get('publisher') or 'Unknown'})",
+            "content": f"[{m['ticker']}] {format_news_content(m['title'], m.get('snippet'))} "
+            f"({m.get('publisher') or 'Unknown'})",
             "url": m.get("source_url"),
         }
         for m in matches
@@ -113,9 +122,14 @@ def search_news_tool(ticker: str):
     # build user-facing references from, in the shared {"content", "url"} shape every
     # tool's artifact uses - no reason to spend the model's context on URLs it doesn't
     # need to reason about.
-    content = "\n".join(f"- {a['title']} ({a['publisher']})" for a in articles)
+    content = "\n".join(
+        f"- {format_news_content(a['title'], a.get('snippet'))} ({a['publisher']})" for a in articles
+    )
     references = [
-        {"content": f"{a['title']} ({a.get('publisher') or 'Unknown'})", "url": a.get("link")}
+        {
+            "content": f"{format_news_content(a['title'], a.get('snippet'))} ({a.get('publisher') or 'Unknown'})",
+            "url": a.get("link"),
+        }
         for a in articles
     ]
     return content, references

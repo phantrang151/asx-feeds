@@ -1,11 +1,11 @@
 """
 Judges a random sample of REAL recent conduct_analysis requests (not a fixed fixture
-set - see eval/run_generation_eval.py for that) for groundedness, relevance, and
+set - see eval/run_chat_answer_eval.py for that) for groundedness, relevance, and
 answer-discovery - continuous quality monitoring on actual production traffic at a
 cost that stays predictable regardless of how much real traffic there is, by sampling
 a small fixed N per run rather than judging every request live.
 
-Reuses the exact same judge functions agent/eval/runners/run_generation_eval.py uses (agent/eval/judge.py)
+Reuses the exact same judge functions agent/eval/runners/run_chat_answer_eval.py uses (agent/eval/judge.py)
 - one implementation, not a separately-drifting live-sample copy.
 
 Usage:
@@ -30,7 +30,7 @@ def run_one(trace_row: dict) -> dict:
     # No genuinely_answerable label on real traffic (unlike the offline fixture set) -
     # every sampled row is, by construction, a completed conduct_analysis request that
     # DID produce an insight, so "did it find an answer" is always a meaningful
-    # question to ask here, not conditional the way run_generation_eval.py's is.
+    # question to ask here, not conditional the way run_chat_answer_eval.py's is.
     found = judge_answer_found(question, answer)
 
     return {

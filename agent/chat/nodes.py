@@ -12,6 +12,7 @@ from . import decline_messages
 from agent.guardrails import keyword_scan_advice_seeking, validate_ticker
 from config import ROUTER_MODEL, ANTHROPIC_API_KEY
 from tools.search import search_news
+from agent.shared.news_text import format_news_content
 
 _LATEST_NEWS_QUERY = re.compile(r"\b(latest|recent)\s+news\b|\bnews\s+(on|about)\b", re.IGNORECASE)
 _ASX_TICKER = re.compile(r"\b([A-Z0-9]{1,6}\.AX)\b", re.IGNORECASE)
@@ -50,7 +51,7 @@ def _declined(ticker: Optional[str], message: str, **trace_fields) -> Command:
 
 def classify_request(messages: list, callbacks: Optional[list] = None) -> Router:
     """The router LLM call in isolation - what router_node below calls for the live
-    gate, and what agent/eval/score_guardrails.py calls directly to score the input
+    gate, and what agent/eval/runners/run_guardrail_eval.py calls directly to score the input
     guardrail's LLM layer (response.is_advice_seeking) against a labeled test set in
     isolation from the regex layer and ticker-validation gate. One implementation, not
     a live copy plus a separately-drifting eval copy - same reasoning as
@@ -100,7 +101,7 @@ def router_node(state: State, config):
     # it's threaded through configurable rather than built here. Raises
     # DailyTokenBudgetExceededError straight out of this node if it trips - deliberately
     # uncaught here, propagates to app/main.py::ask_endpoint, which turns it into a 429.
-    # .get(), not [...]: agent/eval/runners/run_generation_eval.py and scripts/test_conduct_analysis.py
+    # .get(), not [...]: agent/eval/runners/run_chat_answer_eval.py and scripts/test_conduct_analysis.py
     # invoke this graph directly without setting it, same as they already intentionally
     # bypass the rate limiter and citation check - offline runs aren't a live user's
     # daily spend.
@@ -153,11 +154,14 @@ def search_news_node(state: State, config):
         answer = f"No recent news found for {ticker}."
         references = []
     else:
-        answer = "\n".join(f"- {a['title']} ({a.get('publisher') or 'Unknown'})" for a in articles)
+        answer = "\n".join(
+            f"- {format_news_content(a['title'], a.get('snippet'))} ({a.get('publisher') or 'Unknown'})"
+            for a in articles
+        )
         references = [
             {
                 "source": "search_news",
-                "content": f"{a['title']} ({a.get('publisher') or 'Unknown'})",
+                "content": f"{format_news_content(a['title'], a.get('snippet'))} ({a.get('publisher') or 'Unknown'})",
                 "url": a.get("link"),
             }
             for a in articles
