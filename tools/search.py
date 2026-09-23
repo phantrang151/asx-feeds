@@ -1,16 +1,28 @@
 import yfinance as yf
+from yfinance.exceptions import YFRateLimitError, YFException
+from requests.exceptions import HTTPError
+from requests.exceptions import ConnectionError
+from requests.exceptions import Timeout
+from tools.logger import get_logger
 
+logger = get_logger(__name__)
 
-def search_news(ticker: str, max_results: int = 20) -> list[dict]:
+class NewsRateLimitError(Exception):
+    """Raised when the news provider rate limits requests."""
+    pass
+
+def search_news(ticker: str, max_results: int = 20) -> list[dict] | None:
     """Get recent news headlines for an ASX ticker using yfinance."""
     if not ticker:
-        return []
+        logger.warning("No ticker provided for news search.")
+        return None
 
     try:
         stock = yf.Ticker(ticker)
-        news_items = stock.news or []
+        news_items = stock.news or None
 
         if not news_items:
+            logger.info(f"No news found for ticker: {ticker}")
             return []
 
         articles = []
@@ -19,13 +31,13 @@ def search_news(ticker: str, max_results: int = 20) -> list[dict]:
             # handle both the nested "content" structure and the flat structure
             content = item.get("content", item)
 
-            title = content.get("title", "No title")
+            title = content.get("title", None)
 
             provider = content.get("provider")
             if isinstance(provider, dict):
-                publisher = provider.get("displayName", "Unknown")
+                publisher = provider.get("displayName", "")
             else:
-                publisher = content.get("publisher", "Unknown")
+                publisher = content.get("publisher", "")
 
             canonical_url = content.get("canonicalUrl")
             if isinstance(canonical_url, dict):
@@ -40,18 +52,55 @@ def search_news(ticker: str, max_results: int = 20) -> list[dict]:
             # article body which would need scraping canonicalUrl.
             snippet = content.get("summary") or ""
 
-            articles.append(
-                {
-                    "title": title,
-                    "publisher": publisher,
-                    "link": link,
-                    "published": published,
-                    "snippet": snippet,
-                }
-            )
+            if not title or not link:
+                logger.warning(f"Skipping news item for ticker {ticker} due to missing title or link: {content}")
+                continue
+            else:
+                articles.append(
+                    {
+                        "title": title,
+                        "publisher": publisher,
+                        "link": link,
+                        "published": published,
+                        "snippet": snippet,
+                    }
+                )
+        if len(articles) == 0:
+            logger.error(f"Yahoo contract has changed. No valid news articles found for ticker: {ticker}")
+            return None
+        else:
+            return articles
 
-        return articles
+    except Timeout:
+        logger.error(f"Timeout occurred while fetching news for ticker {ticker}.")
+        return None
 
+    except HTTPError as e:
+        status_code = e.response.status_code if hasattr(e, "response") else 0
+        if status_code == 429:
+            raise NewsRateLimitError(f"Rate limit exceeded for ticker {ticker}. Please try again later.")
+        elif status_code >= 400 and status_code < 500:
+            logger.warning(f"Configuration error for ticker {ticker}: {str(e)}")
+        elif status_code >= 500:
+            raise ConnectionError(f"Yahoo Service not available for ticker {ticker}.")
+        else:
+            logger.error(f"Unknown HTTP error occurred while fetching news for {ticker}: {str(e)}")
+        return None
+
+    except YFRateLimitError as e:
+        raise NewsRateLimitError(f"Rate limit exceeded for ticker {ticker}. Please try again later.")
+
+    except YFException as e:
+        logger.error(f"Unknown Yahoo error occurred while fetching news for {ticker}: {str(e)}")
+        return None
+    
     except Exception as e:
-        print(f"search_news error for {ticker}: {e}")
-        return []
+        logger.exception(f"Unexpected Exception in search_news for {ticker}: {str(e)}")
+        return None
+
+if __name__ == "__main__":
+    # Example usage
+    ticker = "TLS.AX"  # Replace with your desired ticker
+    news_results = search_news(ticker)
+    for article in news_results:
+        print(article)
