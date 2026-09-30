@@ -280,6 +280,14 @@
   letter-spacing: -0.01em;
   margin-top: 18px;
 }
+/* Three-line headline builds from quiet to loud, so the accent lands on the payoff line.
+   leadLine nudges --ink-faint toward --ink for large-text contrast in both themes. */
+.hero h1 .leadLine {
+  color: color-mix(in srgb, var(--ink-faint) 80%, var(--ink));
+}
+.hero h1 .softLine {
+  color: var(--ink-soft);
+}
 .hero h1 .accentLine {
   color: var(--accent);
 }
