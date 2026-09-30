@@ -125,9 +125,11 @@ export default function Home() {
       <section className={styles.hero}>
         <div className={styles.wrap}>
           <h1>
-            Define a thesis.
+            <span className={styles.leadLine}>Define a thesis.</span>
             <br />
-            <span className={styles.accentLine}>Let the news test it.</span>
+            <span className={styles.softLine}>Let the news test it.</span>
+            <br />
+            <span className={styles.accentLine}>Turn news into investment insight.</span>
           </h1>
           <p className={styles.subhead}>
             Googling a company gives you every article about it, in no particular order. TickerThesis
