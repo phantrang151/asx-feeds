@@ -327,12 +327,15 @@ alter table ticker_insights add column if not exists feed_summaries jsonb not nu
 -- monitoring/quality_sampling.py's continuous custom_feed/common_feed sampling.
 -- 'research_order' = the deterministic ordering guard's labeled call-sequence
 -- regression check (eval/run_research_order_eval.py) - no LLM calls, unlike 'guardrails'.
+-- 'judge_validation' = judge_groundedness/judge_completeness scored against a human-labelled
+-- gold set (eval/runners/run_judge_validation_eval.py) - whether the judges are RIGHT, as
+-- opposed to 'judge_drift', which only checks whether their opinion changed between runs.
 create table if not exists eval_runs (
   id uuid primary key default gen_random_uuid(),
   eval_type text not null check (
     eval_type in (
       'classification', 'chat_answer', 'insight_quality', 'feed_summary', 'guardrails',
-      'research_order', 'live_sample', 'evidence_selection', 'judge_drift'
+      'research_order', 'live_sample', 'evidence_selection', 'judge_drift', 'judge_validation'
     )
   ),
   summary jsonb not null,
@@ -347,7 +350,7 @@ create table if not exists eval_runs (
 alter table eval_runs add column if not exists fixture_version text;
 
 -- Safe to re-run against a database created before insight_quality/research_order/
--- feed_summary/evidence_selection/judge_drift existed as eval types - drops the
+-- feed_summary/evidence_selection/judge_drift/judge_validation existed as eval types - drops the
 -- constraint (not the rows), renames any pre-existing 'generation' rows to
 -- 'chat_answer' (run_generation_eval.py/qa_test_set.json were renamed to
 -- run_chat_answer_eval.py/chat_answer_test_set.json for UI/file-name consistency -
@@ -359,7 +362,7 @@ update eval_runs set eval_type = 'chat_answer' where eval_type = 'generation';
 alter table eval_runs add constraint eval_runs_eval_type_check check (
   eval_type in (
     'classification', 'chat_answer', 'insight_quality', 'feed_summary', 'guardrails',
-    'research_order', 'live_sample', 'evidence_selection', 'judge_drift'
+    'research_order', 'live_sample', 'evidence_selection', 'judge_drift', 'judge_validation'
   )
 );
 

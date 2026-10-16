@@ -995,6 +995,10 @@ ul {
   background: #b26a1e;
 }
 
+.quality-claim-badge.partially_supported {
+  background: #8a6d1e;
+}
+
 /* Original statement (from the judged text) vs. the judge's explanation - distinct
    colors so a reviewer can tell at a glance which part is being quoted back and which
    part is the judge's own reasoning. */

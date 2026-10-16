@@ -1,0 +1,2441 @@
+[
+  {
+    "question_id": "q1",
+    "config": "semantic_k10",
+    "method": "semantic",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "d1b0bef8-6caa-4a64-88c9-3a0aa08b588b",
+        "rank": 1,
+        "title": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop",
+        "semantic_similarity": 0.611112915807194
+      },
+      {
+        "article_id": "6b7cca15-b540-451a-8034-b1fc4704f805",
+        "rank": 2,
+        "title": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber",
+        "semantic_similarity": 0.55264916702216
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop (Retail Banker International)",
+        "url": "https://www.retailbankerinternational.com/features/interview-cba-ai-chief/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/ai-replacing-customer-jobs-cba-093026192.html"
+      }
+    ]
+  },
+  {
+    "question_id": "q1",
+    "config": "hybrid_k10",
+    "method": "hybrid_rrf",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "d1b0bef8-6caa-4a64-88c9-3a0aa08b588b",
+        "rank": 1,
+        "title": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop",
+        "semantic_similarity": 0.611112915807194,
+        "lexical_score": 0.8,
+        "rrf_score": 0.03278688524590164
+      },
+      {
+        "article_id": "6b7cca15-b540-451a-8034-b1fc4704f805",
+        "rank": 2,
+        "title": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber",
+        "semantic_similarity": 0.55264916702216,
+        "lexical_score": 0.2,
+        "rrf_score": 0.031754032258064516
+      },
+      {
+        "article_id": "a8b21a0e-aa2c-42e8-8cfb-c7479fd1d8e3",
+        "rank": 3,
+        "title": "archTIS extends A$4 million CBA facility to support contract execution and growth",
+        "lexical_score": 0.3,
+        "rrf_score": 0.016129032258064516
+      },
+      {
+        "article_id": "69dbc761-0547-45ff-9908-81fbc4ec506d",
+        "rank": 4,
+        "title": "Billionaire Sam Altman Says OpenAI Was ‘Pretty Wrong’ About AI Jobs, But Goldman Sachs Warns AI is Still Wiping Out 11,000 Jobs Per Month",
+        "lexical_score": 0.2,
+        "rrf_score": 0.015873015873015872
+      },
+      {
+        "article_id": "99d3c240-a69d-471e-9754-bd53d542c01f",
+        "rank": 5,
+        "title": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches",
+        "lexical_score": 0.2,
+        "rrf_score": 0.015384615384615385
+      },
+      {
+        "article_id": "b1b83951-4c53-41ff-a55f-9a52d2b6570d",
+        "rank": 6,
+        "title": "Banks warn AI shopping agents outpace fraud protections",
+        "lexical_score": 0.2,
+        "rrf_score": 0.015151515151515152
+      },
+      {
+        "article_id": "273b4c77-4742-4732-8603-9f737578c99c",
+        "rank": 7,
+        "title": "Companies rehire workers laid off for AI as automation falls short",
+        "lexical_score": 0.1,
+        "rrf_score": 0.014925373134328358
+      },
+      {
+        "article_id": "5332bf57-f144-4f09-9a22-0048374de7a6",
+        "rank": 8,
+        "title": "Tencent AI Spending Key After Magnificent 7 Rout",
+        "lexical_score": 0.1,
+        "rrf_score": 0.014705882352941176
+      },
+      {
+        "article_id": "b68a2d6d-73de-419c-b598-7ce0a1052836",
+        "rank": 9,
+        "title": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy",
+        "lexical_score": 0.1,
+        "rrf_score": 0.014492753623188406
+      },
+      {
+        "article_id": "f6a03202-fdda-4b58-97b6-a48e3659827b",
+        "rank": 10,
+        "title": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative?",
+        "lexical_score": 0.1,
+        "rrf_score": 0.014285714285714285
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)",
+        "url": "https://www.retailbankerinternational.com/features/interview-cba-ai-chief/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/ai-replacing-customer-jobs-cba-093026192.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)",
+        "url": "https://www.proactiveinvestors.com/companies/news/1095449/archtis-extends-a-4-million-cba-facility-to-support-contract-execution-and-growth-1095449.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Billionaire Sam Altman Says OpenAI Was ‘Pretty Wrong’ About AI Jobs, But Goldman Sachs Warns AI is Still Wiping Out 11,000 Jobs Per Month (Barchart)",
+        "url": "https://www.barchart.com/story/news/2404389/billionaire-sam-altman-says-openai-was-pretty-wrong-about-ai-jobs-but-goldman-sachs-warns-ai-is-still-wiping-out-11-000-jobs-per-month"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches - A coalition of global banks says agentic AI tools that make purchases on behalf of consumers could expose card details and weaken payment security. (Fox Business)",
+        "url": "https://www.foxbusiness.com/technology/banks-warn-ai-shopping-agents-could-increase-risk-scams-fraud-data-privacy-breaches"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents outpace fraud protections - NatWest, Bank of America, and four other banks say consumers risk scams and data breaches as AI commerce tools advance faster than industry safeguards (Quartz)",
+        "url": "https://qz.com/banks-ai-shopping-agents-fraud-privacy-risks-092226"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Companies rehire workers laid off for AI as automation falls short (Quartz)",
+        "url": "https://qz.com/companies-rehiring-workers-ai-layoffs-automation-070126"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Tencent AI Spending Key After Magnificent 7 Rout - (Bloomberg) -- Tencent Holdings Ltd.’s spending plans will draw investor scrutiny as investors cool on lavish outlays on artificial intelligence.Most Read from BloombergTrump Amps Up Pressure on Billionaire Sargeant to Exit VenezuelaIran Shakes Up Security Team After Saying Oman Deal ‘Very Close’Iran Says Hormuz Deal Close But Its Conditions Must Be MetOpenAI’s New Device Will Be Hockey Puck-Sized and Cost Over $300China Unleashes $28 Trillion Capital Markets to Challenge US in AILast month, the (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/tencent-ai-spending-key-magnificent-004806894.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy (Reuters)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/commonwealth-bank-australia-appoints-cio-235755334.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/did-profit-uptick-rba-countdown-080841996.html"
+      }
+    ]
+  },
+  {
+    "question_id": "q2",
+    "config": "semantic_k10",
+    "method": "semantic",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "d1b0bef8-6caa-4a64-88c9-3a0aa08b588b",
+        "rank": 1,
+        "title": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop",
+        "semantic_similarity": 0.588913083076477
+      },
+      {
+        "article_id": "6b7cca15-b540-451a-8034-b1fc4704f805",
+        "rank": 2,
+        "title": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber",
+        "semantic_similarity": 0.578513920307159
+      },
+      {
+        "article_id": "b68a2d6d-73de-419c-b598-7ce0a1052836",
+        "rank": 3,
+        "title": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy",
+        "semantic_similarity": 0.508879482746124
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop (Retail Banker International)",
+        "url": "https://www.retailbankerinternational.com/features/interview-cba-ai-chief/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/ai-replacing-customer-jobs-cba-093026192.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy (Reuters)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/commonwealth-bank-australia-appoints-cio-235755334.html"
+      }
+    ]
+  },
+  {
+    "question_id": "q2",
+    "config": "hybrid_k10",
+    "method": "hybrid_rrf",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "d1b0bef8-6caa-4a64-88c9-3a0aa08b588b",
+        "rank": 1,
+        "title": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop",
+        "semantic_similarity": 0.588913083076477,
+        "lexical_score": 0.6,
+        "rrf_score": 0.03278688524590164
+      },
+      {
+        "article_id": "b68a2d6d-73de-419c-b598-7ce0a1052836",
+        "rank": 2,
+        "title": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy",
+        "semantic_similarity": 0.508879482746124,
+        "lexical_score": 0.3,
+        "rrf_score": 0.031746031746031744
+      },
+      {
+        "article_id": "6b7cca15-b540-451a-8034-b1fc4704f805",
+        "rank": 3,
+        "title": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber",
+        "semantic_similarity": 0.578513920307159,
+        "lexical_score": 0.2,
+        "rrf_score": 0.0315136476426799
+      },
+      {
+        "article_id": "a8b21a0e-aa2c-42e8-8cfb-c7479fd1d8e3",
+        "rank": 4,
+        "title": "archTIS extends A$4 million CBA facility to support contract execution and growth",
+        "lexical_score": 0.3,
+        "rrf_score": 0.016129032258064516
+      },
+      {
+        "article_id": "69dbc761-0547-45ff-9908-81fbc4ec506d",
+        "rank": 5,
+        "title": "Billionaire Sam Altman Says OpenAI Was ‘Pretty Wrong’ About AI Jobs, But Goldman Sachs Warns AI is Still Wiping Out 11,000 Jobs Per Month",
+        "lexical_score": 0.2,
+        "rrf_score": 0.015625
+      },
+      {
+        "article_id": "99d3c240-a69d-471e-9754-bd53d542c01f",
+        "rank": 6,
+        "title": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches",
+        "lexical_score": 0.2,
+        "rrf_score": 0.015151515151515152
+      },
+      {
+        "article_id": "b1b83951-4c53-41ff-a55f-9a52d2b6570d",
+        "rank": 7,
+        "title": "Banks warn AI shopping agents outpace fraud protections",
+        "lexical_score": 0.2,
+        "rrf_score": 0.014925373134328358
+      },
+      {
+        "article_id": "273b4c77-4742-4732-8603-9f737578c99c",
+        "rank": 8,
+        "title": "Companies rehire workers laid off for AI as automation falls short",
+        "lexical_score": 0.1,
+        "rrf_score": 0.014705882352941176
+      },
+      {
+        "article_id": "5332bf57-f144-4f09-9a22-0048374de7a6",
+        "rank": 9,
+        "title": "Tencent AI Spending Key After Magnificent 7 Rout",
+        "lexical_score": 0.1,
+        "rrf_score": 0.014492753623188406
+      },
+      {
+        "article_id": "f6a03202-fdda-4b58-97b6-a48e3659827b",
+        "rank": 10,
+        "title": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative?",
+        "lexical_score": 0.1,
+        "rrf_score": 0.014285714285714285
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)",
+        "url": "https://www.retailbankerinternational.com/features/interview-cba-ai-chief/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy (Reuters)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/commonwealth-bank-australia-appoints-cio-235755334.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/ai-replacing-customer-jobs-cba-093026192.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)",
+        "url": "https://www.proactiveinvestors.com/companies/news/1095449/archtis-extends-a-4-million-cba-facility-to-support-contract-execution-and-growth-1095449.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Billionaire Sam Altman Says OpenAI Was ‘Pretty Wrong’ About AI Jobs, But Goldman Sachs Warns AI is Still Wiping Out 11,000 Jobs Per Month (Barchart)",
+        "url": "https://www.barchart.com/story/news/2404389/billionaire-sam-altman-says-openai-was-pretty-wrong-about-ai-jobs-but-goldman-sachs-warns-ai-is-still-wiping-out-11-000-jobs-per-month"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches - A coalition of global banks says agentic AI tools that make purchases on behalf of consumers could expose card details and weaken payment security. (Fox Business)",
+        "url": "https://www.foxbusiness.com/technology/banks-warn-ai-shopping-agents-could-increase-risk-scams-fraud-data-privacy-breaches"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents outpace fraud protections - NatWest, Bank of America, and four other banks say consumers risk scams and data breaches as AI commerce tools advance faster than industry safeguards (Quartz)",
+        "url": "https://qz.com/banks-ai-shopping-agents-fraud-privacy-risks-092226"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Companies rehire workers laid off for AI as automation falls short (Quartz)",
+        "url": "https://qz.com/companies-rehiring-workers-ai-layoffs-automation-070126"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Tencent AI Spending Key After Magnificent 7 Rout - (Bloomberg) -- Tencent Holdings Ltd.’s spending plans will draw investor scrutiny as investors cool on lavish outlays on artificial intelligence.Most Read from BloombergTrump Amps Up Pressure on Billionaire Sargeant to Exit VenezuelaIran Shakes Up Security Team After Saying Oman Deal ‘Very Close’Iran Says Hormuz Deal Close But Its Conditions Must Be MetOpenAI’s New Device Will Be Hockey Puck-Sized and Cost Over $300China Unleashes $28 Trillion Capital Markets to Challenge US in AILast month, the (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/tencent-ai-spending-key-magnificent-004806894.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/did-profit-uptick-rba-countdown-080841996.html"
+      }
+    ]
+  },
+  {
+    "question_id": "q3",
+    "config": "semantic_k10",
+    "method": "semantic",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "a8b21a0e-aa2c-42e8-8cfb-c7479fd1d8e3",
+        "rank": 1,
+        "title": "archTIS extends A$4 million CBA facility to support contract execution and growth",
+        "semantic_similarity": 0.498934924602509
+      },
+      {
+        "article_id": "f6a03202-fdda-4b58-97b6-a48e3659827b",
+        "rank": 2,
+        "title": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative?",
+        "semantic_similarity": 0.44329246878624
+      },
+      {
+        "article_id": "6b7cca15-b540-451a-8034-b1fc4704f805",
+        "rank": 3,
+        "title": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber",
+        "semantic_similarity": 0.429543912410736
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth (Proactive)",
+        "url": "https://www.proactiveinvestors.com/companies/news/1095449/archtis-extends-a-4-million-cba-facility-to-support-contract-execution-and-growth-1095449.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/did-profit-uptick-rba-countdown-080841996.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/ai-replacing-customer-jobs-cba-093026192.html"
+      }
+    ]
+  },
+  {
+    "question_id": "q3",
+    "config": "hybrid_k10",
+    "method": "hybrid_rrf",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "a8b21a0e-aa2c-42e8-8cfb-c7479fd1d8e3",
+        "rank": 1,
+        "title": "archTIS extends A$4 million CBA facility to support contract execution and growth",
+        "semantic_similarity": 0.498934924602509,
+        "lexical_score": 0.2,
+        "rrf_score": 0.03252247488101534
+      },
+      {
+        "article_id": "6b7cca15-b540-451a-8034-b1fc4704f805",
+        "rank": 2,
+        "title": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber",
+        "semantic_similarity": 0.429543912410736,
+        "lexical_score": 0.2,
+        "rrf_score": 0.032266458495966696
+      },
+      {
+        "article_id": "f6a03202-fdda-4b58-97b6-a48e3659827b",
+        "rank": 3,
+        "title": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative?",
+        "semantic_similarity": 0.44329246878624,
+        "lexical_score": 0.1,
+        "rrf_score": 0.03128054740957967
+      },
+      {
+        "article_id": "d1b0bef8-6caa-4a64-88c9-3a0aa08b588b",
+        "rank": 4,
+        "title": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop",
+        "lexical_score": 0.2,
+        "rrf_score": 0.015873015873015872
+      },
+      {
+        "article_id": "413c847a-f31f-48e9-8aa3-215b13213f26",
+        "rank": 5,
+        "title": "Commonwealth Bank unveils payout platform ahead of cheque exit",
+        "lexical_score": 0.1,
+        "rrf_score": 0.015625
+      },
+      {
+        "article_id": "99d3c240-a69d-471e-9754-bd53d542c01f",
+        "rank": 6,
+        "title": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches",
+        "lexical_score": 0.1,
+        "rrf_score": 0.015384615384615385
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)",
+        "url": "https://www.proactiveinvestors.com/companies/news/1095449/archtis-extends-a-4-million-cba-facility-to-support-contract-execution-and-growth-1095449.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/ai-replacing-customer-jobs-cba-093026192.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/did-profit-uptick-rba-countdown-080841996.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)",
+        "url": "https://www.retailbankerinternational.com/features/interview-cba-ai-chief/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank unveils payout platform ahead of cheque exit - PaidIt combines recipient verification, communications and payment delivery within one system. (Retail Banker International)",
+        "url": "https://www.retailbankerinternational.com/news/commonwealth-bank-payout-platform/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches - A coalition of global banks says agentic AI tools that make purchases on behalf of consumers could expose card details and weaken payment security. (Fox Business)",
+        "url": "https://www.foxbusiness.com/technology/banks-warn-ai-shopping-agents-could-increase-risk-scams-fraud-data-privacy-breaches"
+      }
+    ]
+  },
+  {
+    "question_id": "q4",
+    "config": "semantic_k10",
+    "method": "semantic",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "99d3c240-a69d-471e-9754-bd53d542c01f",
+        "rank": 1,
+        "title": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches",
+        "semantic_similarity": 0.800609350204468
+      },
+      {
+        "article_id": "b1b83951-4c53-41ff-a55f-9a52d2b6570d",
+        "rank": 2,
+        "title": "Banks warn AI shopping agents outpace fraud protections",
+        "semantic_similarity": 0.724358634688937
+      },
+      {
+        "article_id": "d1b0bef8-6caa-4a64-88c9-3a0aa08b588b",
+        "rank": 3,
+        "title": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop",
+        "semantic_similarity": 0.438278913497925
+      },
+      {
+        "article_id": "6b7cca15-b540-451a-8034-b1fc4704f805",
+        "rank": 4,
+        "title": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber",
+        "semantic_similarity": 0.4280866086483
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches (Fox Business)",
+        "url": "https://www.foxbusiness.com/technology/banks-warn-ai-shopping-agents-could-increase-risk-scams-fraud-data-privacy-breaches"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents outpace fraud protections (Quartz)",
+        "url": "https://qz.com/banks-ai-shopping-agents-fraud-privacy-risks-092226"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop (Retail Banker International)",
+        "url": "https://www.retailbankerinternational.com/features/interview-cba-ai-chief/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/ai-replacing-customer-jobs-cba-093026192.html"
+      }
+    ]
+  },
+  {
+    "question_id": "q4",
+    "config": "hybrid_k10",
+    "method": "hybrid_rrf",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "99d3c240-a69d-471e-9754-bd53d542c01f",
+        "rank": 1,
+        "title": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches",
+        "semantic_similarity": 0.800609350204468,
+        "lexical_score": 0.7,
+        "rrf_score": 0.03278688524590164
+      },
+      {
+        "article_id": "b1b83951-4c53-41ff-a55f-9a52d2b6570d",
+        "rank": 2,
+        "title": "Banks warn AI shopping agents outpace fraud protections",
+        "semantic_similarity": 0.724358634688937,
+        "lexical_score": 0.5,
+        "rrf_score": 0.03225806451612903
+      },
+      {
+        "article_id": "d1b0bef8-6caa-4a64-88c9-3a0aa08b588b",
+        "rank": 3,
+        "title": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop",
+        "semantic_similarity": 0.438278913497925,
+        "lexical_score": 0.5,
+        "rrf_score": 0.031746031746031744
+      },
+      {
+        "article_id": "6b7cca15-b540-451a-8034-b1fc4704f805",
+        "rank": 4,
+        "title": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber",
+        "semantic_similarity": 0.4280866086483,
+        "lexical_score": 0.1,
+        "rrf_score": 0.030330882352941176
+      },
+      {
+        "article_id": "69dbc761-0547-45ff-9908-81fbc4ec506d",
+        "rank": 5,
+        "title": "Billionaire Sam Altman Says OpenAI Was ‘Pretty Wrong’ About AI Jobs, But Goldman Sachs Warns AI is Still Wiping Out 11,000 Jobs Per Month",
+        "lexical_score": 0.2,
+        "rrf_score": 0.015625
+      },
+      {
+        "article_id": "273b4c77-4742-4732-8603-9f737578c99c",
+        "rank": 6,
+        "title": "Companies rehire workers laid off for AI as automation falls short",
+        "lexical_score": 0.1,
+        "rrf_score": 0.015384615384615385
+      },
+      {
+        "article_id": "413c847a-f31f-48e9-8aa3-215b13213f26",
+        "rank": 7,
+        "title": "Commonwealth Bank unveils payout platform ahead of cheque exit",
+        "lexical_score": 0.1,
+        "rrf_score": 0.015151515151515152
+      },
+      {
+        "article_id": "5332bf57-f144-4f09-9a22-0048374de7a6",
+        "rank": 8,
+        "title": "Tencent AI Spending Key After Magnificent 7 Rout",
+        "lexical_score": 0.1,
+        "rrf_score": 0.014925373134328358
+      },
+      {
+        "article_id": "b68a2d6d-73de-419c-b598-7ce0a1052836",
+        "rank": 9,
+        "title": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy",
+        "lexical_score": 0.1,
+        "rrf_score": 0.014492753623188406
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches - A coalition of global banks says agentic AI tools that make purchases on behalf of consumers could expose card details and weaken payment security. (Fox Business)",
+        "url": "https://www.foxbusiness.com/technology/banks-warn-ai-shopping-agents-could-increase-risk-scams-fraud-data-privacy-breaches"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents outpace fraud protections - NatWest, Bank of America, and four other banks say consumers risk scams and data breaches as AI commerce tools advance faster than industry safeguards (Quartz)",
+        "url": "https://qz.com/banks-ai-shopping-agents-fraud-privacy-risks-092226"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)",
+        "url": "https://www.retailbankerinternational.com/features/interview-cba-ai-chief/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/ai-replacing-customer-jobs-cba-093026192.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Billionaire Sam Altman Says OpenAI Was ‘Pretty Wrong’ About AI Jobs, But Goldman Sachs Warns AI is Still Wiping Out 11,000 Jobs Per Month (Barchart)",
+        "url": "https://www.barchart.com/story/news/2404389/billionaire-sam-altman-says-openai-was-pretty-wrong-about-ai-jobs-but-goldman-sachs-warns-ai-is-still-wiping-out-11-000-jobs-per-month"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Companies rehire workers laid off for AI as automation falls short (Quartz)",
+        "url": "https://qz.com/companies-rehiring-workers-ai-layoffs-automation-070126"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank unveils payout platform ahead of cheque exit - PaidIt combines recipient verification, communications and payment delivery within one system. (Retail Banker International)",
+        "url": "https://www.retailbankerinternational.com/news/commonwealth-bank-payout-platform/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Tencent AI Spending Key After Magnificent 7 Rout - (Bloomberg) -- Tencent Holdings Ltd.’s spending plans will draw investor scrutiny as investors cool on lavish outlays on artificial intelligence.Most Read from BloombergTrump Amps Up Pressure on Billionaire Sargeant to Exit VenezuelaIran Shakes Up Security Team After Saying Oman Deal ‘Very Close’Iran Says Hormuz Deal Close But Its Conditions Must Be MetOpenAI’s New Device Will Be Hockey Puck-Sized and Cost Over $300China Unleashes $28 Trillion Capital Markets to Challenge US in AILast month, the (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/tencent-ai-spending-key-magnificent-004806894.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy (Reuters)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/commonwealth-bank-australia-appoints-cio-235755334.html"
+      }
+    ]
+  },
+  {
+    "question_id": "q5",
+    "config": "semantic_k10",
+    "method": "semantic",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "686cdb0c-4e0e-4c16-82e8-cc5fb13cd2ca",
+        "rank": 1,
+        "title": "Australian bank investors brace for tough times as mortgage demand plummets",
+        "semantic_similarity": 0.722331513941615
+      },
+      {
+        "article_id": "3197f837-7d31-4fd0-9208-cca4c823c4f2",
+        "rank": 2,
+        "title": "Three of Australia's four major banks forecast another rate hike this year",
+        "semantic_similarity": 0.493175030568242
+      },
+      {
+        "article_id": "a8b21a0e-aa2c-42e8-8cfb-c7479fd1d8e3",
+        "rank": 3,
+        "title": "archTIS extends A$4 million CBA facility to support contract execution and growth",
+        "semantic_similarity": 0.440844066042418
+      },
+      {
+        "article_id": "5471b7ec-a7a3-4b6f-9ed9-1077daa933df",
+        "rank": 4,
+        "title": "Fast Money Bets on November RBA Hike in Fight Against Inflation",
+        "semantic_similarity": 0.405561255414262
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Australian bank investors brace for tough times as mortgage demand plummets (Reuters)",
+        "url": "https://finance.yahoo.com/real-estate/articles/australian-bank-investors-brace-tough-045806476.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Three of Australia's four major banks forecast another rate hike this year (Reuters)",
+        "url": "https://finance.yahoo.com/economy/policy/articles/three-australias-four-major-banks-001101590.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth (Proactive)",
+        "url": "https://www.proactiveinvestors.com/companies/news/1095449/archtis-extends-a-4-million-cba-facility-to-support-contract-execution-and-growth-1095449.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Fast Money Bets on November RBA Hike in Fight Against Inflation (Bloomberg)",
+        "url": "https://finance.yahoo.com/economy/policy/articles/fast-money-bets-november-rba-032320475.html"
+      }
+    ]
+  },
+  {
+    "question_id": "q5",
+    "config": "hybrid_k10",
+    "method": "hybrid_rrf",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "686cdb0c-4e0e-4c16-82e8-cc5fb13cd2ca",
+        "rank": 1,
+        "title": "Australian bank investors brace for tough times as mortgage demand plummets",
+        "semantic_similarity": 0.722331513941615,
+        "lexical_score": 0.6,
+        "rrf_score": 0.03278688524590164
+      },
+      {
+        "article_id": "3197f837-7d31-4fd0-9208-cca4c823c4f2",
+        "rank": 2,
+        "title": "Three of Australia's four major banks forecast another rate hike this year",
+        "semantic_similarity": 0.493175030568242,
+        "lexical_score": 0.3,
+        "rrf_score": 0.03225806451612903
+      },
+      {
+        "article_id": "5471b7ec-a7a3-4b6f-9ed9-1077daa933df",
+        "rank": 3,
+        "title": "Fast Money Bets on November RBA Hike in Fight Against Inflation",
+        "semantic_similarity": 0.405561255414262,
+        "lexical_score": 0.2,
+        "rrf_score": 0.031009615384615385
+      },
+      {
+        "article_id": "a8b21a0e-aa2c-42e8-8cfb-c7479fd1d8e3",
+        "rank": 4,
+        "title": "archTIS extends A$4 million CBA facility to support contract execution and growth",
+        "semantic_similarity": 0.440844066042418,
+        "lexical_score": 0.2,
+        "rrf_score": 0.030798389007344232
+      },
+      {
+        "article_id": "6192bccf-9d89-4bdf-b571-47e3e02b311d",
+        "rank": 5,
+        "title": "3 Australian Dividend Stocks With At Least 3% Yield",
+        "lexical_score": 0.3,
+        "rrf_score": 0.015873015873015872
+      },
+      {
+        "article_id": "b1b83951-4c53-41ff-a55f-9a52d2b6570d",
+        "rank": 6,
+        "title": "Banks warn AI shopping agents outpace fraud protections",
+        "lexical_score": 0.3,
+        "rrf_score": 0.015625
+      },
+      {
+        "article_id": "99d3c240-a69d-471e-9754-bd53d542c01f",
+        "rank": 7,
+        "title": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches",
+        "lexical_score": 0.2,
+        "rrf_score": 0.015151515151515152
+      },
+      {
+        "article_id": "c385b2b8-f8e0-4278-99be-f30dbd1d2167",
+        "rank": 8,
+        "title": "3 Australian Dividend Stocks Paying Over 5% While Cash Income Looks Less Certain",
+        "lexical_score": 0.2,
+        "rrf_score": 0.014705882352941176
+      },
+      {
+        "article_id": "413c847a-f31f-48e9-8aa3-215b13213f26",
+        "rank": 9,
+        "title": "Commonwealth Bank unveils payout platform ahead of cheque exit",
+        "lexical_score": 0.1,
+        "rrf_score": 0.014492753623188406
+      },
+      {
+        "article_id": "5332bf57-f144-4f09-9a22-0048374de7a6",
+        "rank": 10,
+        "title": "Tencent AI Spending Key After Magnificent 7 Rout",
+        "lexical_score": 0.1,
+        "rrf_score": 0.014285714285714285
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Australian bank investors brace for tough times as mortgage demand plummets - By Christine Chen and Scott Murdoch SYDNEY, Aug 25 (Reuters) - Investors are questioning the rich valuations on Australia's biggest banks as a downturn in lucrative mortgage lending threatens to (Reuters)",
+        "url": "https://finance.yahoo.com/real-estate/articles/australian-bank-investors-brace-tough-045806476.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Three of Australia's four major banks forecast another rate hike this year - SYDNEY, Aug 27 (Reuters) - The Commonwealth Bank of Australia and the National Australia Bank on Thursday joined ANZ in forecasting another rate hike this year after a hot inflation print reignited (Reuters)",
+        "url": "https://finance.yahoo.com/economy/policy/articles/three-australias-four-major-banks-001101590.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Fast Money Bets on November RBA Hike in Fight Against Inflation - Speculative investors are increasingly betting the Reserve Bank of Australia will raise interest rates again in November as inflation remains above the central bank’s target. (Bloomberg)",
+        "url": "https://finance.yahoo.com/economy/policy/articles/fast-money-bets-november-rba-032320475.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)",
+        "url": "https://www.proactiveinvestors.com/companies/news/1095449/archtis-extends-a-4-million-cba-facility-to-support-contract-execution-and-growth-1095449.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "3 Australian Dividend Stocks With At Least 3% Yield - With Australian credit growth still resilient, income investors are looking harder at local businesses that share profits through dividends. Higher global interest rate expectations have pushed up funding costs, so reliable cash payouts from established Australian dividend stocks can feel even more valuable. This article walks through three higher yielding dividend options from a focused screener and explains why they may deserve a closer look now. The three stocks in this article are just a... (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/3-australian-dividend-stocks-least-021730799.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents outpace fraud protections - NatWest, Bank of America, and four other banks say consumers risk scams and data breaches as AI commerce tools advance faster than industry safeguards (Quartz)",
+        "url": "https://qz.com/banks-ai-shopping-agents-fraud-privacy-risks-092226"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches - A coalition of global banks says agentic AI tools that make purchases on behalf of consumers could expose card details and weaken payment security. (Fox Business)",
+        "url": "https://www.foxbusiness.com/technology/banks-warn-ai-shopping-agents-could-increase-risk-scams-fraud-data-privacy-breaches"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "3 Australian Dividend Stocks Paying Over 5% While Cash Income Looks Less Certain - With bond yields across major markets reflecting expectations for tighter central bank policy, income from cash and short-term bonds can feel uncertain again. Reliable dividend income looks more valuable when policy paths shift and inflation stays in focus. Dividend powerhouses with yields above 5% and well covered, growing payouts offer one way to seek steadier cash flow. This article highlights three stocks from that screener. The three dividend stocks covered next are just a sample from... (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/3-australian-dividend-stocks-paying-021700558.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank unveils payout platform ahead of cheque exit - PaidIt combines recipient verification, communications and payment delivery within one system. (Retail Banker International)",
+        "url": "https://www.retailbankerinternational.com/news/commonwealth-bank-payout-platform/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Tencent AI Spending Key After Magnificent 7 Rout - (Bloomberg) -- Tencent Holdings Ltd.’s spending plans will draw investor scrutiny as investors cool on lavish outlays on artificial intelligence.Most Read from BloombergTrump Amps Up Pressure on Billionaire Sargeant to Exit VenezuelaIran Shakes Up Security Team After Saying Oman Deal ‘Very Close’Iran Says Hormuz Deal Close But Its Conditions Must Be MetOpenAI’s New Device Will Be Hockey Puck-Sized and Cost Over $300China Unleashes $28 Trillion Capital Markets to Challenge US in AILast month, the (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/tencent-ai-spending-key-magnificent-004806894.html"
+      }
+    ]
+  },
+  {
+    "question_id": "q6",
+    "config": "semantic_k10",
+    "method": "semantic",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "3197f837-7d31-4fd0-9208-cca4c823c4f2",
+        "rank": 1,
+        "title": "Three of Australia's four major banks forecast another rate hike this year",
+        "semantic_similarity": 0.629190765071467
+      },
+      {
+        "article_id": "5471b7ec-a7a3-4b6f-9ed9-1077daa933df",
+        "rank": 2,
+        "title": "Fast Money Bets on November RBA Hike in Fight Against Inflation",
+        "semantic_similarity": 0.573305300080144
+      },
+      {
+        "article_id": "686cdb0c-4e0e-4c16-82e8-cc5fb13cd2ca",
+        "rank": 3,
+        "title": "Australian bank investors brace for tough times as mortgage demand plummets",
+        "semantic_similarity": 0.569536677654186
+      },
+      {
+        "article_id": "6192bccf-9d89-4bdf-b571-47e3e02b311d",
+        "rank": 4,
+        "title": "3 Australian Dividend Stocks With At Least 3% Yield",
+        "semantic_similarity": 0.520053863525394
+      },
+      {
+        "article_id": "c385b2b8-f8e0-4278-99be-f30dbd1d2167",
+        "rank": 5,
+        "title": "3 Australian Dividend Stocks Paying Over 5% While Cash Income Looks Less Certain",
+        "semantic_similarity": 0.45587697888154
+      },
+      {
+        "article_id": "8c255177-b931-4783-a1bf-9e2dacfa1b3c",
+        "rank": 6,
+        "title": "Commonwealth Bank Stock And 2 More Dividend Shares For Reliable Income",
+        "semantic_similarity": 0.44104705314987
+      },
+      {
+        "article_id": "f6a03202-fdda-4b58-97b6-a48e3659827b",
+        "rank": 7,
+        "title": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative?",
+        "semantic_similarity": 0.410157298436327
+      },
+      {
+        "article_id": "a8b21a0e-aa2c-42e8-8cfb-c7479fd1d8e3",
+        "rank": 8,
+        "title": "archTIS extends A$4 million CBA facility to support contract execution and growth",
+        "semantic_similarity": 0.405515497594149
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Three of Australia's four major banks forecast another rate hike this year (Reuters)",
+        "url": "https://finance.yahoo.com/economy/policy/articles/three-australias-four-major-banks-001101590.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Fast Money Bets on November RBA Hike in Fight Against Inflation (Bloomberg)",
+        "url": "https://finance.yahoo.com/economy/policy/articles/fast-money-bets-november-rba-032320475.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Australian bank investors brace for tough times as mortgage demand plummets (Reuters)",
+        "url": "https://finance.yahoo.com/real-estate/articles/australian-bank-investors-brace-tough-045806476.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "3 Australian Dividend Stocks With At Least 3% Yield (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/3-australian-dividend-stocks-least-021730799.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "3 Australian Dividend Stocks Paying Over 5% While Cash Income Looks Less Certain (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/3-australian-dividend-stocks-paying-021700558.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank Stock And 2 More Dividend Shares For Reliable Income (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/commonwealth-bank-stock-2-more-161643776.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/did-profit-uptick-rba-countdown-080841996.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth (Proactive)",
+        "url": "https://www.proactiveinvestors.com/companies/news/1095449/archtis-extends-a-4-million-cba-facility-to-support-contract-execution-and-growth-1095449.html"
+      }
+    ]
+  },
+  {
+    "question_id": "q6",
+    "config": "hybrid_k10",
+    "method": "hybrid_rrf",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "3197f837-7d31-4fd0-9208-cca4c823c4f2",
+        "rank": 1,
+        "title": "Three of Australia's four major banks forecast another rate hike this year",
+        "semantic_similarity": 0.629190765071467,
+        "lexical_score": 0.2,
+        "rrf_score": 0.03252247488101534
+      },
+      {
+        "article_id": "6192bccf-9d89-4bdf-b571-47e3e02b311d",
+        "rank": 2,
+        "title": "3 Australian Dividend Stocks With At Least 3% Yield",
+        "semantic_similarity": 0.520053863525394,
+        "lexical_score": 0.6,
+        "rrf_score": 0.032018442622950824
+      },
+      {
+        "article_id": "5471b7ec-a7a3-4b6f-9ed9-1077daa933df",
+        "rank": 3,
+        "title": "Fast Money Bets on November RBA Hike in Fight Against Inflation",
+        "semantic_similarity": 0.573305300080144,
+        "lexical_score": 0.2,
+        "rrf_score": 0.03200204813108039
+      },
+      {
+        "article_id": "686cdb0c-4e0e-4c16-82e8-cc5fb13cd2ca",
+        "rank": 4,
+        "title": "Australian bank investors brace for tough times as mortgage demand plummets",
+        "semantic_similarity": 0.569536677654186,
+        "lexical_score": 0.1,
+        "rrf_score": 0.031024531024531024
+      },
+      {
+        "article_id": "c385b2b8-f8e0-4278-99be-f30dbd1d2167",
+        "rank": 5,
+        "title": "3 Australian Dividend Stocks Paying Over 5% While Cash Income Looks Less Certain",
+        "semantic_similarity": 0.45587697888154,
+        "lexical_score": 0.2,
+        "rrf_score": 0.031009615384615385
+      },
+      {
+        "article_id": "01468167-f750-4b79-b8c8-2edf85711375",
+        "rank": 6,
+        "title": "LGT reports 17% rise in H1 profit as assets reach record level",
+        "lexical_score": 0.1,
+        "rrf_score": 0.015384615384615385
+      },
+      {
+        "article_id": "8c255177-b931-4783-a1bf-9e2dacfa1b3c",
+        "rank": 7,
+        "title": "Commonwealth Bank Stock And 2 More Dividend Shares For Reliable Income",
+        "semantic_similarity": 0.44104705314987,
+        "rrf_score": 0.015151515151515152
+      },
+      {
+        "article_id": "c4a7e0e3-afd4-4f96-a328-a4fc62d9dce2",
+        "rank": 8,
+        "title": "CommSec Eyes More U.S. IPOs After 28,000 SpaceX Applications",
+        "lexical_score": 0.1,
+        "rrf_score": 0.014925373134328358
+      },
+      {
+        "article_id": "f6a03202-fdda-4b58-97b6-a48e3659827b",
+        "rank": 9,
+        "title": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative?",
+        "semantic_similarity": 0.410157298436327,
+        "rrf_score": 0.014925373134328358
+      },
+      {
+        "article_id": "a8b21a0e-aa2c-42e8-8cfb-c7479fd1d8e3",
+        "rank": 10,
+        "title": "archTIS extends A$4 million CBA facility to support contract execution and growth",
+        "semantic_similarity": 0.405515497594149,
+        "rrf_score": 0.014705882352941176
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Three of Australia's four major banks forecast another rate hike this year - SYDNEY, Aug 27 (Reuters) - The Commonwealth Bank of Australia and the National Australia Bank on Thursday joined ANZ in forecasting another rate hike this year after a hot inflation print reignited (Reuters)",
+        "url": "https://finance.yahoo.com/economy/policy/articles/three-australias-four-major-banks-001101590.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "3 Australian Dividend Stocks With At Least 3% Yield - With Australian credit growth still resilient, income investors are looking harder at local businesses that share profits through dividends. Higher global interest rate expectations have pushed up funding costs, so reliable cash payouts from established Australian dividend stocks can feel even more valuable. This article walks through three higher yielding dividend options from a focused screener and explains why they may deserve a closer look now. The three stocks in this article are just a... (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/3-australian-dividend-stocks-least-021730799.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Fast Money Bets on November RBA Hike in Fight Against Inflation - Speculative investors are increasingly betting the Reserve Bank of Australia will raise interest rates again in November as inflation remains above the central bank’s target. (Bloomberg)",
+        "url": "https://finance.yahoo.com/economy/policy/articles/fast-money-bets-november-rba-032320475.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Australian bank investors brace for tough times as mortgage demand plummets - By Christine Chen and Scott Murdoch SYDNEY, Aug 25 (Reuters) - Investors are questioning the rich valuations on Australia's biggest banks as a downturn in lucrative mortgage lending threatens to (Reuters)",
+        "url": "https://finance.yahoo.com/real-estate/articles/australian-bank-investors-brace-tough-045806476.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "3 Australian Dividend Stocks Paying Over 5% While Cash Income Looks Less Certain - With bond yields across major markets reflecting expectations for tighter central bank policy, income from cash and short-term bonds can feel uncertain again. Reliable dividend income looks more valuable when policy paths shift and inflation stays in focus. Dividend powerhouses with yields above 5% and well covered, growing payouts offer one way to seek steadier cash flow. This article highlights three stocks from that screener. The three dividend stocks covered next are just a sample from... (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/3-australian-dividend-stocks-paying-021700558.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "LGT reports 17% rise in H1 profit as assets reach record level - Net new assets came in at SFr12.3bn, equal to an annualised growth rate of 6.4%. (Private Banker International)",
+        "url": "https://www.privatebankerinternational.com/news/lgt-h1-profit/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank Stock And 2 More Dividend Shares For Reliable Income (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/commonwealth-bank-stock-2-more-161643776.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "CommSec Eyes More U.S. IPOs After 28,000 SpaceX Applications - Australian brokerage plans more U.S. listings after record SpaceX demand from nearly three million clients. (GuruFocus.com)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/commsec-eyes-more-u-ipos-183024663.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/did-profit-uptick-rba-countdown-080841996.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth (Proactive)",
+        "url": "https://www.proactiveinvestors.com/companies/news/1095449/archtis-extends-a-4-million-cba-facility-to-support-contract-execution-and-growth-1095449.html"
+      }
+    ]
+  },
+  {
+    "question_id": "q7",
+    "config": "semantic_k10",
+    "method": "semantic",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "f6a03202-fdda-4b58-97b6-a48e3659827b",
+        "rank": 1,
+        "title": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative?",
+        "semantic_similarity": 0.5138139128685
+      },
+      {
+        "article_id": "a8b21a0e-aa2c-42e8-8cfb-c7479fd1d8e3",
+        "rank": 2,
+        "title": "archTIS extends A$4 million CBA facility to support contract execution and growth",
+        "semantic_similarity": 0.478608369827271
+      },
+      {
+        "article_id": "6b7cca15-b540-451a-8034-b1fc4704f805",
+        "rank": 3,
+        "title": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber",
+        "semantic_similarity": 0.465301275253296
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/did-profit-uptick-rba-countdown-080841996.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth (Proactive)",
+        "url": "https://www.proactiveinvestors.com/companies/news/1095449/archtis-extends-a-4-million-cba-facility-to-support-contract-execution-and-growth-1095449.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/ai-replacing-customer-jobs-cba-093026192.html"
+      }
+    ]
+  },
+  {
+    "question_id": "q7",
+    "config": "hybrid_k10",
+    "method": "hybrid_rrf",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "6b7cca15-b540-451a-8034-b1fc4704f805",
+        "rank": 1,
+        "title": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber",
+        "semantic_similarity": 0.465301275253296,
+        "lexical_score": 0.2,
+        "rrf_score": 0.032266458495966696
+      },
+      {
+        "article_id": "a8b21a0e-aa2c-42e8-8cfb-c7479fd1d8e3",
+        "rank": 2,
+        "title": "archTIS extends A$4 million CBA facility to support contract execution and growth",
+        "semantic_similarity": 0.478608369827271,
+        "lexical_score": 0.2,
+        "rrf_score": 0.03225806451612903
+      },
+      {
+        "article_id": "f6a03202-fdda-4b58-97b6-a48e3659827b",
+        "rank": 3,
+        "title": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative?",
+        "semantic_similarity": 0.5138139128685,
+        "lexical_score": 0.2,
+        "rrf_score": 0.032018442622950824
+      },
+      {
+        "article_id": "d1b0bef8-6caa-4a64-88c9-3a0aa08b588b",
+        "rank": 4,
+        "title": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop",
+        "lexical_score": 0.2,
+        "rrf_score": 0.015873015873015872
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/ai-replacing-customer-jobs-cba-093026192.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)",
+        "url": "https://www.proactiveinvestors.com/companies/news/1095449/archtis-extends-a-4-million-cba-facility-to-support-contract-execution-and-growth-1095449.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/did-profit-uptick-rba-countdown-080841996.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)",
+        "url": "https://www.retailbankerinternational.com/features/interview-cba-ai-chief/"
+      }
+    ]
+  },
+  {
+    "question_id": "q8",
+    "config": "semantic_k10",
+    "method": "semantic",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "b68a2d6d-73de-419c-b598-7ce0a1052836",
+        "rank": 1,
+        "title": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy",
+        "semantic_similarity": 0.593348586955752
+      },
+      {
+        "article_id": "b1b83951-4c53-41ff-a55f-9a52d2b6570d",
+        "rank": 2,
+        "title": "Banks warn AI shopping agents outpace fraud protections",
+        "semantic_similarity": 0.579192330933531
+      },
+      {
+        "article_id": "6b7cca15-b540-451a-8034-b1fc4704f805",
+        "rank": 3,
+        "title": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber",
+        "semantic_similarity": 0.56728419260477
+      },
+      {
+        "article_id": "99d3c240-a69d-471e-9754-bd53d542c01f",
+        "rank": 4,
+        "title": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches",
+        "semantic_similarity": 0.553926315669638
+      },
+      {
+        "article_id": "d1b0bef8-6caa-4a64-88c9-3a0aa08b588b",
+        "rank": 5,
+        "title": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop",
+        "semantic_similarity": 0.52545830455671
+      },
+      {
+        "article_id": "f6a03202-fdda-4b58-97b6-a48e3659827b",
+        "rank": 6,
+        "title": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative?",
+        "semantic_similarity": 0.50571045245466
+      },
+      {
+        "article_id": "a8b21a0e-aa2c-42e8-8cfb-c7479fd1d8e3",
+        "rank": 7,
+        "title": "archTIS extends A$4 million CBA facility to support contract execution and growth",
+        "semantic_similarity": 0.449305477779778
+      },
+      {
+        "article_id": "273b4c77-4742-4732-8603-9f737578c99c",
+        "rank": 8,
+        "title": "Companies rehire workers laid off for AI as automation falls short",
+        "semantic_similarity": 0.446131504043161
+      },
+      {
+        "article_id": "69dbc761-0547-45ff-9908-81fbc4ec506d",
+        "rank": 9,
+        "title": "Billionaire Sam Altman Says OpenAI Was ‘Pretty Wrong’ About AI Jobs, But Goldman Sachs Warns AI is Still Wiping Out 11,000 Jobs Per Month",
+        "semantic_similarity": 0.443729970232847
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy (Reuters)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/commonwealth-bank-australia-appoints-cio-235755334.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents outpace fraud protections (Quartz)",
+        "url": "https://qz.com/banks-ai-shopping-agents-fraud-privacy-risks-092226"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/ai-replacing-customer-jobs-cba-093026192.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches (Fox Business)",
+        "url": "https://www.foxbusiness.com/technology/banks-warn-ai-shopping-agents-could-increase-risk-scams-fraud-data-privacy-breaches"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop (Retail Banker International)",
+        "url": "https://www.retailbankerinternational.com/features/interview-cba-ai-chief/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/did-profit-uptick-rba-countdown-080841996.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth (Proactive)",
+        "url": "https://www.proactiveinvestors.com/companies/news/1095449/archtis-extends-a-4-million-cba-facility-to-support-contract-execution-and-growth-1095449.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Companies rehire workers laid off for AI as automation falls short (Quartz)",
+        "url": "https://qz.com/companies-rehiring-workers-ai-layoffs-automation-070126"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Billionaire Sam Altman Says OpenAI Was ‘Pretty Wrong’ About AI Jobs, But Goldman Sachs Warns AI is Still Wiping Out 11,000 Jobs Per Month (Barchart)",
+        "url": "https://www.barchart.com/story/news/2404389/billionaire-sam-altman-says-openai-was-pretty-wrong-about-ai-jobs-but-goldman-sachs-warns-ai-is-still-wiping-out-11-000-jobs-per-month"
+      }
+    ]
+  },
+  {
+    "question_id": "q8",
+    "config": "hybrid_k10",
+    "method": "hybrid_rrf",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "b1b83951-4c53-41ff-a55f-9a52d2b6570d",
+        "rank": 1,
+        "title": "Banks warn AI shopping agents outpace fraud protections",
+        "semantic_similarity": 0.579192330933531,
+        "lexical_score": 0.5,
+        "rrf_score": 0.03252247488101534
+      },
+      {
+        "article_id": "b68a2d6d-73de-419c-b598-7ce0a1052836",
+        "rank": 2,
+        "title": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy",
+        "semantic_similarity": 0.593348586955752,
+        "lexical_score": 0.3,
+        "rrf_score": 0.03177805800756621
+      },
+      {
+        "article_id": "d1b0bef8-6caa-4a64-88c9-3a0aa08b588b",
+        "rank": 3,
+        "title": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop",
+        "semantic_similarity": 0.52545830455671,
+        "lexical_score": 0.5,
+        "rrf_score": 0.0315136476426799
+      },
+      {
+        "article_id": "99d3c240-a69d-471e-9754-bd53d542c01f",
+        "rank": 4,
+        "title": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches",
+        "semantic_similarity": 0.553926315669638,
+        "lexical_score": 0.4,
+        "rrf_score": 0.03125
+      },
+      {
+        "article_id": "6b7cca15-b540-451a-8034-b1fc4704f805",
+        "rank": 5,
+        "title": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber",
+        "semantic_similarity": 0.56728419260477,
+        "lexical_score": 0.1,
+        "rrf_score": 0.029206349206349208
+      },
+      {
+        "article_id": "f6a03202-fdda-4b58-97b6-a48e3659827b",
+        "rank": 6,
+        "title": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative?",
+        "semantic_similarity": 0.50571045245466,
+        "lexical_score": 0.2,
+        "rrf_score": 0.02904040404040404
+      },
+      {
+        "article_id": "a8b21a0e-aa2c-42e8-8cfb-c7479fd1d8e3",
+        "rank": 7,
+        "title": "archTIS extends A$4 million CBA facility to support contract execution and growth",
+        "semantic_similarity": 0.449305477779778,
+        "lexical_score": 0.2,
+        "rrf_score": 0.02900988017658188
+      },
+      {
+        "article_id": "69dbc761-0547-45ff-9908-81fbc4ec506d",
+        "rank": 8,
+        "title": "Billionaire Sam Altman Says OpenAI Was ‘Pretty Wrong’ About AI Jobs, But Goldman Sachs Warns AI is Still Wiping Out 11,000 Jobs Per Month",
+        "semantic_similarity": 0.443729970232847,
+        "lexical_score": 0.2,
+        "rrf_score": 0.028985507246376812
+      },
+      {
+        "article_id": "273b4c77-4742-4732-8603-9f737578c99c",
+        "rank": 9,
+        "title": "Companies rehire workers laid off for AI as automation falls short",
+        "semantic_similarity": 0.446131504043161,
+        "lexical_score": 0.1,
+        "rrf_score": 0.028404512489927477
+      },
+      {
+        "article_id": "3197f837-7d31-4fd0-9208-cca4c823c4f2",
+        "rank": 10,
+        "title": "Three of Australia's four major banks forecast another rate hike this year",
+        "lexical_score": 0.4,
+        "rrf_score": 0.015873015873015872
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents outpace fraud protections - NatWest, Bank of America, and four other banks say consumers risk scams and data breaches as AI commerce tools advance faster than industry safeguards (Quartz)",
+        "url": "https://qz.com/banks-ai-shopping-agents-fraud-privacy-risks-092226"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy (Reuters)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/commonwealth-bank-australia-appoints-cio-235755334.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)",
+        "url": "https://www.retailbankerinternational.com/features/interview-cba-ai-chief/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches - A coalition of global banks says agentic AI tools that make purchases on behalf of consumers could expose card details and weaken payment security. (Fox Business)",
+        "url": "https://www.foxbusiness.com/technology/banks-warn-ai-shopping-agents-could-increase-risk-scams-fraud-data-privacy-breaches"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/ai-replacing-customer-jobs-cba-093026192.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/did-profit-uptick-rba-countdown-080841996.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)",
+        "url": "https://www.proactiveinvestors.com/companies/news/1095449/archtis-extends-a-4-million-cba-facility-to-support-contract-execution-and-growth-1095449.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Billionaire Sam Altman Says OpenAI Was ‘Pretty Wrong’ About AI Jobs, But Goldman Sachs Warns AI is Still Wiping Out 11,000 Jobs Per Month (Barchart)",
+        "url": "https://www.barchart.com/story/news/2404389/billionaire-sam-altman-says-openai-was-pretty-wrong-about-ai-jobs-but-goldman-sachs-warns-ai-is-still-wiping-out-11-000-jobs-per-month"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Companies rehire workers laid off for AI as automation falls short (Quartz)",
+        "url": "https://qz.com/companies-rehiring-workers-ai-layoffs-automation-070126"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Three of Australia's four major banks forecast another rate hike this year - SYDNEY, Aug 27 (Reuters) - The Commonwealth Bank of Australia and the National Australia Bank on Thursday joined ANZ in forecasting another rate hike this year after a hot inflation print reignited (Reuters)",
+        "url": "https://finance.yahoo.com/economy/policy/articles/three-australias-four-major-banks-001101590.html"
+      }
+    ]
+  },
+  {
+    "question_id": "q9",
+    "config": "semantic_k10",
+    "method": "semantic",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "6192bccf-9d89-4bdf-b571-47e3e02b311d",
+        "rank": 1,
+        "title": "3 Australian Dividend Stocks With At Least 3% Yield",
+        "semantic_similarity": 0.554089665412907
+      },
+      {
+        "article_id": "c385b2b8-f8e0-4278-99be-f30dbd1d2167",
+        "rank": 2,
+        "title": "3 Australian Dividend Stocks Paying Over 5% While Cash Income Looks Less Certain",
+        "semantic_similarity": 0.545646932980602
+      },
+      {
+        "article_id": "8c255177-b931-4783-a1bf-9e2dacfa1b3c",
+        "rank": 3,
+        "title": "Commonwealth Bank Stock And 2 More Dividend Shares For Reliable Income",
+        "semantic_similarity": 0.520126070953715
+      },
+      {
+        "article_id": "f6a03202-fdda-4b58-97b6-a48e3659827b",
+        "rank": 4,
+        "title": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative?",
+        "semantic_similarity": 0.434230242119418
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "3 Australian Dividend Stocks With At Least 3% Yield (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/3-australian-dividend-stocks-least-021730799.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "3 Australian Dividend Stocks Paying Over 5% While Cash Income Looks Less Certain (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/3-australian-dividend-stocks-paying-021700558.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank Stock And 2 More Dividend Shares For Reliable Income (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/commonwealth-bank-stock-2-more-161643776.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/did-profit-uptick-rba-countdown-080841996.html"
+      }
+    ]
+  },
+  {
+    "question_id": "q9",
+    "config": "hybrid_k10",
+    "method": "hybrid_rrf",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "6192bccf-9d89-4bdf-b571-47e3e02b311d",
+        "rank": 1,
+        "title": "3 Australian Dividend Stocks With At Least 3% Yield",
+        "semantic_similarity": 0.554089665412907,
+        "lexical_score": 0.5,
+        "rrf_score": 0.03278688524590164
+      },
+      {
+        "article_id": "c385b2b8-f8e0-4278-99be-f30dbd1d2167",
+        "rank": 2,
+        "title": "3 Australian Dividend Stocks Paying Over 5% While Cash Income Looks Less Certain",
+        "semantic_similarity": 0.545646932980602,
+        "lexical_score": 0.5,
+        "rrf_score": 0.03225806451612903
+      },
+      {
+        "article_id": "8c255177-b931-4783-a1bf-9e2dacfa1b3c",
+        "rank": 3,
+        "title": "Commonwealth Bank Stock And 2 More Dividend Shares For Reliable Income",
+        "semantic_similarity": 0.520126070953715,
+        "lexical_score": 0.4,
+        "rrf_score": 0.031746031746031744
+      },
+      {
+        "article_id": "f6a03202-fdda-4b58-97b6-a48e3659827b",
+        "rank": 4,
+        "title": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative?",
+        "semantic_similarity": 0.434230242119418,
+        "lexical_score": 0.1,
+        "rrf_score": 0.030330882352941176
+      },
+      {
+        "article_id": "a8b21a0e-aa2c-42e8-8cfb-c7479fd1d8e3",
+        "rank": 5,
+        "title": "archTIS extends A$4 million CBA facility to support contract execution and growth",
+        "lexical_score": 0.2,
+        "rrf_score": 0.015625
+      },
+      {
+        "article_id": "d1b0bef8-6caa-4a64-88c9-3a0aa08b588b",
+        "rank": 6,
+        "title": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop",
+        "lexical_score": 0.2,
+        "rrf_score": 0.015384615384615385
+      },
+      {
+        "article_id": "413c847a-f31f-48e9-8aa3-215b13213f26",
+        "rank": 7,
+        "title": "Commonwealth Bank unveils payout platform ahead of cheque exit",
+        "lexical_score": 0.1,
+        "rrf_score": 0.015151515151515152
+      },
+      {
+        "article_id": "6b7cca15-b540-451a-8034-b1fc4704f805",
+        "rank": 8,
+        "title": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber",
+        "lexical_score": 0.1,
+        "rrf_score": 0.014925373134328358
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "3 Australian Dividend Stocks With At Least 3% Yield - With Australian credit growth still resilient, income investors are looking harder at local businesses that share profits through dividends. Higher global interest rate expectations have pushed up funding costs, so reliable cash payouts from established Australian dividend stocks can feel even more valuable. This article walks through three higher yielding dividend options from a focused screener and explains why they may deserve a closer look now. The three stocks in this article are just a... (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/3-australian-dividend-stocks-least-021730799.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "3 Australian Dividend Stocks Paying Over 5% While Cash Income Looks Less Certain - With bond yields across major markets reflecting expectations for tighter central bank policy, income from cash and short-term bonds can feel uncertain again. Reliable dividend income looks more valuable when policy paths shift and inflation stays in focus. Dividend powerhouses with yields above 5% and well covered, growing payouts offer one way to seek steadier cash flow. This article highlights three stocks from that screener. The three dividend stocks covered next are just a sample from... (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/3-australian-dividend-stocks-paying-021700558.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank Stock And 2 More Dividend Shares For Reliable Income - Rising yields in major markets are pushing income investors to think harder about where their cash flow comes from. With bond markets adjusting to tighter policy signals, dependable company dividends can feel more valuable than ever. That is where the Dividend Powerhouses 3%+ Yield screener comes in. This article walks through three high income stocks on that list and what makes their dividend profiles worth a closer look. The three stocks below are just a starting sample, and the full... (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/commonwealth-bank-stock-2-more-161643776.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/did-profit-uptick-rba-countdown-080841996.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)",
+        "url": "https://www.proactiveinvestors.com/companies/news/1095449/archtis-extends-a-4-million-cba-facility-to-support-contract-execution-and-growth-1095449.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)",
+        "url": "https://www.retailbankerinternational.com/features/interview-cba-ai-chief/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank unveils payout platform ahead of cheque exit - PaidIt combines recipient verification, communications and payment delivery within one system. (Retail Banker International)",
+        "url": "https://www.retailbankerinternational.com/news/commonwealth-bank-payout-platform/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/ai-replacing-customer-jobs-cba-093026192.html"
+      }
+    ]
+  },
+  {
+    "question_id": "q10",
+    "config": "semantic_k10",
+    "method": "semantic",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "f6a03202-fdda-4b58-97b6-a48e3659827b",
+        "rank": 1,
+        "title": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative?",
+        "semantic_similarity": 0.468577444553375
+      },
+      {
+        "article_id": "01468167-f750-4b79-b8c8-2edf85711375",
+        "rank": 2,
+        "title": "LGT reports 17% rise in H1 profit as assets reach record level",
+        "semantic_similarity": 0.402354246237622
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/did-profit-uptick-rba-countdown-080841996.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "LGT reports 17% rise in H1 profit as assets reach record level (Private Banker International)",
+        "url": "https://www.privatebankerinternational.com/news/lgt-h1-profit/"
+      }
+    ]
+  },
+  {
+    "question_id": "q10",
+    "config": "hybrid_k10",
+    "method": "hybrid_rrf",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "01468167-f750-4b79-b8c8-2edf85711375",
+        "rank": 1,
+        "title": "LGT reports 17% rise in H1 profit as assets reach record level",
+        "semantic_similarity": 0.402354246237622,
+        "lexical_score": 0.2,
+        "rrf_score": 0.03252247488101534
+      },
+      {
+        "article_id": "f6a03202-fdda-4b58-97b6-a48e3659827b",
+        "rank": 2,
+        "title": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative?",
+        "semantic_similarity": 0.468577444553375,
+        "lexical_score": 0.2,
+        "rrf_score": 0.032018442622950824
+      },
+      {
+        "article_id": "a8b21a0e-aa2c-42e8-8cfb-c7479fd1d8e3",
+        "rank": 3,
+        "title": "archTIS extends A$4 million CBA facility to support contract execution and growth",
+        "lexical_score": 0.2,
+        "rrf_score": 0.016129032258064516
+      },
+      {
+        "article_id": "d1b0bef8-6caa-4a64-88c9-3a0aa08b588b",
+        "rank": 4,
+        "title": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop",
+        "lexical_score": 0.2,
+        "rrf_score": 0.015873015873015872
+      },
+      {
+        "article_id": "6192bccf-9d89-4bdf-b571-47e3e02b311d",
+        "rank": 5,
+        "title": "3 Australian Dividend Stocks With At Least 3% Yield",
+        "lexical_score": 0.1,
+        "rrf_score": 0.015384615384615385
+      },
+      {
+        "article_id": "6b7cca15-b540-451a-8034-b1fc4704f805",
+        "rank": 6,
+        "title": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber",
+        "lexical_score": 0.1,
+        "rrf_score": 0.015151515151515152
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "LGT reports 17% rise in H1 profit as assets reach record level - Net new assets came in at SFr12.3bn, equal to an annualised growth rate of 6.4%. (Private Banker International)",
+        "url": "https://www.privatebankerinternational.com/news/lgt-h1-profit/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/did-profit-uptick-rba-countdown-080841996.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)",
+        "url": "https://www.proactiveinvestors.com/companies/news/1095449/archtis-extends-a-4-million-cba-facility-to-support-contract-execution-and-growth-1095449.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)",
+        "url": "https://www.retailbankerinternational.com/features/interview-cba-ai-chief/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "3 Australian Dividend Stocks With At Least 3% Yield - With Australian credit growth still resilient, income investors are looking harder at local businesses that share profits through dividends. Higher global interest rate expectations have pushed up funding costs, so reliable cash payouts from established Australian dividend stocks can feel even more valuable. This article walks through three higher yielding dividend options from a focused screener and explains why they may deserve a closer look now. The three stocks in this article are just a... (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/3-australian-dividend-stocks-least-021730799.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/ai-replacing-customer-jobs-cba-093026192.html"
+      }
+    ]
+  },
+  {
+    "question_id": "q11",
+    "config": "semantic_k10",
+    "method": "semantic",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "a8b21a0e-aa2c-42e8-8cfb-c7479fd1d8e3",
+        "rank": 1,
+        "title": "archTIS extends A$4 million CBA facility to support contract execution and growth",
+        "semantic_similarity": 0.559436202049255
+      },
+      {
+        "article_id": "f6a03202-fdda-4b58-97b6-a48e3659827b",
+        "rank": 2,
+        "title": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative?",
+        "semantic_similarity": 0.528572797775269
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth (Proactive)",
+        "url": "https://www.proactiveinvestors.com/companies/news/1095449/archtis-extends-a-4-million-cba-facility-to-support-contract-execution-and-growth-1095449.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/did-profit-uptick-rba-countdown-080841996.html"
+      }
+    ]
+  },
+  {
+    "question_id": "q11",
+    "config": "hybrid_k10",
+    "method": "hybrid_rrf",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "a8b21a0e-aa2c-42e8-8cfb-c7479fd1d8e3",
+        "rank": 1,
+        "title": "archTIS extends A$4 million CBA facility to support contract execution and growth",
+        "semantic_similarity": 0.559436202049255,
+        "lexical_score": 0.2,
+        "rrf_score": 0.03278688524590164
+      },
+      {
+        "article_id": "f6a03202-fdda-4b58-97b6-a48e3659827b",
+        "rank": 2,
+        "title": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative?",
+        "semantic_similarity": 0.528572797775269,
+        "lexical_score": 0.1,
+        "rrf_score": 0.031754032258064516
+      },
+      {
+        "article_id": "d1b0bef8-6caa-4a64-88c9-3a0aa08b588b",
+        "rank": 3,
+        "title": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop",
+        "lexical_score": 0.2,
+        "rrf_score": 0.016129032258064516
+      },
+      {
+        "article_id": "6b7cca15-b540-451a-8034-b1fc4704f805",
+        "rank": 4,
+        "title": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber",
+        "lexical_score": 0.1,
+        "rrf_score": 0.015873015873015872
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)",
+        "url": "https://www.proactiveinvestors.com/companies/news/1095449/archtis-extends-a-4-million-cba-facility-to-support-contract-execution-and-growth-1095449.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/did-profit-uptick-rba-countdown-080841996.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)",
+        "url": "https://www.retailbankerinternational.com/features/interview-cba-ai-chief/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/ai-replacing-customer-jobs-cba-093026192.html"
+      }
+    ]
+  },
+  {
+    "question_id": "q12",
+    "config": "semantic_k10",
+    "method": "semantic",
+    "k": 10,
+    "retrieved": [],
+    "evidence": []
+  },
+  {
+    "question_id": "q12",
+    "config": "hybrid_k10",
+    "method": "hybrid_rrf",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "a8b21a0e-aa2c-42e8-8cfb-c7479fd1d8e3",
+        "rank": 1,
+        "title": "archTIS extends A$4 million CBA facility to support contract execution and growth",
+        "lexical_score": 0.3,
+        "rrf_score": 0.01639344262295082
+      },
+      {
+        "article_id": "d1b0bef8-6caa-4a64-88c9-3a0aa08b588b",
+        "rank": 2,
+        "title": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop",
+        "lexical_score": 0.2,
+        "rrf_score": 0.016129032258064516
+      },
+      {
+        "article_id": "01468167-f750-4b79-b8c8-2edf85711375",
+        "rank": 3,
+        "title": "LGT reports 17% rise in H1 profit as assets reach record level",
+        "lexical_score": 0.1,
+        "rrf_score": 0.015873015873015872
+      },
+      {
+        "article_id": "5471b7ec-a7a3-4b6f-9ed9-1077daa933df",
+        "rank": 4,
+        "title": "Fast Money Bets on November RBA Hike in Fight Against Inflation",
+        "lexical_score": 0.1,
+        "rrf_score": 0.015625
+      },
+      {
+        "article_id": "686cdb0c-4e0e-4c16-82e8-cc5fb13cd2ca",
+        "rank": 5,
+        "title": "Australian bank investors brace for tough times as mortgage demand plummets",
+        "lexical_score": 0.1,
+        "rrf_score": 0.015384615384615385
+      },
+      {
+        "article_id": "6b7cca15-b540-451a-8034-b1fc4704f805",
+        "rank": 6,
+        "title": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber",
+        "lexical_score": 0.1,
+        "rrf_score": 0.015151515151515152
+      },
+      {
+        "article_id": "f6a03202-fdda-4b58-97b6-a48e3659827b",
+        "rank": 7,
+        "title": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative?",
+        "lexical_score": 0.1,
+        "rrf_score": 0.014925373134328358
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)",
+        "url": "https://www.proactiveinvestors.com/companies/news/1095449/archtis-extends-a-4-million-cba-facility-to-support-contract-execution-and-growth-1095449.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)",
+        "url": "https://www.retailbankerinternational.com/features/interview-cba-ai-chief/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "LGT reports 17% rise in H1 profit as assets reach record level - Net new assets came in at SFr12.3bn, equal to an annualised growth rate of 6.4%. (Private Banker International)",
+        "url": "https://www.privatebankerinternational.com/news/lgt-h1-profit/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Fast Money Bets on November RBA Hike in Fight Against Inflation - Speculative investors are increasingly betting the Reserve Bank of Australia will raise interest rates again in November as inflation remains above the central bank’s target. (Bloomberg)",
+        "url": "https://finance.yahoo.com/economy/policy/articles/fast-money-bets-november-rba-032320475.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Australian bank investors brace for tough times as mortgage demand plummets - By Christine Chen and Scott Murdoch SYDNEY, Aug 25 (Reuters) - Investors are questioning the rich valuations on Australia's biggest banks as a downturn in lucrative mortgage lending threatens to (Reuters)",
+        "url": "https://finance.yahoo.com/real-estate/articles/australian-bank-investors-brace-tough-045806476.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/ai-replacing-customer-jobs-cba-093026192.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/did-profit-uptick-rba-countdown-080841996.html"
+      }
+    ]
+  },
+  {
+    "question_id": "h1",
+    "config": "semantic_k10",
+    "method": "semantic",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "413c847a-f31f-48e9-8aa3-215b13213f26",
+        "rank": 1,
+        "title": "Commonwealth Bank unveils payout platform ahead of cheque exit",
+        "semantic_similarity": 0.616411410784042
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank unveils payout platform ahead of cheque exit (Retail Banker International)",
+        "url": "https://www.retailbankerinternational.com/news/commonwealth-bank-payout-platform/"
+      }
+    ]
+  },
+  {
+    "question_id": "h1",
+    "config": "hybrid_k10",
+    "method": "hybrid_rrf",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "413c847a-f31f-48e9-8aa3-215b13213f26",
+        "rank": 1,
+        "title": "Commonwealth Bank unveils payout platform ahead of cheque exit",
+        "semantic_similarity": 0.616411410784042,
+        "lexical_score": 0.4,
+        "rrf_score": 0.03278688524590164
+      },
+      {
+        "article_id": "6b7cca15-b540-451a-8034-b1fc4704f805",
+        "rank": 2,
+        "title": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber",
+        "lexical_score": 0.2,
+        "rrf_score": 0.016129032258064516
+      },
+      {
+        "article_id": "a8b21a0e-aa2c-42e8-8cfb-c7479fd1d8e3",
+        "rank": 3,
+        "title": "archTIS extends A$4 million CBA facility to support contract execution and growth",
+        "lexical_score": 0.2,
+        "rrf_score": 0.015873015873015872
+      },
+      {
+        "article_id": "d1b0bef8-6caa-4a64-88c9-3a0aa08b588b",
+        "rank": 4,
+        "title": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop",
+        "lexical_score": 0.2,
+        "rrf_score": 0.015625
+      },
+      {
+        "article_id": "01468167-f750-4b79-b8c8-2edf85711375",
+        "rank": 5,
+        "title": "LGT reports 17% rise in H1 profit as assets reach record level",
+        "lexical_score": 0.1,
+        "rrf_score": 0.015384615384615385
+      },
+      {
+        "article_id": "5332bf57-f144-4f09-9a22-0048374de7a6",
+        "rank": 6,
+        "title": "Tencent AI Spending Key After Magnificent 7 Rout",
+        "lexical_score": 0.1,
+        "rrf_score": 0.015151515151515152
+      },
+      {
+        "article_id": "6192bccf-9d89-4bdf-b571-47e3e02b311d",
+        "rank": 7,
+        "title": "3 Australian Dividend Stocks With At Least 3% Yield",
+        "lexical_score": 0.1,
+        "rrf_score": 0.014925373134328358
+      },
+      {
+        "article_id": "99d3c240-a69d-471e-9754-bd53d542c01f",
+        "rank": 8,
+        "title": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches",
+        "lexical_score": 0.1,
+        "rrf_score": 0.014705882352941176
+      },
+      {
+        "article_id": "b68a2d6d-73de-419c-b598-7ce0a1052836",
+        "rank": 9,
+        "title": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy",
+        "lexical_score": 0.1,
+        "rrf_score": 0.014492753623188406
+      },
+      {
+        "article_id": "c385b2b8-f8e0-4278-99be-f30dbd1d2167",
+        "rank": 10,
+        "title": "3 Australian Dividend Stocks Paying Over 5% While Cash Income Looks Less Certain",
+        "lexical_score": 0.1,
+        "rrf_score": 0.014285714285714285
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank unveils payout platform ahead of cheque exit - PaidIt combines recipient verification, communications and payment delivery within one system. (Retail Banker International)",
+        "url": "https://www.retailbankerinternational.com/news/commonwealth-bank-payout-platform/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/ai-replacing-customer-jobs-cba-093026192.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)",
+        "url": "https://www.proactiveinvestors.com/companies/news/1095449/archtis-extends-a-4-million-cba-facility-to-support-contract-execution-and-growth-1095449.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)",
+        "url": "https://www.retailbankerinternational.com/features/interview-cba-ai-chief/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "LGT reports 17% rise in H1 profit as assets reach record level - Net new assets came in at SFr12.3bn, equal to an annualised growth rate of 6.4%. (Private Banker International)",
+        "url": "https://www.privatebankerinternational.com/news/lgt-h1-profit/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Tencent AI Spending Key After Magnificent 7 Rout - (Bloomberg) -- Tencent Holdings Ltd.’s spending plans will draw investor scrutiny as investors cool on lavish outlays on artificial intelligence.Most Read from BloombergTrump Amps Up Pressure on Billionaire Sargeant to Exit VenezuelaIran Shakes Up Security Team After Saying Oman Deal ‘Very Close’Iran Says Hormuz Deal Close But Its Conditions Must Be MetOpenAI’s New Device Will Be Hockey Puck-Sized and Cost Over $300China Unleashes $28 Trillion Capital Markets to Challenge US in AILast month, the (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/tencent-ai-spending-key-magnificent-004806894.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "3 Australian Dividend Stocks With At Least 3% Yield - With Australian credit growth still resilient, income investors are looking harder at local businesses that share profits through dividends. Higher global interest rate expectations have pushed up funding costs, so reliable cash payouts from established Australian dividend stocks can feel even more valuable. This article walks through three higher yielding dividend options from a focused screener and explains why they may deserve a closer look now. The three stocks in this article are just a... (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/3-australian-dividend-stocks-least-021730799.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches - A coalition of global banks says agentic AI tools that make purchases on behalf of consumers could expose card details and weaken payment security. (Fox Business)",
+        "url": "https://www.foxbusiness.com/technology/banks-warn-ai-shopping-agents-could-increase-risk-scams-fraud-data-privacy-breaches"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy (Reuters)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/commonwealth-bank-australia-appoints-cio-235755334.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "3 Australian Dividend Stocks Paying Over 5% While Cash Income Looks Less Certain - With bond yields across major markets reflecting expectations for tighter central bank policy, income from cash and short-term bonds can feel uncertain again. Reliable dividend income looks more valuable when policy paths shift and inflation stays in focus. Dividend powerhouses with yields above 5% and well covered, growing payouts offer one way to seek steadier cash flow. This article highlights three stocks from that screener. The three dividend stocks covered next are just a sample from... (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/3-australian-dividend-stocks-paying-021700558.html"
+      }
+    ]
+  },
+  {
+    "question_id": "h2",
+    "config": "semantic_k10",
+    "method": "semantic",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "a8b21a0e-aa2c-42e8-8cfb-c7479fd1d8e3",
+        "rank": 1,
+        "title": "archTIS extends A$4 million CBA facility to support contract execution and growth",
+        "semantic_similarity": 0.740574896335602
+      },
+      {
+        "article_id": "f6a03202-fdda-4b58-97b6-a48e3659827b",
+        "rank": 2,
+        "title": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative?",
+        "semantic_similarity": 0.425711065530777
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth (Proactive)",
+        "url": "https://www.proactiveinvestors.com/companies/news/1095449/archtis-extends-a-4-million-cba-facility-to-support-contract-execution-and-growth-1095449.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/did-profit-uptick-rba-countdown-080841996.html"
+      }
+    ]
+  },
+  {
+    "question_id": "h2",
+    "config": "hybrid_k10",
+    "method": "hybrid_rrf",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "a8b21a0e-aa2c-42e8-8cfb-c7479fd1d8e3",
+        "rank": 1,
+        "title": "archTIS extends A$4 million CBA facility to support contract execution and growth",
+        "semantic_similarity": 0.740574896335602,
+        "lexical_score": 1.2,
+        "rrf_score": 0.03278688524590164
+      },
+      {
+        "article_id": "f6a03202-fdda-4b58-97b6-a48e3659827b",
+        "rank": 2,
+        "title": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative?",
+        "semantic_similarity": 0.425711065530777,
+        "lexical_score": 0.1,
+        "rrf_score": 0.0315136476426799
+      },
+      {
+        "article_id": "d1b0bef8-6caa-4a64-88c9-3a0aa08b588b",
+        "rank": 3,
+        "title": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop",
+        "lexical_score": 0.2,
+        "rrf_score": 0.016129032258064516
+      },
+      {
+        "article_id": "6b7cca15-b540-451a-8034-b1fc4704f805",
+        "rank": 4,
+        "title": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber",
+        "lexical_score": 0.1,
+        "rrf_score": 0.015873015873015872
+      },
+      {
+        "article_id": "c4a7e0e3-afd4-4f96-a328-a4fc62d9dce2",
+        "rank": 5,
+        "title": "CommSec Eyes More U.S. IPOs After 28,000 SpaceX Applications",
+        "lexical_score": 0.1,
+        "rrf_score": 0.015625
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)",
+        "url": "https://www.proactiveinvestors.com/companies/news/1095449/archtis-extends-a-4-million-cba-facility-to-support-contract-execution-and-growth-1095449.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/did-profit-uptick-rba-countdown-080841996.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)",
+        "url": "https://www.retailbankerinternational.com/features/interview-cba-ai-chief/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/ai-replacing-customer-jobs-cba-093026192.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "CommSec Eyes More U.S. IPOs After 28,000 SpaceX Applications - Australian brokerage plans more U.S. listings after record SpaceX demand from nearly three million clients. (GuruFocus.com)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/commsec-eyes-more-u-ipos-183024663.html"
+      }
+    ]
+  },
+  {
+    "question_id": "h3",
+    "config": "semantic_k10",
+    "method": "semantic",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "b68a2d6d-73de-419c-b598-7ce0a1052836",
+        "rank": 1,
+        "title": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy",
+        "semantic_similarity": 0.525359304270704
+      },
+      {
+        "article_id": "f6a03202-fdda-4b58-97b6-a48e3659827b",
+        "rank": 2,
+        "title": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative?",
+        "semantic_similarity": 0.435845460644095
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy (Reuters)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/commonwealth-bank-australia-appoints-cio-235755334.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/did-profit-uptick-rba-countdown-080841996.html"
+      }
+    ]
+  },
+  {
+    "question_id": "h3",
+    "config": "hybrid_k10",
+    "method": "hybrid_rrf",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "b68a2d6d-73de-419c-b598-7ce0a1052836",
+        "rank": 1,
+        "title": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy",
+        "semantic_similarity": 0.525359304270704,
+        "lexical_score": 0.2,
+        "rrf_score": 0.03252247488101534
+      },
+      {
+        "article_id": "f6a03202-fdda-4b58-97b6-a48e3659827b",
+        "rank": 2,
+        "title": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative?",
+        "semantic_similarity": 0.435845460644095,
+        "lexical_score": 0.1,
+        "rrf_score": 0.0315136476426799
+      },
+      {
+        "article_id": "a8b21a0e-aa2c-42e8-8cfb-c7479fd1d8e3",
+        "rank": 3,
+        "title": "archTIS extends A$4 million CBA facility to support contract execution and growth",
+        "lexical_score": 0.2,
+        "rrf_score": 0.01639344262295082
+      },
+      {
+        "article_id": "d1b0bef8-6caa-4a64-88c9-3a0aa08b588b",
+        "rank": 4,
+        "title": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop",
+        "lexical_score": 0.2,
+        "rrf_score": 0.015873015873015872
+      },
+      {
+        "article_id": "6b7cca15-b540-451a-8034-b1fc4704f805",
+        "rank": 5,
+        "title": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber",
+        "lexical_score": 0.1,
+        "rrf_score": 0.015625
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy (Reuters)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/commonwealth-bank-australia-appoints-cio-235755334.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/did-profit-uptick-rba-countdown-080841996.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)",
+        "url": "https://www.proactiveinvestors.com/companies/news/1095449/archtis-extends-a-4-million-cba-facility-to-support-contract-execution-and-growth-1095449.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)",
+        "url": "https://www.retailbankerinternational.com/features/interview-cba-ai-chief/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/ai-replacing-customer-jobs-cba-093026192.html"
+      }
+    ]
+  },
+  {
+    "question_id": "h4",
+    "config": "semantic_k10",
+    "method": "semantic",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "d1b0bef8-6caa-4a64-88c9-3a0aa08b588b",
+        "rank": 1,
+        "title": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop",
+        "semantic_similarity": 0.665673434734344
+      },
+      {
+        "article_id": "6b7cca15-b540-451a-8034-b1fc4704f805",
+        "rank": 2,
+        "title": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber",
+        "semantic_similarity": 0.49602797627449
+      },
+      {
+        "article_id": "a8b21a0e-aa2c-42e8-8cfb-c7479fd1d8e3",
+        "rank": 3,
+        "title": "archTIS extends A$4 million CBA facility to support contract execution and growth",
+        "semantic_similarity": 0.450485557317734
+      },
+      {
+        "article_id": "f6a03202-fdda-4b58-97b6-a48e3659827b",
+        "rank": 4,
+        "title": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative?",
+        "semantic_similarity": 0.445831835269928
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop (Retail Banker International)",
+        "url": "https://www.retailbankerinternational.com/features/interview-cba-ai-chief/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/ai-replacing-customer-jobs-cba-093026192.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth (Proactive)",
+        "url": "https://www.proactiveinvestors.com/companies/news/1095449/archtis-extends-a-4-million-cba-facility-to-support-contract-execution-and-growth-1095449.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/did-profit-uptick-rba-countdown-080841996.html"
+      }
+    ]
+  },
+  {
+    "question_id": "h4",
+    "config": "hybrid_k10",
+    "method": "hybrid_rrf",
+    "k": 10,
+    "retrieved": [
+      {
+        "article_id": "d1b0bef8-6caa-4a64-88c9-3a0aa08b588b",
+        "rank": 1,
+        "title": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop",
+        "semantic_similarity": 0.665673434734344,
+        "lexical_score": 0.7,
+        "rrf_score": 0.03278688524590164
+      },
+      {
+        "article_id": "a8b21a0e-aa2c-42e8-8cfb-c7479fd1d8e3",
+        "rank": 2,
+        "title": "archTIS extends A$4 million CBA facility to support contract execution and growth",
+        "semantic_similarity": 0.450485557317734,
+        "lexical_score": 0.4,
+        "rrf_score": 0.03200204813108039
+      },
+      {
+        "article_id": "6b7cca15-b540-451a-8034-b1fc4704f805",
+        "rank": 3,
+        "title": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber",
+        "semantic_similarity": 0.49602797627449,
+        "lexical_score": 0.2,
+        "rrf_score": 0.031754032258064516
+      },
+      {
+        "article_id": "f6a03202-fdda-4b58-97b6-a48e3659827b",
+        "rank": 4,
+        "title": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative?",
+        "semantic_similarity": 0.445831835269928,
+        "lexical_score": 0.1,
+        "rrf_score": 0.029709507042253523
+      },
+      {
+        "article_id": "69dbc761-0547-45ff-9908-81fbc4ec506d",
+        "rank": 5,
+        "title": "Billionaire Sam Altman Says OpenAI Was ‘Pretty Wrong’ About AI Jobs, But Goldman Sachs Warns AI is Still Wiping Out 11,000 Jobs Per Month",
+        "lexical_score": 0.2,
+        "rrf_score": 0.015873015873015872
+      },
+      {
+        "article_id": "99d3c240-a69d-471e-9754-bd53d542c01f",
+        "rank": 6,
+        "title": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches",
+        "lexical_score": 0.2,
+        "rrf_score": 0.015384615384615385
+      },
+      {
+        "article_id": "b1b83951-4c53-41ff-a55f-9a52d2b6570d",
+        "rank": 7,
+        "title": "Banks warn AI shopping agents outpace fraud protections",
+        "lexical_score": 0.2,
+        "rrf_score": 0.015151515151515152
+      },
+      {
+        "article_id": "273b4c77-4742-4732-8603-9f737578c99c",
+        "rank": 8,
+        "title": "Companies rehire workers laid off for AI as automation falls short",
+        "lexical_score": 0.1,
+        "rrf_score": 0.014925373134328358
+      },
+      {
+        "article_id": "5332bf57-f144-4f09-9a22-0048374de7a6",
+        "rank": 9,
+        "title": "Tencent AI Spending Key After Magnificent 7 Rout",
+        "lexical_score": 0.1,
+        "rrf_score": 0.014705882352941176
+      },
+      {
+        "article_id": "b68a2d6d-73de-419c-b598-7ce0a1052836",
+        "rank": 10,
+        "title": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy",
+        "lexical_score": 0.1,
+        "rrf_score": 0.014492753623188406
+      }
+    ],
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)",
+        "url": "https://www.retailbankerinternational.com/features/interview-cba-ai-chief/"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)",
+        "url": "https://www.proactiveinvestors.com/companies/news/1095449/archtis-extends-a-4-million-cba-facility-to-support-contract-execution-and-growth-1095449.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/ai-replacing-customer-jobs-cba-093026192.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/did-profit-uptick-rba-countdown-080841996.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Billionaire Sam Altman Says OpenAI Was ‘Pretty Wrong’ About AI Jobs, But Goldman Sachs Warns AI is Still Wiping Out 11,000 Jobs Per Month (Barchart)",
+        "url": "https://www.barchart.com/story/news/2404389/billionaire-sam-altman-says-openai-was-pretty-wrong-about-ai-jobs-but-goldman-sachs-warns-ai-is-still-wiping-out-11-000-jobs-per-month"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches - A coalition of global banks says agentic AI tools that make purchases on behalf of consumers could expose card details and weaken payment security. (Fox Business)",
+        "url": "https://www.foxbusiness.com/technology/banks-warn-ai-shopping-agents-could-increase-risk-scams-fraud-data-privacy-breaches"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents outpace fraud protections - NatWest, Bank of America, and four other banks say consumers risk scams and data breaches as AI commerce tools advance faster than industry safeguards (Quartz)",
+        "url": "https://qz.com/banks-ai-shopping-agents-fraud-privacy-risks-092226"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Companies rehire workers laid off for AI as automation falls short (Quartz)",
+        "url": "https://qz.com/companies-rehiring-workers-ai-layoffs-automation-070126"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Tencent AI Spending Key After Magnificent 7 Rout - (Bloomberg) -- Tencent Holdings Ltd.’s spending plans will draw investor scrutiny as investors cool on lavish outlays on artificial intelligence.Most Read from BloombergTrump Amps Up Pressure on Billionaire Sargeant to Exit VenezuelaIran Shakes Up Security Team After Saying Oman Deal ‘Very Close’Iran Says Hormuz Deal Close But Its Conditions Must Be MetOpenAI’s New Device Will Be Hockey Puck-Sized and Cost Over $300China Unleashes $28 Trillion Capital Markets to Challenge US in AILast month, the (Bloomberg)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/tencent-ai-spending-key-magnificent-004806894.html"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy (Reuters)",
+        "url": "https://finance.yahoo.com/technology/ai/articles/commonwealth-bank-australia-appoints-cio-235755334.html"
+      }
+    ]
+  }
+]

@@ -1,0 +1,2735 @@
+[
+  {
+    "id": "q1",
+    "question": "How is CBA using AI to improve software engineering productivity?",
+    "answer": "Based on the available evidence, here's what's known about CBA's use of AI in software engineering:\n\n- **Scale of adoption**: Approximately 80% of CBA's engineers are now using AI agents as part of their development workflow, according to comments from Ranil Boteju, the bank's Chief AI Officer.\n\n- **Productivity impact**: The bank reports that these AI agents have helped triple code output among engineers using them.\n\n- **Security benefits**: The AI tooling has also been credited with helping resolve more than 15,000 security issues, suggesting the AI is being used not just for writing new code but also for identifying and remediating vulnerabilities or technical debt.\n\n- **Broader context**: This engineering initiative is part of a larger push at CBA to scale AI value across the organization — reportedly targeting around A$400 million in value — with Boteju emphasizing a \"humans in the loop\" approach, meaning AI augments rather than fully automates engineering decisions.\n\nOne caveat: the evidence doesn't specify which AI tools/platforms are being used (e.g., whether this involves GitHub Copilot, custom internal models, or other coding assistants), nor does it provide a timeline for when this 80% adoption was reached or how the A$400 million figure breaks down by function. The second piece of evidence (on AI replacing customer service jobs) relates to a different part of CBA's AI strategy and isn't directly relevant to the software engineering productivity question.",
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)"
+      }
+    ],
+    "claims": [
+      {
+        "claim": "Approximately 80% of CBA's engineers are now using AI agents as part of their development workflow.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The 80% figure comes from comments by Ranil Boteju.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Ranil Boteju is CBA's Chief AI Officer.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "CBA reports that AI agents have helped triple code output among engineers using them.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The AI tooling has been credited with helping resolve more than 15,000 security issues.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "This suggests the AI is being used not just for writing new code but also for identifying and remediating vulnerabilities or technical debt.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "This engineering initiative is part of a larger push at CBA to scale AI value across the organization.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The larger push is reportedly targeting around A$400 million in value.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Boteju emphasizes a 'humans in the loop' approach.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The 'humans in the loop' approach means AI augments rather than fully automates engineering decisions.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The evidence doesn't specify which AI tools/platforms are being used.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "It is unknown whether the tools involve GitHub Copilot, custom internal models, or other coding assistants.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence doesn't provide a timeline for when the 80% adoption was reached.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence doesn't provide a breakdown of how the A$400 million figure breaks down by function.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "There is a second piece of evidence about AI replacing customer service jobs at CBA.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The customer service AI evidence relates to a different part of CBA's AI strategy.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The customer service AI evidence isn't directly relevant to the software engineering productivity question.",
+        "covered_in_evidence": true
+      }
+    ],
+    "facts": [
+      {
+        "fact": "80% of CBA's engineers use AI agents.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "The AI agents have tripled code output.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "The AI agents have helped resolve over 15,000 security issues.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "Ranil Boteju is CBA's chief AI officer.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "CBA is scaling A$400m in AI value with humans in the loop.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "AI is replacing customer service jobs at CBA, Microsoft and Uber.",
+        "relevant": false,
+        "covered_in_answer": true
+      }
+    ]
+  },
+  {
+    "id": "q2",
+    "question": "What technology leadership changes has CBA made to support its AI strategy?",
+    "answer": "Based on the evidence available, here's what's been reported regarding CBA's technology leadership changes tied to its AI strategy:\n\n- **New CIO and CTO appointments**: Reuters reports that CBA has appointed a new Chief Information Officer (CIO) and Chief Technology Officer (CTO), with the explicit mandate to strengthen the bank's technology and AI strategy. The evidence provided does not include the names of these individuals or further details on their backgrounds.\n\n- **Chief AI Officer role**: CBA has a dedicated Chief AI Officer, Ranil Boteju, who is leading efforts to scale AI value across the bank. Under his leadership, CBA reportedly:\n  - Has driven adoption of AI coding agents among roughly 80% of the bank's engineers, tripling code output.\n  - Used AI tools to help resolve over 15,000 security issues.\n  - Is pursuing a \"humans in the loop\" approach to scaling what's described as A$400 million in AI-generated value.\n\n**What the evidence doesn't cover**: The specific names of the newly appointed CIO/CTO, their start dates, prior experience, or how their roles are structured relative to the Chief AI Officer are not detailed in the available evidence. If you need those specifics, additional sourcing would be required.",
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy (Reuters)"
+      }
+    ],
+    "claims": [
+      {
+        "claim": "Reuters reports that CBA has appointed a new Chief Information Officer (CIO).",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Reuters reports that CBA has appointed a new Chief Technology Officer (CTO).",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The CIO and CTO appointments have an explicit mandate to strengthen the bank's technology strategy.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The CIO and CTO appointments have an explicit mandate to strengthen the bank's AI strategy.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence provided does not include the names of the newly appointed CIO and CTO.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence provided does not include further details on the backgrounds of the newly appointed CIO and CTO.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "CBA has a dedicated Chief AI Officer named Ranil Boteju.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Ranil Boteju is leading efforts to scale AI value across the bank.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Under Ranil Boteju's leadership, CBA has driven adoption of AI coding agents among roughly 80% of the bank's engineers.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The adoption of AI coding agents has tripled code output.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "CBA used AI tools to help resolve over 15,000 security issues.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "CBA is pursuing a 'humans in the loop' approach to scaling AI-generated value.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The AI-generated value being scaled is described as A$400 million.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence does not detail the specific names of the newly appointed CIO/CTO.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence does not detail the start dates of the newly appointed CIO/CTO.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence does not detail the prior experience of the newly appointed CIO/CTO.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence does not detail how the CIO/CTO roles are structured relative to the Chief AI Officer.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Additional sourcing would be required to obtain specifics about the CIO/CTO appointments.",
+        "covered_in_evidence": true
+      }
+    ],
+    "facts": [
+      {
+        "fact": "CBA appointed a new CIO and CTO to boost its technology and AI strategy.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "Ranil Boteju is CBA's chief AI officer.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "AI is replacing customer service jobs at CBA, Microsoft and Uber.",
+        "relevant": false,
+        "covered_in_answer": false
+      }
+    ]
+  },
+  {
+    "id": "q3",
+    "question": "How is CBA modernising its payment services?",
+    "answer": "Based on the available evidence, here's what CBA is doing to modernise its payment services:\n\n- **PaidIt platform**: CBA has launched a new payout platform called PaidIt, designed to get ahead of Australia's planned cheque phase-out. It combines three functions in one system — recipient verification, communications, and payment delivery — aiming to streamline how payouts are made and received.\n\n- **AI integration across operations**: While not payments-specific, CBA's broader AI push (reportedly targeting A$400 million in value, per comments from its chief AI officer) includes AI agents used by engineers to boost productivity and resolve security issues. This AI infrastructure likely underpins fraud detection and security improvements relevant to payments, though the evidence doesn't detail specific payment-related AI applications.\n\n- **Industry-level caution on agentic AI**: CBA is part of a coalition of global banks flagging risks from AI shopping agents that make purchases on consumers' behalf, warning these tools could expose card details and create new fraud and data privacy vulnerabilities. This suggests CBA is engaging in industry-wide discussions about security standards as payment technology evolves.\n\nThe evidence provided is fairly limited on payments modernisation specifically — most of it centers on PaidIt and the broader AI strategy. There's no detail here on other potential initiatives (e.g., real-time payment rails, digital wallet integration, or infrastructure upgrades) that CBA may also be pursuing, so I can't give a fuller picture beyond these points.",
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank unveils payout platform ahead of cheque exit - PaidIt combines recipient verification, communications and payment delivery within one system. (Retail Banker International)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches - A coalition of global banks says agentic AI tools that make purchases on behalf of consumers could expose card details and weaken payment security. (Fox Business)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)"
+      }
+    ],
+    "claims": [
+      {
+        "claim": "CBA has launched a new payout platform called PaidIt.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "PaidIt is designed to get ahead of Australia's planned cheque phase-out.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "PaidIt combines three functions in one system: recipient verification, communications, and payment delivery.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "PaidIt aims to streamline how payouts are made and received.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "CBA has a broader AI push that is not payments-specific.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "CBA's AI push reportedly targets A$400 million in value.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The A$400 million figure comes from comments by CBA's chief AI officer.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "CBA's AI push includes AI agents used by engineers to boost productivity.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "CBA's AI agents are used by engineers to resolve security issues.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "CBA's AI infrastructure likely underpins fraud detection relevant to payments.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "CBA's AI infrastructure likely underpins security improvements relevant to payments.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The evidence does not detail specific payment-related AI applications at CBA.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "CBA is part of a coalition of global banks flagging risks from AI shopping agents.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "AI shopping agents make purchases on consumers' behalf.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The coalition warns that AI shopping agents could expose card details.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The coalition warns that AI shopping agents could create new fraud vulnerabilities.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The coalition warns that AI shopping agents could create new data privacy vulnerabilities.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "This suggests CBA is engaging in industry-wide discussions about security standards as payment technology evolves.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The evidence provided is fairly limited on payments modernisation specifically.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Most of the evidence centers on PaidIt and the broader AI strategy.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "There is no detail on other potential initiatives CBA may be pursuing, such as real-time payment rails.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "There is no detail on other potential initiatives CBA may be pursuing, such as digital wallet integration.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "There is no detail on other potential initiatives CBA may be pursuing, such as infrastructure upgrades.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "A fuller picture beyond these points cannot be given based on the available evidence.",
+        "covered_in_evidence": true
+      }
+    ],
+    "facts": [
+      {
+        "fact": "CBA unveiled a payout platform called PaidIt ahead of its exit from cheques.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "PaidIt combines recipient verification, communications and payment delivery in one system.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "A coalition of global banks warns AI shopping agents could expose card details.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "A coalition of global banks warns AI shopping agents could weaken payment security.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "archTIS extended the maturity date of a A$4 million CBA lending facility.",
+        "relevant": false,
+        "covered_in_answer": false
+      },
+      {
+        "fact": "A Simply Wall St article discusses CBA's profit uptick and the RBA countdown.",
+        "relevant": false,
+        "covered_in_answer": false
+      }
+    ]
+  },
+  {
+    "id": "q4",
+    "question": "What are the risks associated with AI-powered shopping and payment agents?",
+    "answer": "Based on the gathered evidence, here are the key risks associated with AI-powered shopping and payment agents:\n\n- **Exposure of card details and payment credentials**: A coalition of global banks (including NatWest and Bank of America) warns that agentic AI tools making purchases on a consumer's behalf could expose sensitive card information during the transaction process.\n\n- **Weakened payment security**: These AI commerce tools may bypass or undermine existing authentication and fraud-prevention mechanisms that were designed around human-initiated transactions, not autonomous agents acting for consumers.\n\n- **Increased scam and fraud risk**: Banks flag that AI shopping agents could become a new vector for scams, as fraudsters may exploit gaps in how these agents verify transactions or interact with merchants.\n\n- **Data privacy breaches**: The automation of shopping and payment decisions by AI agents raises concerns about how consumer data is collected, stored, and shared across the AI tool, merchants, and payment networks.\n\n- **Industry safeguards lagging behind innovation**: A core concern raised by the bank coalition is that the pace of AI commerce development is outstripping the fraud protections and regulatory frameworks currently in place, creating a gap where consumers may be inadequately protected.\n\nThe evidence does not provide CBA-specific details on how these risks apply directly to its own operations or customers, nor does it quantify potential financial exposure—the warnings cited are industry-wide statements from a coalition of banks rather than CBA-specific risk disclosures.",
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches - A coalition of global banks says agentic AI tools that make purchases on behalf of consumers could expose card details and weaken payment security. (Fox Business)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents outpace fraud protections - NatWest, Bank of America, and four other banks say consumers risk scams and data breaches as AI commerce tools advance faster than industry safeguards (Quartz)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Billionaire Sam Altman Says OpenAI Was ‘Pretty Wrong’ About AI Jobs, But Goldman Sachs Warns AI is Still Wiping Out 11,000 Jobs Per Month (Barchart)"
+      }
+    ],
+    "claims": [
+      {
+        "claim": "A coalition of global banks warns about risks associated with AI-powered shopping and payment agents.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The coalition of global banks includes NatWest.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The coalition of global banks includes Bank of America.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Agentic AI tools can make purchases on a consumer's behalf.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Agentic AI tools making purchases could expose sensitive card information during the transaction process.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "AI commerce tools may bypass existing authentication and fraud-prevention mechanisms.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "AI commerce tools may undermine existing authentication and fraud-prevention mechanisms.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Existing authentication and fraud-prevention mechanisms were designed around human-initiated transactions, not autonomous agents acting for consumers.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Banks flag that AI shopping agents could become a new vector for scams.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Fraudsters may exploit gaps in how AI shopping agents verify transactions.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Fraudsters may exploit gaps in how AI shopping agents interact with merchants.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The automation of shopping and payment decisions by AI agents raises concerns about data privacy.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "There are concerns about how consumer data is collected, stored, and shared across the AI tool, merchants, and payment networks.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "A core concern raised by the bank coalition is that the pace of AI commerce development is outstripping fraud protections currently in place.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "A core concern raised by the bank coalition is that the pace of AI commerce development is outstripping regulatory frameworks currently in place.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "This pace mismatch creates a gap where consumers may be inadequately protected.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence does not provide CBA-specific details on how these risks apply directly to its own operations or customers.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence does not quantify potential financial exposure.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The warnings cited are industry-wide statements from a coalition of banks rather than CBA-specific risk disclosures.",
+        "covered_in_evidence": true
+      }
+    ],
+    "facts": [
+      {
+        "fact": "AI shopping agents could increase the risk of scams and fraud.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "AI shopping agents could lead to data privacy breaches.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "AI shopping agents could expose card details.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "AI shopping agents could weaken payment security.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "NatWest, Bank of America and other banks say AI commerce tools are advancing faster than industry safeguards.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "Goldman Sachs warns AI is wiping out 11,000 jobs per month.",
+        "relevant": false,
+        "covered_in_answer": false
+      },
+      {
+        "fact": "AI is replacing customer service jobs at CBA, Microsoft and Uber.",
+        "relevant": false,
+        "covered_in_answer": false
+      }
+    ]
+  },
+  {
+    "id": "q5",
+    "question": "What challenges are Australian banks facing in mortgage lending?",
+    "answer": "Based on the evidence gathered, Australian banks—including CBA—are facing the following challenges in mortgage lending:\n\n- **Declining mortgage demand**: Reports indicate a downturn in mortgage lending volumes, which has historically been a lucrative business line for the major banks. This has led investors to question whether current valuations on Australia's big banks are justified.\n\n- **Rising interest rate environment**: CBA, along with NAB and ANZ, forecast additional RBA rate hikes in 2023, with market expectations (per fast-money/speculative positioning) pointing to further tightening, potentially into November. Higher rates increase borrowing costs for mortgage customers, which can:\n  - Dampen new loan demand\n  - Pressure household affordability\n  - Potentially increase mortgage stress or arrears among existing borrowers\n\n- **Inflation pressures**: A \"hot\" inflation print was cited as a key driver reigniting rate hike expectations, suggesting banks are contending with a macro environment where persistent inflation is forcing further monetary tightening, compounding the pressure on mortgage volumes and borrower capacity.\n\nTogether, these points suggest the core challenge is a **squeeze between slowing loan demand and a higher-rate environment**, which together threaten the growth and profitability of the mortgage lending segment for Australian banks.\n\nNote: The evidence does not provide specific figures (e.g., exact decline in mortgage volumes, arrears rates, or margin compression data) or CBA-specific commentary beyond its participation in the rate-hike forecast, so I can't quantify the scale of these challenges or detail how they differ across the major banks.",
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Australian bank investors brace for tough times as mortgage demand plummets - By Christine Chen and Scott Murdoch SYDNEY, Aug 25 (Reuters) - Investors are questioning the rich valuations on Australia's biggest banks as a downturn in lucrative mortgage lending threatens to (Reuters)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Three of Australia's four major banks forecast another rate hike this year - SYDNEY, Aug 27 (Reuters) - The Commonwealth Bank of Australia and the National Australia Bank on Thursday joined ANZ in forecasting another rate hike this year after a hot inflation print reignited (Reuters)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Fast Money Bets on November RBA Hike in Fight Against Inflation - Speculative investors are increasingly betting the Reserve Bank of Australia will raise interest rates again in November as inflation remains above the central bank’s target. (Bloomberg)"
+      }
+    ],
+    "claims": [
+      {
+        "claim": "Australian banks, including CBA, are facing challenges in mortgage lending.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Reports indicate a downturn in mortgage lending volumes.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Mortgage lending has historically been a lucrative business line for the major banks.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The downturn in mortgage lending has led investors to question whether current valuations on Australia's big banks are justified.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "CBA forecast additional RBA rate hikes in 2023.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "NAB forecast additional RBA rate hikes in 2023.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "ANZ forecast additional RBA rate hikes in 2023.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Market expectations, based on fast-money/speculative positioning, point to further monetary tightening.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The further tightening could potentially extend into November.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Higher interest rates increase borrowing costs for mortgage customers.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Higher borrowing costs can dampen new loan demand.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Higher borrowing costs can pressure household affordability.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Higher borrowing costs can potentially increase mortgage stress among existing borrowers.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Higher borrowing costs can potentially increase arrears among existing borrowers.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "A 'hot' inflation print was cited as a key driver reigniting rate hike expectations.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Banks are contending with a macro environment where persistent inflation is forcing further monetary tightening.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Persistent inflation is compounding the pressure on mortgage volumes and borrower capacity.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The core challenge is a squeeze between slowing loan demand and a higher-rate environment.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "This squeeze threatens the growth of the mortgage lending segment for Australian banks.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "This squeeze threatens the profitability of the mortgage lending segment for Australian banks.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The evidence does not provide specific figures such as the exact decline in mortgage volumes.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence does not provide specific figures such as arrears rates.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence does not provide specific figures such as margin compression data.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence does not provide CBA-specific commentary beyond its participation in the rate-hike forecast.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "It is not possible to quantify the scale of these challenges from the evidence.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "It is not possible to detail how these challenges differ across the major banks from the evidence.",
+        "covered_in_evidence": true
+      }
+    ],
+    "facts": [
+      {
+        "fact": "Mortgage demand has plummeted, a downturn in a lucrative business for Australia's biggest banks.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "Investors are questioning the rich valuations of Australia's biggest banks.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "CBA and NAB joined ANZ in forecasting another rate hike this year.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "A hot inflation print reignited rate-hike expectations.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "Speculative investors are betting on an RBA rate hike in November.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "archTIS extended the maturity date of a A$4 million CBA lending facility.",
+        "relevant": false,
+        "covered_in_answer": false
+      }
+    ]
+  },
+  {
+    "id": "q6",
+    "question": "What are the latest expectations for Australian interest rates?",
+    "answer": "Based on the evidence gathered, the latest expectations point toward further monetary tightening by the Reserve Bank of Australia (RBA), driven by persistently high inflation:\n\n- **Three of Australia's four major banks** — including CBA and NAB, joining ANZ — are now forecasting **another rate hike this year**, a shift that came after a hotter-than-expected inflation print reignited concerns about price pressures.\n- **Market positioning in futures/speculative trading** shows increasing bets on a **rate hike at the RBA's November meeting**, with inflation still running above the central bank's target band.\n- Broader commentary also notes that **global interest rate expectations have pushed up funding costs**, and bond yields in major markets are reflecting expectations for tighter central bank policy more broadly — reinforcing the domestic narrative of inflation remaining the key swing factor for the RBA's decisions.\n\nIn short, the prevailing expectation reflected in this evidence is for **at least one more RBA rate hike**, likely around the November meeting, with inflation data being the primary driver of that outlook. The evidence does not include any specific commentary on rate-cut expectations or a longer-term rate path beyond this near-term hike expectation.",
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Three of Australia's four major banks forecast another rate hike this year - SYDNEY, Aug 27 (Reuters) - The Commonwealth Bank of Australia and the National Australia Bank on Thursday joined ANZ in forecasting another rate hike this year after a hot inflation print reignited (Reuters)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Fast Money Bets on November RBA Hike in Fight Against Inflation - Speculative investors are increasingly betting the Reserve Bank of Australia will raise interest rates again in November as inflation remains above the central bank’s target. (Bloomberg)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Australian bank investors brace for tough times as mortgage demand plummets - By Christine Chen and Scott Murdoch SYDNEY, Aug 25 (Reuters) - Investors are questioning the rich valuations on Australia's biggest banks as a downturn in lucrative mortgage lending threatens to (Reuters)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "3 Australian Dividend Stocks With At Least 3% Yield - With Australian credit growth still resilient, income investors are looking harder at local businesses that share profits through dividends. Higher global interest rate expectations have pushed up funding costs, so reliable cash payouts from established Australian dividend stocks can feel even more valuable. This article walks through three higher yielding dividend options from a focused screener and explains why they may deserve a closer look now. The three stocks in this article are just a... (Simply Wall St.)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "3 Australian Dividend Stocks Paying Over 5% While Cash Income Looks Less Certain - With bond yields across major markets reflecting expectations for tighter central bank policy, income from cash and short-term bonds can feel uncertain again. Reliable dividend income looks more valuable when policy paths shift and inflation stays in focus. Dividend powerhouses with yields above 5% and well covered, growing payouts offer one way to seek steadier cash flow. This article highlights three stocks from that screener. The three dividend stocks covered next are just a sample from... (Simply Wall St.)"
+      }
+    ],
+    "claims": [
+      {
+        "claim": "The latest expectations point toward further monetary tightening by the Reserve Bank of Australia (RBA).",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The expectation of further tightening is driven by persistently high inflation.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Three of Australia's four major banks are now forecasting another rate hike this year.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The three major banks forecasting another rate hike include CBA and NAB.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "CBA and NAB join ANZ in forecasting another rate hike this year.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "This shift in forecasts came after a hotter-than-expected inflation print.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The hotter-than-expected inflation print reignited concerns about price pressures.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Market positioning in futures/speculative trading shows increasing bets on a rate hike at the RBA's November meeting.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Inflation is still running above the central bank's target band.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Broader commentary notes that global interest rate expectations have pushed up funding costs.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Bond yields in major markets are reflecting expectations for tighter central bank policy more broadly.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "This reinforces the domestic narrative of inflation remaining the key swing factor for the RBA's decisions.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The prevailing expectation reflected in this evidence is for at least one more RBA rate hike.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "This rate hike is likely to occur around the November meeting.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Inflation data is the primary driver of that outlook.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The evidence does not include any specific commentary on rate-cut expectations.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence does not include any specific commentary on a longer-term rate path beyond this near-term hike expectation.",
+        "covered_in_evidence": true
+      }
+    ],
+    "facts": [
+      {
+        "fact": "CBA and NAB joined ANZ in forecasting another rate hike this year.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "The forecasts followed a hot inflation print.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "Speculative investors increasingly bet the RBA will raise rates in November.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "Inflation remains above the RBA's target.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "Higher global interest rate expectations have pushed up funding costs.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "Bond yields across major markets reflect expectations of tighter central bank policy.",
+        "relevant": true,
+        "covered_in_answer": true
+      }
+    ]
+  },
+  {
+    "id": "q7",
+    "question": "What is CBA doing to expand investment opportunities for retail customers?",
+    "answer": "The evidence provided doesn't address this question. None of the items gathered—an article on profit and RBA rate expectations, a note on CBA's lending facility to archTIS, and a piece on AI replacing customer service jobs—speak to any initiatives by Commonwealth Bank to expand investment products, platforms, or opportunities for retail customers. I don't have information to answer what's actually being asked here.",
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)"
+      }
+    ],
+    "claims": [
+      {
+        "claim": "The evidence provided doesn't address this question.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The items gathered include an article on profit and RBA rate expectations.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The items gathered include a note on CBA's lending facility to archTIS.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The items gathered include a piece on AI replacing customer service jobs.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "None of the gathered items speak to any initiatives by Commonwealth Bank to expand investment products for retail customers.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "None of the gathered items speak to any initiatives by Commonwealth Bank to expand investment platforms for retail customers.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "None of the gathered items speak to any initiatives by Commonwealth Bank to expand investment opportunities for retail customers.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "I don't have information to answer what's actually being asked here.",
+        "covered_in_evidence": true
+      }
+    ],
+    "facts": [
+      {
+        "fact": "archTIS extended the maturity date of a A$4 million CBA lending facility.",
+        "relevant": false,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "AI is replacing customer service jobs at CBA, Microsoft and Uber.",
+        "relevant": false,
+        "covered_in_answer": true
+      }
+    ]
+  },
+  {
+    "id": "q8",
+    "question": "How is AI affecting employment at Commonwealth Bank?",
+    "answer": "Based on the evidence gathered, here's what's known about AI's effect on employment at Commonwealth Bank:\n\n**Direct job impact**\n- Bloomberg reports that AI is replacing customer service jobs at CBA, alongside similar shifts at Microsoft and Uber.\n- Earlier this year, CBA was reported to have cut customer service roles after deploying an AI voice bot, though (per the broader \"companies rehire workers\" trend noted in the evidence) some firms have walked back AI-driven layoffs when automation underdelivered — it's not specified in the evidence whether CBA was among those reversing course.\n\n**AI deployment inside the bank**\n- CBA's chief AI officer, Ranil Boteju, describes scaling roughly A$400 million in \"AI value\" using a human-in-the-loop model rather than pure automation.\n- About 80% of CBA's engineers reportedly use AI coding agents, which the bank says has tripled code output and helped resolve more than 15,000 security issues — pointing to AI augmenting technical/engineering staff rather than simply replacing them.\n- The bank has appointed new CIO/CTO leadership specifically to advance its technology and AI strategy, signaling continued investment in AI-related roles at the leadership and technical level.\n\n**Net picture**\nThe evidence suggests a mixed employment effect: contraction in customer-service-type roles attributed to AI automation, alongside expansion or reinforcement of technical/engineering roles where AI is used as a productivity tool with human oversight. The evidence does not provide specific figures on net headcount change, total roles affected, or forward guidance on workforce size, so a full quantitative picture isn't available from what's been gathered.",
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy (Reuters)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents outpace fraud protections - NatWest, Bank of America, and four other banks say consumers risk scams and data breaches as AI commerce tools advance faster than industry safeguards (Quartz)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches - A coalition of global banks says agentic AI tools that make purchases on behalf of consumers could expose card details and weaken payment security. (Fox Business)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Companies rehire workers laid off for AI as automation falls short (Quartz)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Billionaire Sam Altman Says OpenAI Was ‘Pretty Wrong’ About AI Jobs, But Goldman Sachs Warns AI is Still Wiping Out 11,000 Jobs Per Month (Barchart)"
+      }
+    ],
+    "claims": [
+      {
+        "claim": "Bloomberg reports that AI is replacing customer service jobs at CBA.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Bloomberg reports similar AI-driven job shifts at Microsoft.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Bloomberg reports similar AI-driven job shifts at Uber.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Earlier this year, CBA was reported to have cut customer service roles after deploying an AI voice bot.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "There is a broader trend noted in the evidence of companies rehiring workers after AI-driven layoffs when automation underdelivered.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "It is not specified in the evidence whether CBA was among the companies reversing course on AI-driven layoffs.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "CBA's chief AI officer is Ranil Boteju.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Ranil Boteju describes scaling roughly A$400 million in 'AI value'.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "CBA uses a human-in-the-loop model rather than pure automation.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "About 80% of CBA's engineers reportedly use AI coding agents.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The bank says AI coding agents have tripled code output.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The bank says AI coding agents have helped resolve more than 15,000 security issues.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "This points to AI augmenting technical/engineering staff rather than simply replacing them.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The bank has appointed new CIO/CTO leadership specifically to advance its technology and AI strategy.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "This signals continued investment in AI-related roles at the leadership and technical level.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The evidence suggests a mixed employment effect at CBA.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "There is contraction in customer-service-type roles attributed to AI automation.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "There is expansion or reinforcement of technical/engineering roles where AI is used as a productivity tool with human oversight.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The evidence does not provide specific figures on net headcount change.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence does not provide specific figures on total roles affected.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence does not provide forward guidance on workforce size.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "A full quantitative picture isn't available from what's been gathered.",
+        "covered_in_evidence": true
+      }
+    ],
+    "facts": [
+      {
+        "fact": "AI is replacing customer service jobs at CBA.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "80% of CBA's engineers use AI agents, tripling code output.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "CBA's chief AI officer describes scaling A$400m in AI value with humans in the loop.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "CBA appointed a new CIO and CTO to boost its technology and AI strategy.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "Companies are rehiring workers laid off for AI as automation falls short.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "Goldman Sachs warns AI is still wiping out 11,000 jobs per month.",
+        "relevant": true,
+        "covered_in_answer": false
+      },
+      {
+        "fact": "NatWest, Bank of America and four other banks warn AI shopping tools are outpacing fraud protections.",
+        "relevant": false,
+        "covered_in_answer": false
+      },
+      {
+        "fact": "archTIS extended the maturity date of a A$4 million CBA lending facility.",
+        "relevant": false,
+        "covered_in_answer": false
+      }
+    ]
+  },
+  {
+    "id": "q9",
+    "question": "What is CBA's latest dividend payout ratio?",
+    "answer": "The evidence provided does not contain specific figures on Commonwealth Bank's (CBA.AX) dividend payout ratio. While several articles reference CBA as a dividend-paying stock with a yield generally cited above 3%, none of them disclose the actual payout ratio (i.e., the percentage of earnings paid out as dividends) needed to answer this question accurately.\n\nIf you need this figure, it would typically be found in CBA's latest annual or half-year results/investor presentation, which isn't included in the evidence gathered here.",
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "3 Australian Dividend Stocks With At Least 3% Yield - With Australian credit growth still resilient, income investors are looking harder at local businesses that share profits through dividends. Higher global interest rate expectations have pushed up funding costs, so reliable cash payouts from established Australian dividend stocks can feel even more valuable. This article walks through three higher yielding dividend options from a focused screener and explains why they may deserve a closer look now. The three stocks in this article are just a... (Simply Wall St.)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "3 Australian Dividend Stocks Paying Over 5% While Cash Income Looks Less Certain - With bond yields across major markets reflecting expectations for tighter central bank policy, income from cash and short-term bonds can feel uncertain again. Reliable dividend income looks more valuable when policy paths shift and inflation stays in focus. Dividend powerhouses with yields above 5% and well covered, growing payouts offer one way to seek steadier cash flow. This article highlights three stocks from that screener. The three dividend stocks covered next are just a sample from... (Simply Wall St.)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank Stock And 2 More Dividend Shares For Reliable Income - Rising yields in major markets are pushing income investors to think harder about where their cash flow comes from. With bond markets adjusting to tighter policy signals, dependable company dividends can feel more valuable than ever. That is where the Dividend Powerhouses 3%+ Yield screener comes in. This article walks through three high income stocks on that list and what makes their dividend profiles worth a closer look. The three stocks below are just a starting sample, and the full... (Simply Wall St.)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)"
+      }
+    ],
+    "claims": [
+      {
+        "claim": "The evidence provided does not contain specific figures on Commonwealth Bank's (CBA.AX) dividend payout ratio.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Several articles reference CBA as a dividend-paying stock.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The yield for CBA is generally cited above 3% in the referenced articles.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "None of the referenced articles disclose the actual payout ratio.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The payout ratio is the percentage of earnings paid out as dividends.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The payout ratio figure is needed to answer the question accurately.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The payout ratio figure would typically be found in CBA's latest annual or half-year results/investor presentation.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "CBA's latest annual or half-year results/investor presentation is not included in the evidence gathered here.",
+        "covered_in_evidence": true
+      }
+    ],
+    "facts": [
+      {
+        "fact": "Commonwealth Bank is featured as a dividend share for reliable income in a 3%+ yield screener.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "archTIS extended the maturity date of a A$4 million CBA lending facility.",
+        "relevant": false,
+        "covered_in_answer": false
+      }
+    ]
+  },
+  {
+    "id": "q10",
+    "question": "What was CBA's exact net profit for FY2025?",
+    "answer": "Based on the evidence provided, I don't have CBA's exact net profit figure for FY2025. The only directly relevant item is a Simply Wall St. piece referencing a \"profit uptick\" for Commonwealth Bank, but it does not include the specific dollar figure for net profit. The second piece of evidence relates to LGT, a different company, and is not relevant to this question.\n\nTo answer your question accurately, you'd need CBA's official FY2025 results announcement (typically released in August) or a financial data source reporting the precise statutory and/or cash net profit after tax figures.",
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "LGT reports 17% rise in H1 profit as assets reach record level - Net new assets came in at SFr12.3bn, equal to an annualised growth rate of 6.4%. (Private Banker International)"
+      }
+    ],
+    "claims": [
+      {
+        "claim": "The evidence provided does not include CBA's exact net profit figure for FY2025.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The only directly relevant item is a Simply Wall St. piece referencing a 'profit uptick' for Commonwealth Bank.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The Simply Wall St. piece does not include the specific dollar figure for net profit.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The second piece of evidence relates to LGT, a different company.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The second piece of evidence (relating to LGT) is not relevant to this question.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "To answer the question accurately, one would need CBA's official FY2025 results announcement.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "CBA's official FY2025 results announcement is typically released in August.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Alternatively, one would need a financial data source reporting the precise statutory net profit after tax figure.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Alternatively, one would need a financial data source reporting the precise cash net profit after tax figure.",
+        "covered_in_evidence": false
+      }
+    ],
+    "facts": [
+      {
+        "fact": "A Simply Wall St article refers to a profit uptick at CBA.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "LGT reported a 17% rise in H1 profit.",
+        "relevant": false,
+        "covered_in_answer": true
+      }
+    ]
+  },
+  {
+    "id": "q11",
+    "question": "Has CBA faced any recent regulatory action or penalties from ASIC, APRA or AUSTRAC?",
+    "answer": "Based on the evidence gathered, I don't have information that directly answers this question. The search results returned don't mention any recent ASIC, APRA, or AUSTRAC regulatory actions, investigations, or penalties against Commonwealth Bank — one item relates to an unrelated lending facility CBA extended to a third-party company (archTIS), and the other is a general earnings/interest-rate commentary piece with no regulatory content.\n\nTo properly answer whether CBA has faced recent regulatory action, you'd want to check:\n- ASIC's enforcement register and media releases for CBA-related actions\n- APRA's recent correspondence, capital add-ons, or enforcement notices concerning CBA\n- AUSTRAC's compliance updates (notably relevant given CBA's historical 2018 AUSTRAC settlement over anti-money laundering breaches)\n- CBA's own ASX disclosures and annual report sections on regulatory and compliance matters\n\nI'd recommend sourcing directly from those regulators' websites or CBA's latest investor disclosures for an accurate, up-to-date answer, since the evidence provided here doesn't cover this topic.",
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)"
+      }
+    ],
+    "claims": [
+      {
+        "claim": "Based on the evidence gathered, there is no information that directly answers the question.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The search results returned don't mention any recent ASIC regulatory actions, investigations, or penalties against Commonwealth Bank.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The search results returned don't mention any recent APRA regulatory actions, investigations, or penalties against Commonwealth Bank.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The search results returned don't mention any recent AUSTRAC regulatory actions, investigations, or penalties against Commonwealth Bank.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "One search result item relates to an unrelated lending facility CBA extended to a third-party company, archTIS.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The other search result item is a general earnings/interest-rate commentary piece with no regulatory content.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "To properly answer whether CBA has faced recent regulatory action, one should check ASIC's enforcement register and media releases for CBA-related actions.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "To properly answer whether CBA has faced recent regulatory action, one should check APRA's recent correspondence, capital add-ons, or enforcement notices concerning CBA.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "To properly answer whether CBA has faced recent regulatory action, one should check AUSTRAC's compliance updates.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "AUSTRAC compliance updates are notably relevant given CBA's historical 2018 AUSTRAC settlement over anti-money laundering breaches.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "To properly answer whether CBA has faced recent regulatory action, one should check CBA's own ASX disclosures and annual report sections on regulatory and compliance matters.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "It is recommended to source directly from the regulators' websites or CBA's latest investor disclosures for an accurate, up-to-date answer.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The evidence provided here doesn't cover this topic.",
+        "covered_in_evidence": true
+      }
+    ],
+    "facts": [
+      {
+        "fact": "archTIS extended the maturity date of a A$4 million CBA lending facility.",
+        "relevant": false,
+        "covered_in_answer": true
+      }
+    ]
+  },
+  {
+    "id": "q12",
+    "question": "What are CBA's climate commitments, such as net-zero targets or limits on fossil-fuel lending?",
+    "answer": "The evidence provided doesn't address this question. None of the gathered material touches on CBA's climate policy, net-zero commitments, emissions-reduction targets, or any restrictions on fossil-fuel financing — the articles instead cover unrelated topics like a lending facility to archTIS, CBA's AI initiatives, interest rate speculation, mortgage demand trends, and general profit commentary.\n\nTo properly answer your question, you'd need to look at CBA's dedicated climate disclosures, such as its annual Climate Report, its Group environmental and social framework/credit policies covering sectors like oil, gas, coal, and thermal power, and its stated net-zero by 2050 ambition with associated interim targets — none of which appear in the evidence set here.",
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "LGT reports 17% rise in H1 profit as assets reach record level - Net new assets came in at SFr12.3bn, equal to an annualised growth rate of 6.4%. (Private Banker International)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Fast Money Bets on November RBA Hike in Fight Against Inflation - Speculative investors are increasingly betting the Reserve Bank of Australia will raise interest rates again in November as inflation remains above the central bank’s target. (Bloomberg)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Australian bank investors brace for tough times as mortgage demand plummets - By Christine Chen and Scott Murdoch SYDNEY, Aug 25 (Reuters) - Investors are questioning the rich valuations on Australia's biggest banks as a downturn in lucrative mortgage lending threatens to (Reuters)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)"
+      }
+    ],
+    "claims": [
+      {
+        "claim": "The evidence provided doesn't address this question.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "None of the gathered material touches on CBA's climate policy.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "None of the gathered material touches on CBA's net-zero commitments.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "None of the gathered material touches on CBA's emissions-reduction targets.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "None of the gathered material touches on any restrictions on fossil-fuel financing by CBA.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The articles instead cover unrelated topics.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "One unrelated topic covered is a lending facility to archTIS.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "One unrelated topic covered is CBA's AI initiatives.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "One unrelated topic covered is interest rate speculation.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "One unrelated topic covered is mortgage demand trends.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "One unrelated topic covered is general profit commentary.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "To properly answer the question, one would need to look at CBA's dedicated climate disclosures.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "One example of such a disclosure is CBA's annual Climate Report.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Another example is CBA's Group environmental and social framework/credit policies covering sectors like oil, gas, coal, and thermal power.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Another example is CBA's stated net-zero by 2050 ambition with associated interim targets.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "None of these climate disclosure materials appear in the evidence set here.",
+        "covered_in_evidence": true
+      }
+    ],
+    "facts": [
+      {
+        "fact": "LGT reported a 17% rise in H1 profit.",
+        "relevant": false,
+        "covered_in_answer": false
+      },
+      {
+        "fact": "Speculative investors are betting on a November RBA rate hike.",
+        "relevant": false,
+        "covered_in_answer": true
+      }
+    ]
+  },
+  {
+    "id": "h1",
+    "question": "What new payout platform has CBA introduced to replace cheque-based payments?",
+    "answer": "Commonwealth Bank has introduced **PaidIt**, a new payout platform designed to replace cheque-based payments ahead of cheques being phased out. According to Retail Banker International, PaidIt combines three functions within a single system:\n\n- **Recipient verification**\n- **Communications**\n- **Payment delivery**\n\nThis integrated approach is positioned as CBA's solution for handling payouts that would traditionally have been made by cheque, consolidating what were previously separate steps into one platform.",
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank unveils payout platform ahead of cheque exit - PaidIt combines recipient verification, communications and payment delivery within one system. (Retail Banker International)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "LGT reports 17% rise in H1 profit as assets reach record level - Net new assets came in at SFr12.3bn, equal to an annualised growth rate of 6.4%. (Private Banker International)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Tencent AI Spending Key After Magnificent 7 Rout - (Bloomberg) -- Tencent Holdings Ltd.’s spending plans will draw investor scrutiny as investors cool on lavish outlays on artificial intelligence.Most Read from BloombergTrump Amps Up Pressure on Billionaire Sargeant to Exit VenezuelaIran Shakes Up Security Team After Saying Oman Deal ‘Very Close’Iran Says Hormuz Deal Close But Its Conditions Must Be MetOpenAI’s New Device Will Be Hockey Puck-Sized and Cost Over $300China Unleashes $28 Trillion Capital Markets to Challenge US in AILast month, the (Bloomberg)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "3 Australian Dividend Stocks With At Least 3% Yield - With Australian credit growth still resilient, income investors are looking harder at local businesses that share profits through dividends. Higher global interest rate expectations have pushed up funding costs, so reliable cash payouts from established Australian dividend stocks can feel even more valuable. This article walks through three higher yielding dividend options from a focused screener and explains why they may deserve a closer look now. The three stocks in this article are just a... (Simply Wall St.)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches - A coalition of global banks says agentic AI tools that make purchases on behalf of consumers could expose card details and weaken payment security. (Fox Business)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy (Reuters)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "3 Australian Dividend Stocks Paying Over 5% While Cash Income Looks Less Certain - With bond yields across major markets reflecting expectations for tighter central bank policy, income from cash and short-term bonds can feel uncertain again. Reliable dividend income looks more valuable when policy paths shift and inflation stays in focus. Dividend powerhouses with yields above 5% and well covered, growing payouts offer one way to seek steadier cash flow. This article highlights three stocks from that screener. The three dividend stocks covered next are just a sample from... (Simply Wall St.)"
+      }
+    ],
+    "claims": [
+      {
+        "claim": "Commonwealth Bank has introduced PaidIt.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "PaidIt is a new payout platform.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "PaidIt is designed to replace cheque-based payments.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "PaidIt was introduced ahead of cheques being phased out.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The information is according to Retail Banker International.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "PaidIt combines three functions within a single system.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "One of the functions PaidIt combines is recipient verification.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "One of the functions PaidIt combines is communications.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "One of the functions PaidIt combines is payment delivery.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "This integrated approach is positioned as CBA's solution for handling payouts that would traditionally have been made by cheque.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "This integrated approach consolidates what were previously separate steps into one platform.",
+        "covered_in_evidence": false
+      }
+    ],
+    "facts": [
+      {
+        "fact": "CBA unveiled a payout platform called PaidIt.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "PaidIt was launched ahead of CBA's exit from cheques.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "PaidIt combines recipient verification, communications and payment delivery in one system.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "LGT reported a 17% rise in H1 profit.",
+        "relevant": false,
+        "covered_in_answer": false
+      },
+      {
+        "fact": "Tencent's AI spending plans will draw investor scrutiny.",
+        "relevant": false,
+        "covered_in_answer": false
+      }
+    ]
+  },
+  {
+    "id": "h2",
+    "question": "How has CBA supported archTIS with a A$4 million financing facility?",
+    "answer": "Based on the available evidence, here's what's known about this facility:\n\n**The facility structure:**\n- CBA provided archTIS Ltd (ASX:AR9) with an A$4 million lending facility\n- It's described as **non-dilutive working capital** — meaning archTIS can access funds without issuing additional shares, preserving existing shareholders' ownership stakes\n- CBA has recently **extended the maturity date** of this facility, rather than originating a new one\n\n**Stated purpose:**\n- To support **contract execution** — likely helping archTIS bridge cash flow needs tied to fulfilling customer contracts (common for smaller tech/software companies where contract payments may lag delivery costs)\n- To support **growth** as archTIS responds to rising demand for its data security products\n\n**What the evidence doesn't cover:**\nThe gathered evidence doesn't include specifics on:\n- The interest rate, terms, or covenants attached to the facility\n- The original date the facility was established or its original maturity date\n- The new maturity date following the extension\n- Whether the facility is secured, and if so, against what assets\n- How much of the A$4 million has been drawn down versus remaining available\n- Any further details on how CBA's broader institutional/business banking lending criteria applied to this arrangement\n\nIf you need those details, I'd recommend checking archTIS's ASX announcements directly, as the source material here is a brief Proactive news summary rather than the full company filing.",
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "CommSec Eyes More U.S. IPOs After 28,000 SpaceX Applications - Australian brokerage plans more U.S. listings after record SpaceX demand from nearly three million clients. (GuruFocus.com)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)"
+      }
+    ],
+    "claims": [
+      {
+        "claim": "CBA provided archTIS Ltd (ASX:AR9) with an A$4 million lending facility",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The A$4 million lending facility is described as non-dilutive working capital",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Non-dilutive working capital means archTIS can access funds without issuing additional shares",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Non-dilutive working capital preserves existing shareholders' ownership stakes",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "CBA has recently extended the maturity date of the facility",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "CBA extended the facility's maturity date rather than originating a new facility",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "A stated purpose of the facility is to support contract execution",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Supporting contract execution likely helps archTIS bridge cash flow needs tied to fulfilling customer contracts",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "It is common for smaller tech/software companies that contract payments may lag delivery costs",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Another stated purpose of the facility is to support growth",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "archTIS is responding to rising demand for its data security products",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The gathered evidence does not include specifics on the interest rate attached to the facility",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The gathered evidence does not include specifics on the terms attached to the facility",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The gathered evidence does not include specifics on the covenants attached to the facility",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The gathered evidence does not include the original date the facility was established",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The gathered evidence does not include the facility's original maturity date",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The gathered evidence does not include the new maturity date following the extension",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The gathered evidence does not indicate whether the facility is secured",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The gathered evidence does not indicate what assets the facility may be secured against, if any",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The gathered evidence does not include how much of the A$4 million has been drawn down",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The gathered evidence does not include how much of the A$4 million remains available",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The gathered evidence does not include further details on how CBA's broader institutional/business banking lending criteria applied to this arrangement",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "For further details, one should check archTIS's ASX announcements directly",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The source material used here is a brief Proactive news summary rather than the full company filing",
+        "covered_in_evidence": true
+      }
+    ],
+    "facts": [
+      {
+        "fact": "archTIS extended the maturity date of a A$4 million CBA lending facility.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "The facility gives archTIS access to non-dilutive working capital.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "The facility supports contract execution and growth.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "archTIS is responding to growing demand for its data security products.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "CommSec plans more U.S. IPOs after 28,000 SpaceX applications.",
+        "relevant": false,
+        "covered_in_answer": false
+      }
+    ]
+  },
+  {
+    "id": "h3",
+    "question": "What changes has CBA made to its CIO and CTO positions?",
+    "answer": "Based on the evidence available, here's what I can confirm about CBA's leadership changes in technology roles:\n\n**Confirmed change:**\n- CBA has appointed a **new Chief Information Officer (CIO) and Chief Technology Officer (CTO)**, explicitly framed as a move to strengthen the bank's technology and AI strategy (per Reuters). However, the evidence does not include the names of the incoming or outgoing executives, the effective date of the appointments, or further detail on their specific mandates.\n\n**Related context (not a CIO/CTO change, but relevant to CBA's tech/AI leadership structure):**\n- CBA has a separate **Chief AI Officer**, Ranil Boteju, who has spoken publicly about scaling roughly A$400 million in AI-related value, with around 80% of the bank's engineers reportedly using AI agents to boost code output and address security issues. This role appears distinct from the CIO/CTO appointments mentioned above.\n\n**Gap in evidence:**\nThe research provided does not give specifics on who was appointed, who they replaced, their backgrounds, or the strategic rationale beyond the general reference to \"boosting technology, AI strategy.\" If you need those specifics (names, start dates, prior roles), that would require additional sourcing beyond what's here.",
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy (Reuters)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)"
+      }
+    ],
+    "claims": [
+      {
+        "claim": "CBA has appointed a new Chief Information Officer (CIO).",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "CBA has appointed a new Chief Technology Officer (CTO).",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The appointment of the new CIO/CTO is explicitly framed as a move to strengthen the bank's technology and AI strategy.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "This framing is per Reuters.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence does not include the names of the incoming executives.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence does not include the names of the outgoing executives.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence does not include the effective date of the appointments.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence does not include further detail on the specific mandates of the new CIO/CTO.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "CBA has a separate Chief AI Officer.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The Chief AI Officer is named Ranil Boteju.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Ranil Boteju has spoken publicly about scaling roughly A$400 million in AI-related value.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Around 80% of the bank's engineers reportedly use AI agents to boost code output.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Around 80% of the bank's engineers reportedly use AI agents to address security issues.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The Chief AI Officer role appears distinct from the CIO/CTO appointments mentioned.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The research provided does not give specifics on who was appointed to the CIO/CTO roles.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The research provided does not give specifics on who the new CIO/CTO replaced.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The research provided does not give specifics on the backgrounds of the new CIO/CTO.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The research provided does not give specifics on the strategic rationale beyond the general reference to 'boosting technology, AI strategy.'",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Obtaining specifics such as names, start dates, and prior roles would require additional sourcing beyond what's here.",
+        "covered_in_evidence": true
+      }
+    ],
+    "facts": [
+      {
+        "fact": "CBA appointed a new CIO and CTO.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "The appointments are meant to boost CBA's technology and AI strategy.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "archTIS extended the maturity date of a A$4 million CBA lending facility.",
+        "relevant": false,
+        "covered_in_answer": false
+      }
+    ]
+  },
+  {
+    "id": "h4",
+    "question": "How is CBA generating A$400 million in value from its AI initiatives?",
+    "answer": "Based on the available evidence, the clearest detail on CBA's A$400 million AI value figure comes from an interview with Ranil Boteju, the bank's Chief AI Officer, in Retail Banker International. The reported value appears to stem from a few specific operational gains:\n\n- **Software engineering productivity**: Around 80% of CBA's engineers now use AI coding agents, which the bank says has tripled code output.\n- **Security operations**: AI tools have been used to resolve more than 15,000 security issues.\n- **Human-in-the-loop design**: Boteju frames the program as keeping humans involved in AI-assisted workflows rather than fully automating them, which is presented as central to how the value is being captured responsibly.\n\nSeparately, a Bloomberg report notes that CBA, along with firms like Microsoft and Uber, is using AI to replace certain customer service roles — suggesting workforce/cost efficiency is likely part of the broader AI value story, though the evidence doesn't quantify how much of the A$400 million this contributes specifically.\n\nCBA has also recently appointed a new CIO and CTO specifically to advance its technology and AI strategy (per Reuters), indicating the initiative is still scaling organizationally.\n\n**What the evidence does not cover**: There is no detailed breakdown in the provided material of exactly how the A$400 million figure is calculated (e.g., cost savings vs. revenue generation vs. productivity value), nor a line-item attribution across business units. If you need the precise methodology or composition of that figure, the evidence here doesn't go into that level of detail beyond the engineering productivity and security examples cited.",
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Billionaire Sam Altman Says OpenAI Was ‘Pretty Wrong’ About AI Jobs, But Goldman Sachs Warns AI is Still Wiping Out 11,000 Jobs Per Month (Barchart)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches - A coalition of global banks says agentic AI tools that make purchases on behalf of consumers could expose card details and weaken payment security. (Fox Business)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents outpace fraud protections - NatWest, Bank of America, and four other banks say consumers risk scams and data breaches as AI commerce tools advance faster than industry safeguards (Quartz)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Companies rehire workers laid off for AI as automation falls short (Quartz)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Tencent AI Spending Key After Magnificent 7 Rout - (Bloomberg) -- Tencent Holdings Ltd.’s spending plans will draw investor scrutiny as investors cool on lavish outlays on artificial intelligence.Most Read from BloombergTrump Amps Up Pressure on Billionaire Sargeant to Exit VenezuelaIran Shakes Up Security Team After Saying Oman Deal ‘Very Close’Iran Says Hormuz Deal Close But Its Conditions Must Be MetOpenAI’s New Device Will Be Hockey Puck-Sized and Cost Over $300China Unleashes $28 Trillion Capital Markets to Challenge US in AILast month, the (Bloomberg)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy (Reuters)"
+      }
+    ],
+    "claims": [
+      {
+        "claim": "The clearest detail on CBA's A$400 million AI value figure comes from an interview with Ranil Boteju.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Ranil Boteju is CBA's Chief AI Officer.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The interview with Ranil Boteju was published in Retail Banker International.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The reported A$400 million value appears to stem from a few specific operational gains.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Around 80% of CBA's engineers now use AI coding agents.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "CBA says the use of AI coding agents has tripled code output.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "AI tools have been used to resolve more than 15,000 security issues at CBA.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Boteju frames the program as keeping humans involved in AI-assisted workflows rather than fully automating them.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Keeping humans in the loop is presented as central to how the value is being captured responsibly.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "A Bloomberg report notes that CBA is using AI to replace certain customer service roles.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The Bloomberg report also notes that firms like Microsoft and Uber are using AI to replace certain customer service roles.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "This suggests workforce/cost efficiency is likely part of the broader AI value story.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The evidence doesn't quantify how much of the A$400 million the workforce/cost efficiency contributes specifically.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "CBA has recently appointed a new CIO and CTO specifically to advance its technology and AI strategy.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The appointment of a new CIO and CTO is reported per Reuters.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The new CIO and CTO appointments indicate the initiative is still scaling organizationally.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "There is no detailed breakdown in the provided material of exactly how the A$400 million figure is calculated.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The provided material does not break down the A$400 million figure into cost savings vs. revenue generation vs. productivity value.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "There is no line-item attribution across business units for the A$400 million figure in the provided material.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence provided does not go into the precise methodology or composition of the A$400 million figure beyond the engineering productivity and security examples cited.",
+        "covered_in_evidence": true
+      }
+    ],
+    "facts": [
+      {
+        "fact": "Ranil Boteju, CBA's chief AI officer, discussed scaling A$400m in AI value.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "CBA keeps humans in the loop in its AI work.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "80% of CBA's engineers use AI agents.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "The AI agents triple code output.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "The AI agents helped resolve over 15,000 security issues.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "AI is replacing customer service jobs at CBA.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "CBA appointed a new CIO and CTO to boost its technology and AI strategy.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "Tencent's AI spending plans will draw investor scrutiny.",
+        "relevant": false,
+        "covered_in_answer": false
+      },
+      {
+        "fact": "NatWest, Bank of America and four other banks warn AI shopping tools are outpacing fraud protections.",
+        "relevant": false,
+        "covered_in_answer": false
+      }
+    ]
+  },
+  {
+    "id": "q1_incomplete",
+    "question": "How is CBA using AI to improve software engineering productivity?",
+    "answer": "Based on the available evidence, here's what's known about CBA's use of AI in software engineering:\n\n- **Scale of adoption**: Approximately 80% of CBA's engineers are now using AI agents as part of their development workflow, according to comments from Ranil Boteju, the bank's Chief AI Officer.\n\n- **Broader context**: This engineering initiative is part of a larger push at CBA to scale AI value across the organization — reportedly targeting around A$400 million in value — with Boteju emphasizing a \"humans in the loop\" approach, meaning AI augments rather than fully automates engineering decisions.\n\nOne caveat: the evidence doesn't specify which AI tools/platforms are being used (e.g., whether this involves GitHub Copilot, custom internal models, or other coding assistants), nor does it provide a timeline for when this 80% adoption was reached or how the A$400 million figure breaks down by function. The second piece of evidence (on AI replacing customer service jobs) relates to a different part of CBA's AI strategy and isn't directly relevant to the software engineering productivity question.",
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)"
+      }
+    ],
+    "claims": [
+      {
+        "claim": "Approximately 80% of CBA's engineers are now using AI agents as part of their development workflow.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The 80% figure comes from comments by Ranil Boteju.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Ranil Boteju is CBA's Chief AI Officer.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "This engineering initiative is part of a larger push at CBA to scale AI value across the organization.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The larger push is reportedly targeting around A$400 million in value.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Boteju emphasizes a 'humans in the loop' approach.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The 'humans in the loop' approach means AI augments rather than fully automates engineering decisions.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The evidence doesn't specify which AI tools/platforms are being used.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "It is unknown whether the tools involve GitHub Copilot, custom internal models, or other coding assistants.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence doesn't provide a timeline for when the 80% adoption was reached.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence doesn't provide a breakdown of how the A$400 million figure breaks down by function.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "There is a second piece of evidence about AI replacing customer service jobs at CBA.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The customer service AI evidence relates to a different part of CBA's AI strategy.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The customer service AI evidence isn't directly relevant to the software engineering productivity question.",
+        "covered_in_evidence": true
+      }
+    ],
+    "facts": [
+      {
+        "fact": "80% of CBA's engineers use AI agents.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "The AI agents have tripled code output.",
+        "relevant": true,
+        "covered_in_answer": false
+      },
+      {
+        "fact": "The AI agents have helped resolve over 15,000 security issues.",
+        "relevant": true,
+        "covered_in_answer": false
+      },
+      {
+        "fact": "Ranil Boteju is CBA's chief AI officer.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "CBA is scaling A$400m in AI value with humans in the loop.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "AI is replacing customer service jobs at CBA, Microsoft and Uber.",
+        "relevant": false,
+        "covered_in_answer": true
+      }
+    ]
+  },
+  {
+    "id": "q4_incomplete",
+    "question": "What are the risks associated with AI-powered shopping and payment agents?",
+    "answer": "Based on the gathered evidence, here are the key risks associated with AI-powered shopping and payment agents:\n\n- **Exposure of card details and payment credentials**: A coalition of global banks (including NatWest and Bank of America) warns that agentic AI tools making purchases on a consumer's behalf could expose sensitive card information during the transaction process.\n\n- **Weakened payment security**: These AI commerce tools may bypass or undermine existing authentication and fraud-prevention mechanisms that were designed around human-initiated transactions, not autonomous agents acting for consumers.\n\n- **Increased scam and fraud risk**: Banks flag that AI shopping agents could become a new vector for scams, as fraudsters may exploit gaps in how these agents verify transactions or interact with merchants.\n\nThe evidence does not provide CBA-specific details on how these risks apply directly to its own operations or customers, nor does it quantify potential financial exposure—the warnings cited are industry-wide statements from a coalition of banks rather than CBA-specific risk disclosures.",
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches - A coalition of global banks says agentic AI tools that make purchases on behalf of consumers could expose card details and weaken payment security. (Fox Business)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents outpace fraud protections - NatWest, Bank of America, and four other banks say consumers risk scams and data breaches as AI commerce tools advance faster than industry safeguards (Quartz)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Billionaire Sam Altman Says OpenAI Was ‘Pretty Wrong’ About AI Jobs, But Goldman Sachs Warns AI is Still Wiping Out 11,000 Jobs Per Month (Barchart)"
+      }
+    ],
+    "claims": [
+      {
+        "claim": "A coalition of global banks warns about risks associated with AI-powered shopping and payment agents.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The coalition of global banks includes NatWest.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The coalition of global banks includes Bank of America.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Agentic AI tools can make purchases on a consumer's behalf.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Agentic AI tools making purchases could expose sensitive card information during the transaction process.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "AI commerce tools may bypass existing authentication and fraud-prevention mechanisms.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "AI commerce tools may undermine existing authentication and fraud-prevention mechanisms.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Existing authentication and fraud-prevention mechanisms were designed around human-initiated transactions, not autonomous agents acting for consumers.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Banks flag that AI shopping agents could become a new vector for scams.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Fraudsters may exploit gaps in how AI shopping agents verify transactions.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Fraudsters may exploit gaps in how AI shopping agents interact with merchants.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The evidence does not provide CBA-specific details on how these risks apply directly to its own operations or customers.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence does not quantify potential financial exposure.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The warnings cited are industry-wide statements from a coalition of banks rather than CBA-specific risk disclosures.",
+        "covered_in_evidence": true
+      }
+    ],
+    "facts": [
+      {
+        "fact": "AI shopping agents could increase the risk of scams and fraud.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "AI shopping agents could lead to data privacy breaches.",
+        "relevant": true,
+        "covered_in_answer": false
+      },
+      {
+        "fact": "AI shopping agents could expose card details.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "AI shopping agents could weaken payment security.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "NatWest, Bank of America and other banks say AI commerce tools are advancing faster than industry safeguards.",
+        "relevant": true,
+        "covered_in_answer": false
+      },
+      {
+        "fact": "Goldman Sachs warns AI is wiping out 11,000 jobs per month.",
+        "relevant": false,
+        "covered_in_answer": false
+      },
+      {
+        "fact": "AI is replacing customer service jobs at CBA, Microsoft and Uber.",
+        "relevant": false,
+        "covered_in_answer": false
+      }
+    ]
+  },
+  {
+    "id": "q5_incomplete",
+    "question": "What challenges are Australian banks facing in mortgage lending?",
+    "answer": "Based on the evidence gathered, Australian banks—including CBA—are facing the following challenges in mortgage lending:\n\n- **Rising interest rate environment**: CBA, along with NAB and ANZ, forecast additional RBA rate hikes in 2023, with market expectations (per fast-money/speculative positioning) pointing to further tightening, potentially into November. Higher rates increase borrowing costs for mortgage customers, which can:\n  - Dampen new loan demand\n  - Pressure household affordability\n  - Potentially increase mortgage stress or arrears among existing borrowers\n\n- **Inflation pressures**: A \"hot\" inflation print was cited as a key driver reigniting rate hike expectations, suggesting banks are contending with a macro environment where persistent inflation is forcing further monetary tightening.\n\nNote: The evidence does not provide specific figures (e.g., arrears rates, or margin compression data) or CBA-specific commentary beyond its participation in the rate-hike forecast, so I can't quantify the scale of these challenges or detail how they differ across the major banks.",
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Australian bank investors brace for tough times as mortgage demand plummets - By Christine Chen and Scott Murdoch SYDNEY, Aug 25 (Reuters) - Investors are questioning the rich valuations on Australia's biggest banks as a downturn in lucrative mortgage lending threatens to (Reuters)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Three of Australia's four major banks forecast another rate hike this year - SYDNEY, Aug 27 (Reuters) - The Commonwealth Bank of Australia and the National Australia Bank on Thursday joined ANZ in forecasting another rate hike this year after a hot inflation print reignited (Reuters)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Fast Money Bets on November RBA Hike in Fight Against Inflation - Speculative investors are increasingly betting the Reserve Bank of Australia will raise interest rates again in November as inflation remains above the central bank’s target. (Bloomberg)"
+      }
+    ],
+    "claims": [
+      {
+        "claim": "Australian banks, including CBA, are facing challenges in mortgage lending.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "CBA forecast additional RBA rate hikes in 2023.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "NAB forecast additional RBA rate hikes in 2023.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "ANZ forecast additional RBA rate hikes in 2023.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Market expectations, based on fast-money/speculative positioning, point to further monetary tightening.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The further tightening could potentially extend into November.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Higher interest rates increase borrowing costs for mortgage customers.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Higher borrowing costs can dampen new loan demand.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Higher borrowing costs can pressure household affordability.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Higher borrowing costs can potentially increase mortgage stress among existing borrowers.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Higher borrowing costs can potentially increase arrears among existing borrowers.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "A 'hot' inflation print was cited as a key driver reigniting rate hike expectations.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Banks are contending with a macro environment where persistent inflation is forcing further monetary tightening.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The evidence does not provide specific figures such as arrears rates.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence does not provide specific figures such as margin compression data.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence does not provide CBA-specific commentary beyond its participation in the rate-hike forecast.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "It is not possible to quantify the scale of these challenges from the evidence.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "It is not possible to detail how these challenges differ across the major banks from the evidence.",
+        "covered_in_evidence": true
+      }
+    ],
+    "facts": [
+      {
+        "fact": "Mortgage demand has plummeted, a downturn in a lucrative business for Australia's biggest banks.",
+        "relevant": true,
+        "covered_in_answer": false
+      },
+      {
+        "fact": "Investors are questioning the rich valuations of Australia's biggest banks.",
+        "relevant": true,
+        "covered_in_answer": false
+      },
+      {
+        "fact": "CBA and NAB joined ANZ in forecasting another rate hike this year.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "A hot inflation print reignited rate-hike expectations.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "Speculative investors are betting on an RBA rate hike in November.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "archTIS extended the maturity date of a A$4 million CBA lending facility.",
+        "relevant": false,
+        "covered_in_answer": false
+      }
+    ]
+  },
+  {
+    "id": "q6_incomplete",
+    "question": "What are the latest expectations for Australian interest rates?",
+    "answer": "Based on the evidence gathered, the latest expectations point toward further monetary tightening by the Reserve Bank of Australia (RBA), driven by persistently high inflation:\n\n- **Market positioning in futures/speculative trading** shows increasing bets on a **rate hike at the RBA's November meeting**, with inflation still running above the central bank's target band.\n- Broader commentary also notes that **global interest rate expectations have pushed up funding costs**, and bond yields in major markets are reflecting expectations for tighter central bank policy more broadly — reinforcing the domestic narrative of inflation remaining the key swing factor for the RBA's decisions.\n\nIn short, the prevailing expectation reflected in this evidence is for **at least one more RBA rate hike**, likely around the November meeting, with inflation data being the primary driver of that outlook. The evidence does not include any specific commentary on rate-cut expectations or a longer-term rate path beyond this near-term hike expectation.",
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Three of Australia's four major banks forecast another rate hike this year - SYDNEY, Aug 27 (Reuters) - The Commonwealth Bank of Australia and the National Australia Bank on Thursday joined ANZ in forecasting another rate hike this year after a hot inflation print reignited (Reuters)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Fast Money Bets on November RBA Hike in Fight Against Inflation - Speculative investors are increasingly betting the Reserve Bank of Australia will raise interest rates again in November as inflation remains above the central bank’s target. (Bloomberg)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Australian bank investors brace for tough times as mortgage demand plummets - By Christine Chen and Scott Murdoch SYDNEY, Aug 25 (Reuters) - Investors are questioning the rich valuations on Australia's biggest banks as a downturn in lucrative mortgage lending threatens to (Reuters)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "3 Australian Dividend Stocks With At Least 3% Yield - With Australian credit growth still resilient, income investors are looking harder at local businesses that share profits through dividends. Higher global interest rate expectations have pushed up funding costs, so reliable cash payouts from established Australian dividend stocks can feel even more valuable. This article walks through three higher yielding dividend options from a focused screener and explains why they may deserve a closer look now. The three stocks in this article are just a... (Simply Wall St.)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "3 Australian Dividend Stocks Paying Over 5% While Cash Income Looks Less Certain - With bond yields across major markets reflecting expectations for tighter central bank policy, income from cash and short-term bonds can feel uncertain again. Reliable dividend income looks more valuable when policy paths shift and inflation stays in focus. Dividend powerhouses with yields above 5% and well covered, growing payouts offer one way to seek steadier cash flow. This article highlights three stocks from that screener. The three dividend stocks covered next are just a sample from... (Simply Wall St.)"
+      }
+    ],
+    "claims": [
+      {
+        "claim": "The latest expectations point toward further monetary tightening by the Reserve Bank of Australia (RBA).",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The expectation of further tightening is driven by persistently high inflation.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Market positioning in futures/speculative trading shows increasing bets on a rate hike at the RBA's November meeting.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Inflation is still running above the central bank's target band.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Broader commentary notes that global interest rate expectations have pushed up funding costs.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Bond yields in major markets are reflecting expectations for tighter central bank policy more broadly.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "This reinforces the domestic narrative of inflation remaining the key swing factor for the RBA's decisions.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The prevailing expectation reflected in this evidence is for at least one more RBA rate hike.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "This rate hike is likely to occur around the November meeting.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Inflation data is the primary driver of that outlook.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The evidence does not include any specific commentary on rate-cut expectations.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence does not include any specific commentary on a longer-term rate path beyond this near-term hike expectation.",
+        "covered_in_evidence": true
+      }
+    ],
+    "facts": [
+      {
+        "fact": "CBA and NAB joined ANZ in forecasting another rate hike this year.",
+        "relevant": true,
+        "covered_in_answer": false
+      },
+      {
+        "fact": "The forecasts followed a hot inflation print.",
+        "relevant": true,
+        "covered_in_answer": false
+      },
+      {
+        "fact": "Speculative investors increasingly bet the RBA will raise rates in November.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "Inflation remains above the RBA's target.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "Higher global interest rate expectations have pushed up funding costs.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "Bond yields across major markets reflect expectations of tighter central bank policy.",
+        "relevant": true,
+        "covered_in_answer": true
+      }
+    ]
+  },
+  {
+    "id": "q8_incomplete",
+    "question": "How is AI affecting employment at Commonwealth Bank?",
+    "answer": "Based on the evidence gathered, here's what's known about AI's effect on employment at Commonwealth Bank:\n\n**Direct job impact**\n- Bloomberg reports that AI is replacing customer service jobs at CBA, alongside similar shifts at Microsoft and Uber.\n- Earlier this year, CBA was reported to have cut customer service roles after deploying an AI voice bot, though (per the broader \"companies rehire workers\" trend noted in the evidence) some firms have walked back AI-driven layoffs when automation underdelivered — it's not specified in the evidence whether CBA was among those reversing course.\n\n**AI deployment inside the bank**\n- About 80% of CBA's engineers reportedly use AI coding agents, which the bank says has tripled code output and helped resolve more than 15,000 security issues — pointing to AI augmenting technical/engineering staff rather than simply replacing them.\n\n**Net picture**\nThe evidence suggests a mixed employment effect: contraction in customer-service-type roles attributed to AI automation, alongside expansion or reinforcement of technical/engineering roles where AI is used as a productivity tool with human oversight. The evidence does not provide specific figures on net headcount change, total roles affected, or forward guidance on workforce size, so a full quantitative picture isn't available from what's been gathered.",
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy (Reuters)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents outpace fraud protections - NatWest, Bank of America, and four other banks say consumers risk scams and data breaches as AI commerce tools advance faster than industry safeguards (Quartz)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches - A coalition of global banks says agentic AI tools that make purchases on behalf of consumers could expose card details and weaken payment security. (Fox Business)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Companies rehire workers laid off for AI as automation falls short (Quartz)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Billionaire Sam Altman Says OpenAI Was ‘Pretty Wrong’ About AI Jobs, But Goldman Sachs Warns AI is Still Wiping Out 11,000 Jobs Per Month (Barchart)"
+      }
+    ],
+    "claims": [
+      {
+        "claim": "Bloomberg reports that AI is replacing customer service jobs at CBA.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Bloomberg reports similar AI-driven job shifts at Microsoft.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Bloomberg reports similar AI-driven job shifts at Uber.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Earlier this year, CBA was reported to have cut customer service roles after deploying an AI voice bot.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "There is a broader trend noted in the evidence of companies rehiring workers after AI-driven layoffs when automation underdelivered.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "It is not specified in the evidence whether CBA was among the companies reversing course on AI-driven layoffs.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "About 80% of CBA's engineers reportedly use AI coding agents.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The bank says AI coding agents have tripled code output.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The bank says AI coding agents have helped resolve more than 15,000 security issues.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "This points to AI augmenting technical/engineering staff rather than simply replacing them.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The evidence suggests a mixed employment effect at CBA.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "There is contraction in customer-service-type roles attributed to AI automation.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "There is expansion or reinforcement of technical/engineering roles where AI is used as a productivity tool with human oversight.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The evidence does not provide specific figures on net headcount change.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence does not provide specific figures on total roles affected.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The evidence does not provide forward guidance on workforce size.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "A full quantitative picture isn't available from what's been gathered.",
+        "covered_in_evidence": true
+      }
+    ],
+    "facts": [
+      {
+        "fact": "AI is replacing customer service jobs at CBA.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "80% of CBA's engineers use AI agents, tripling code output.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "CBA's chief AI officer describes scaling A$400m in AI value with humans in the loop.",
+        "relevant": true,
+        "covered_in_answer": false
+      },
+      {
+        "fact": "CBA appointed a new CIO and CTO to boost its technology and AI strategy.",
+        "relevant": true,
+        "covered_in_answer": false
+      },
+      {
+        "fact": "Companies are rehiring workers laid off for AI as automation falls short.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "Goldman Sachs warns AI is still wiping out 11,000 jobs per month.",
+        "relevant": true,
+        "covered_in_answer": false
+      },
+      {
+        "fact": "NatWest, Bank of America and four other banks warn AI shopping tools are outpacing fraud protections.",
+        "relevant": false,
+        "covered_in_answer": false
+      },
+      {
+        "fact": "archTIS extended the maturity date of a A$4 million CBA lending facility.",
+        "relevant": false,
+        "covered_in_answer": false
+      }
+    ]
+  },
+  {
+    "id": "h4_incomplete",
+    "question": "How is CBA generating A$400 million in value from its AI initiatives?",
+    "answer": "Based on the available evidence, the clearest detail on CBA's A$400 million AI value figure comes from an interview with Ranil Boteju, the bank's Chief AI Officer, in Retail Banker International. The reported value appears to stem from a few specific operational gains:\n\n- **Software engineering productivity**: Around 80% of CBA's engineers now use AI coding agents, which the bank says has tripled code output.\n- **Human-in-the-loop design**: Boteju frames the program as keeping humans involved in AI-assisted workflows rather than fully automating them, which is presented as central to how the value is being captured responsibly.\n\nSeparately, a Bloomberg report notes that CBA, along with firms like Microsoft and Uber, is using AI to replace certain customer service roles — suggesting workforce/cost efficiency is likely part of the broader AI value story, though the evidence doesn't quantify how much of the A$400 million this contributes specifically.\n\n**What the evidence does not cover**: There is no detailed breakdown in the provided material of exactly how the A$400 million figure is calculated (e.g., cost savings vs. revenue generation vs. productivity value), nor a line-item attribution across business units. If you need the precise methodology or composition of that figure, the evidence here doesn't go into that level of detail beyond the engineering productivity examples cited.",
+    "evidence": [
+      {
+        "source": "search_internal_news_tool",
+        "content": "Interview: CBA AI chief on scaling A$400m in AI value with humans in loop - Ranil Boteju, the chief AI officer at CBA, tells Satarupa Bhowmik how 80% of the bank's engineers use AI agents to triple code output and resolve over 15,000 security issues. (Retail Banker International)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "archTIS extends A$4 million CBA facility to support contract execution and growth - archTIS Ltd (ASX:AR9, OTCQB:ARHLF) has extended the maturity date of a A$4 million Commonwealth Bank of Australia (ASX:CBA) lending facility, maintaining access to non-dilutive working capital as it responds to growing demand for its data security products. The facility, previously due to... (Proactive)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "AI Is Replacing Customer Service Jobs at CBA, Microsoft, Uber (Bloomberg)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Did Profit Uptick and RBA Countdown Just Shift Commonwealth Bank's (ASX:CBA) Investment Narrative? (Simply Wall St.)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Billionaire Sam Altman Says OpenAI Was ‘Pretty Wrong’ About AI Jobs, But Goldman Sachs Warns AI is Still Wiping Out 11,000 Jobs Per Month (Barchart)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents could increase risk of scams, fraud and data privacy breaches - A coalition of global banks says agentic AI tools that make purchases on behalf of consumers could expose card details and weaken payment security. (Fox Business)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Banks warn AI shopping agents outpace fraud protections - NatWest, Bank of America, and four other banks say consumers risk scams and data breaches as AI commerce tools advance faster than industry safeguards (Quartz)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Companies rehire workers laid off for AI as automation falls short (Quartz)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Tencent AI Spending Key After Magnificent 7 Rout - (Bloomberg) -- Tencent Holdings Ltd.’s spending plans will draw investor scrutiny as investors cool on lavish outlays on artificial intelligence.Most Read from BloombergTrump Amps Up Pressure on Billionaire Sargeant to Exit VenezuelaIran Shakes Up Security Team After Saying Oman Deal ‘Very Close’Iran Says Hormuz Deal Close But Its Conditions Must Be MetOpenAI’s New Device Will Be Hockey Puck-Sized and Cost Over $300China Unleashes $28 Trillion Capital Markets to Challenge US in AILast month, the (Bloomberg)"
+      },
+      {
+        "source": "search_internal_news_tool",
+        "content": "Commonwealth Bank of Australia appoints new CIO, CTO to boost technology, AI strategy (Reuters)"
+      }
+    ],
+    "claims": [
+      {
+        "claim": "The clearest detail on CBA's A$400 million AI value figure comes from an interview with Ranil Boteju.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Ranil Boteju is CBA's Chief AI Officer.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The interview with Ranil Boteju was published in Retail Banker International.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The reported A$400 million value appears to stem from a few specific operational gains.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "Around 80% of CBA's engineers now use AI coding agents.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "CBA says the use of AI coding agents has tripled code output.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Boteju frames the program as keeping humans involved in AI-assisted workflows rather than fully automating them.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "Keeping humans in the loop is presented as central to how the value is being captured responsibly.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "A Bloomberg report notes that CBA is using AI to replace certain customer service roles.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The Bloomberg report also notes that firms like Microsoft and Uber are using AI to replace certain customer service roles.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "This suggests workforce/cost efficiency is likely part of the broader AI value story.",
+        "covered_in_evidence": false
+      },
+      {
+        "claim": "The evidence doesn't quantify how much of the A$400 million the workforce/cost efficiency contributes specifically.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "There is no detailed breakdown in the provided material of exactly how the A$400 million figure is calculated.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "The provided material does not break down the A$400 million figure into cost savings vs. revenue generation vs. productivity value.",
+        "covered_in_evidence": true
+      },
+      {
+        "claim": "There is no line-item attribution across business units for the A$400 million figure in the provided material.",
+        "covered_in_evidence": true
+      }
+    ],
+    "facts": [
+      {
+        "fact": "Ranil Boteju, CBA's chief AI officer, discussed scaling A$400m in AI value.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "CBA keeps humans in the loop in its AI work.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "80% of CBA's engineers use AI agents.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "The AI agents triple code output.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "The AI agents helped resolve over 15,000 security issues.",
+        "relevant": true,
+        "covered_in_answer": false
+      },
+      {
+        "fact": "AI is replacing customer service jobs at CBA.",
+        "relevant": true,
+        "covered_in_answer": true
+      },
+      {
+        "fact": "CBA appointed a new CIO and CTO to boost its technology and AI strategy.",
+        "relevant": true,
+        "covered_in_answer": false
+      },
+      {
+        "fact": "Tencent's AI spending plans will draw investor scrutiny.",
+        "relevant": false,
+        "covered_in_answer": false
+      },
+      {
+        "fact": "NatWest, Bank of America and four other banks warn AI shopping tools are outpacing fraud protections.",
+        "relevant": false,
+        "covered_in_answer": false
+      }
+    ]
+  }
+]
