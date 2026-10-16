@@ -1,5 +1,7 @@
 from datetime import datetime, timezone
 
+from matplotlib import ticker
+
 from tools.search import search_news
 from tools.embeddings import embed_batch
 from agent.shared.news_text import format_news_content
@@ -38,28 +40,34 @@ def fetch_and_cache_news(ticker: str) -> int:
     """Phase 1: pull this ticker's latest headlines ONCE - not once per user watching
     it - and cache them in ticker_news, embedding format_news_content(title, snippet)
     (title alone is too thin a signal for classify_common_feeds/classify_and_store's
-    feed matching below) in a single batch call. Returns the number of articles cached."""
-    articles = [a for a in search_news(ticker) if a.get("title")]
+    feed matching below) in a single batch call. Returns the status of the operation (0 = success, 1 = failure)."""
+    search_news_results = search_news(ticker)
+    if search_news_results is not None:
+        if len(search_news_results) > 0:
+            articles = [a for a in search_news_results if a.get("title")]
 
-    embeddings = (
-        embed_batch([format_news_content(a["title"], a.get("snippet")) for a in articles]) if articles else []
-    )
+            embeddings = (
+                embed_batch([format_news_content(a["title"], a.get("snippet")) for a in articles]) if articles else []
+            )
 
-    rows = [
-        {
-            "ticker": ticker,
-            "title": article["title"],
-            "publisher": article.get("publisher"),
-            "source_url": article.get("link"),
-            "published_at": _parse_published_at(article.get("published")),
-            "snippet": article.get("snippet") or None,
-            "content_embedding": embedding,
-        }
-        for article, embedding in zip(articles, embeddings)
-    ]
+            rows = [
+                {
+                    "ticker": ticker,
+                    "title": article["title"],
+                    "publisher": article.get("publisher"),
+                    "source_url": article.get("link"),
+                    "published_at": _parse_published_at(article.get("published")),
+                    "snippet": article.get("snippet") or None,
+                    "content_embedding": embedding,
+                }
+                for article, embedding in zip(articles, embeddings)
+            ]
 
-    upsert_ticker_news(rows)
-    return len(rows)
+            upsert_ticker_news(rows)
+
+        return 0
+    else:
+        return 1
 
 
 def classify_common_feeds(ticker: str) -> int:

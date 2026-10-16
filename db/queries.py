@@ -1,8 +1,13 @@
 import statistics
 from typing import Optional
 from datetime import datetime, timedelta, timezone
-
+import httpx
+from postgrest.exceptions import APIError
 from db.client import get_client
+from tools.logger import get_logger
+
+logger = get_logger(__name__)
+MAX_ATTEMPTS = 3
 
 
 def get_feeds_for_user(user_id: str, ticker: Optional[str] = None) -> list[dict]:
@@ -516,6 +521,15 @@ def match_common_feed_template_for_embedding(
     ).execute()
     return result.data
 
+def is_retriable_exception(e:Exception) -> bool:
+    """Determines if an exception is retriable based on its type or message."""
+    if isinstance(e, httpx.TimeoutException):
+        return True
+    elif isinstance(e,APIError) and e.code == "PGRST003":
+        return True
+    return False
+    
+
 
 def upsert_ticker_news(rows: list[dict]) -> None:
     """
@@ -529,9 +543,35 @@ def upsert_ticker_news(rows: list[dict]) -> None:
     if not rows:
         return
     client = get_client()
-    client.table("ticker_news").upsert(
-        rows, on_conflict="ticker,source_url", ignore_duplicates=True
-    ).execute()
+    try:
+        client.table("ticker_news").upsert(
+            rows, on_conflict="ticker,source_url", ignore_duplicates=True
+        ).execute()
+        
+    except Exception as e:
+        if not is_retriable_exception(e):
+            raise Exception(f"Non-retriable exception: {e}")
+
+        retry_count = MAX_ATTEMPTS - 1
+
+        while retry_count > 0:
+            try:
+                client.table("ticker_news").upsert(
+                    rows,
+                    on_conflict="ticker,source_url",
+                    ignore_duplicates=True
+                ).execute()
+                break
+
+            except Exception as e:
+                if not is_retriable_exception(e):
+                    raise Exception(f"Non-retriable exception after retry: {e}")
+
+                retry_count -= 1
+
+                if retry_count == 0:
+                    raise Exception(f"Max attempts reached: {e}")
+                
 
 
 def get_unclassified_ticker_news(ticker: str) -> list[dict]:

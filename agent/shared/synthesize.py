@@ -2,7 +2,7 @@ from typing import Optional
 
 from langchain_anthropic import ChatAnthropic
 
-from config import ANALYSIS_MODEL, ANTHROPIC_API_KEY
+from config import ANALYSIS_MODEL, ANTHROPIC_API_KEY, LLM_API_RETRIES, LLM_TIMEOUT
 
 SYNTHESIS_PROMPT = """You are a financial analyst. You are given evidence gathered about a stock -
 this may include recent news, financial figures, and price movements.
@@ -93,7 +93,7 @@ def synthesize_insight(
         f"[{item.get('source', 'unknown')}] {item.get('content')}" for item in evidence
     )
 
-    llm = ChatAnthropic(model=ANALYSIS_MODEL, api_key=ANTHROPIC_API_KEY)
+    llm = ChatAnthropic(model=ANALYSIS_MODEL, api_key=ANTHROPIC_API_KEY, timeout=LLM_TIMEOUT, max_retries=LLM_API_RETRIES)
     if question:
         draft_block = (
             f"\n\nA draft answer was already produced by an earlier reasoning pass over this "

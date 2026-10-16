@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from langchain_anthropic import ChatAnthropic
 from langgraph.types import Command
 
-from config import ANALYSIS_MODEL, ANTHROPIC_API_KEY
+from config import ANALYSIS_MODEL, ANTHROPIC_API_KEY, LLM_TIMEOUT, LLM_API_RETRIES
 from db.queries import (
     get_feeds_for_user,
     get_custom_feed_items,
@@ -65,7 +65,7 @@ def summarize_feed_items(feed_name: str, feed_description: str, ticker: str, ite
     common_feed_templates/feeds), so judging on-topic-ness from the name alone risks a
     wrong sufficiency call."""
     items_text = "\n".join(f"- {item['content_summary']}" for item in items)
-    llm = ChatAnthropic(model=ANALYSIS_MODEL, api_key=ANTHROPIC_API_KEY)
+    llm = ChatAnthropic(model=ANALYSIS_MODEL, api_key=ANTHROPIC_API_KEY, timeout=LLM_TIMEOUT, max_retries=LLM_API_RETRIES)
     prompt = (
         f"{FEED_SUMMARY_PROMPT}\n\nTicker: {ticker}\nFeed: {feed_name} ({feed_description})\n\nItems:\n{items_text}"
     )
@@ -129,11 +129,16 @@ def decide_feed_sources(ticker: str, feeds: list[dict]) -> dict[str, FeedSourceD
         return {}
 
     feed_list = "\n".join(f"- {format_feed_content(f['feed_name'], f['feed_description'])}" for f in feeds)
-    llm = ChatAnthropic(model=ANALYSIS_MODEL, api_key=ANTHROPIC_API_KEY)
+    llm = ChatAnthropic(model=ANALYSIS_MODEL, api_key=ANTHROPIC_API_KEY, timeout=LLM_TIMEOUT, max_retries=LLM_API_RETRIES)
     prompt = SOURCE_DECISION_PROMPT.format(ticker=ticker, feed_list=feed_list)
     plan = invoke_structured_with_repair(llm, FeedSourcePlan, prompt)
     by_name = {d.feed_name: d for d in plan.decisions}
 
+    returned_feed_names = [d.feed_name for d in plan.decisions]
+    original_feed_names = [f["feed_name"] for f in feeds]
+    if sorted(returned_feed_names) != sorted(original_feed_names):
+        raise RuntimeError(f"LLM returned unexpected feed names in source decisions: {returned_feed_names} vs expected {original_feed_names}")
+    
     return {
         f["feed_name"]: by_name.get(
             f["feed_name"],
@@ -248,6 +253,11 @@ def execute_step_node(state):
     new_results = state["step_results"] + [
         {"step": feed_name, "items": own_items, "summary": result.summary, "sufficient": result.sufficient}
     ]
+
+    passed, _, reasoning = check_output(result.summary)
+    if not passed:
+        raise RuntimeError(f"Pipeline feed summary failed output guardrail: {reasoning}")
+    
     new_supplementary = {**state["supplementary_items_by_feed"], feed_name: supplementary_items}
 
     if len(new_results) < len(state["plan"]):

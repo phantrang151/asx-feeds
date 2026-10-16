@@ -31,6 +31,9 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 # write on behalf of a fixed test user rather than through a logged-in session. The
 # frontend uses the anon key instead (see frontend/.env.local.example) precisely so RLS
 # DOES apply there.
+DB_TIMEOUT = 10
+LLM_TIMEOUT = 10
+LLM_API_RETRIES = 2
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 # Used by app/main.py to verify the Supabase-issued JWT the frontend sends on each
 # request, so the API can trust which user_id it's acting on behalf of. Found in

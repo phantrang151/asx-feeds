@@ -18,30 +18,47 @@ from .ingestion_steps import (
 from .insight_graph import synthesize_insight_for
 from agent.shared.structured_output import StructuredOutputError
 
+from langchain_core.exceptions import ModelAPIError, ModelConnectionError, ModelRateLimitError, ModelTimeoutError
+
 logger = logging.getLogger(__name__)
+RETRYABLE_ERRORS = (ModelAPIError, ModelConnectionError, ModelRateLimitError, ModelTimeoutError)
+
 
 
 def _fetch_and_classify_common(tickers: list[str], errors: list[dict]) -> tuple[int, set[str]]:
     """Phases 1 and 1.5: fetch + cache each ticker's news ONCE (not once per user
     watching it), then classify newly-cached articles against the shared common feed
     templates, once per ticker regardless of how many users have a common feed on it.
-    Returns the total common-feed items classified and the set of tickers that got at
-    least one, for phase 3 to use as an insight-regeneration trigger."""
+    Returns total number of articles classified into a common feed, and the set of tickers"""
     total_common_classified = 0
     tickers_with_new_common_items = set()
+    total_consecutive_failures = 0
 
     for ticker in tickers:
         try:
-            fetch_and_cache_news(ticker)
-            ensure_company_sector_cached(ticker)
-            common_classified_count = classify_common_feeds(ticker)
-            total_common_classified += common_classified_count
-            if common_classified_count > 0:
-                tickers_with_new_common_items.add(ticker)
+            fetch_result = fetch_and_cache_news(ticker)
+            if fetch_result == 0:
+                total_consecutive_failures = 0
+                ensure_company_sector_cached(ticker)
+                common_classified_count = classify_common_feeds(ticker)
+                total_common_classified += common_classified_count
+                if common_classified_count > 0:
+                    tickers_with_new_common_items.add(ticker)
+            else:
+                total_consecutive_failures += 1
+                if total_consecutive_failures >= 5:
+                    logger.error(
+                        "Pipeline failed during fetch_and_cache phase, and 5 consecutive tickers have failed. Aborting further processing."
+                    )
+                    total_common_classified = -1
+                    break
+
         except Exception as e:
             error = {"ticker": ticker, "phase": "fetch_and_cache", "error": str(e)}
             logger.exception("Pipeline failed for %s during %s", ticker, error["phase"])
             errors.append(error)
+            total_common_classified = -1
+            break  # Stop processing further tickers after an exception
 
     return total_common_classified, tickers_with_new_common_items
 
@@ -99,11 +116,19 @@ def _synthesize_insights(entries_needing_insight: list[dict], errors: list[dict]
     it's only regenerated on genuine change, so repeat admin clicks don't burn one
     more LLM call per watchlisted ticker for nothing."""
     total_insights_generated = 0
+    count_consecutive_local_failures = 0
 
     for entry in entries_needing_insight:
+        if count_consecutive_local_failures >= 5:
+            error = "Too many consecutive local failures for entrys in _synthesize_insights. Aborting further processing."
+            errors.append(error)
+            logger.error(error)
+            return -1
         try:
             synthesize_insight_for(entry["user_id"], entry["ticker"])
             total_insights_generated += 1
+            count_consecutive_local_failures = 0
+
         except Exception as e:
             error = {
                 "user_id": entry["user_id"],
@@ -121,6 +146,7 @@ def _synthesize_insights(entries_needing_insight: list[dict], errors: list[dict]
                 # an ops_alert so it shows up on the admin Alerts page for review,
                 # with the raw unparseable args attached since that's what someone
                 # would actually need to diagnose it.
+                count_local_failures += 1
                 insert_ops_alert(
                     request_trace_id=None,
                     user_id=entry["user_id"],
@@ -133,6 +159,13 @@ def _synthesize_insights(entries_needing_insight: list[dict], errors: list[dict]
                         "raw_args": e.raw_args,
                     },
                 )
+
+            elif isinstance(e, RETRYABLE_ERRORS):
+                count_consecutive_local_failures += 1
+
+            else:
+                # stop the loop for unknown errors or any kind of non-retryable error, so the admin can see the failure and fix it
+                return -1
 
     return total_insights_generated
 
@@ -161,21 +194,30 @@ def run_ingestion_for_all_watchlisted_tickers() -> dict:
     tickers = get_distinct_watchlisted_tickers()
     entries = get_all_watchlist_entries()
     errors = []
+    total_insights_generated = -1
+    total_classified = -1
+    total_skipped = -1
+    total_common_classified = -1
 
     total_common_classified, tickers_with_new_common_items = _fetch_and_classify_common(tickers, errors)
 
+    if total_common_classified == -1:
+        errors.append({"phase": "fetch_and_classify_common", "error": "System failures"})
+
     run_cutoff = datetime.now(timezone.utc).isoformat()
 
-    total_classified, total_skipped, entries_needing_insight = _classify_custom_feeds(
-        entries, run_cutoff, tickers_with_new_common_items, errors
-    )
+    if not errors:
+        total_classified, total_skipped, entries_needing_insight = _classify_custom_feeds(
+            entries, run_cutoff, tickers_with_new_common_items, errors
+        )
 
-    total_insights_generated = _synthesize_insights(entries_needing_insight, errors)
+    if not errors:
+        total_insights_generated = _synthesize_insights(entries_needing_insight, errors)
 
     if not errors:
         status = "success"
-    elif total_classified > 0 or total_common_classified > 0:
-        status = "partial_failure"
+    #elif total_classified > 0 or total_common_classified > 0:
+    #    status = "partial_failure"
     else:
         status = "failed"
 

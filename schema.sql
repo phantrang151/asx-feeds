@@ -828,3 +828,46 @@ create view user_feed_items with (security_invoker = true) as
   where feeds.feed_type = 'common';
 
 grant select on user_feed_items to authenticated;
+
+CREATE OR REPLACE FUNCTION match_ticker_news_lexical(
+    search_terms text,
+    match_tickers text[],
+    match_count int DEFAULT 10
+)
+RETURNS TABLE (
+    id uuid,
+    ticker text,
+    title text,
+    snippet text,
+    lexical_score real
+)
+LANGUAGE sql STABLE
+AS $$
+    WITH lexical_results AS (
+        SELECT
+            n.id,
+            n.ticker,
+            n.title,
+            n.snippet,
+            ts_rank_cd(
+                to_tsvector(
+                    'english',
+                    coalesce(n.title, '') || ' ' ||
+                    coalesce(n.snippet, '')
+                ),
+                to_tsquery('english', search_terms)
+            ) AS lexical_score
+        FROM ticker_news n
+        WHERE n.ticker = ANY(match_tickers)
+    )
+    SELECT
+        lr.id,
+        lr.ticker,
+        lr.title,
+        lr.snippet,
+        lr.lexical_score
+    FROM lexical_results lr
+    WHERE lr.lexical_score > 0
+    ORDER BY lr.lexical_score DESC, lr.id
+    LIMIT match_count;
+$$;

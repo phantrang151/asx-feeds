@@ -1,3 +1,5 @@
+
+
 import re
 from typing import Optional
 
@@ -10,7 +12,7 @@ from .schemas import State, Router
 from .prompts import ROUTER_PROMPT
 from . import decline_messages
 from agent.guardrails import keyword_scan_advice_seeking, validate_ticker
-from config import ROUTER_MODEL, ANTHROPIC_API_KEY
+from config import LLM_TIMEOUT, ROUTER_MODEL, ANTHROPIC_API_KEY, LLM_API_RETRIES
 from tools.search import search_news
 from agent.shared.news_text import format_news_content
 
@@ -59,7 +61,7 @@ def classify_request(messages: list, callbacks: Optional[list] = None) -> Router
 
     `callbacks`, if given, is tagged with metadata={"step_name": "router"} for
     RequestTracer (see agent/guardrails/tracer.py)."""
-    llm = ChatAnthropic(model=ROUTER_MODEL, api_key=ANTHROPIC_API_KEY)
+    llm = ChatAnthropic(model=ROUTER_MODEL, api_key=ANTHROPIC_API_KEY, timeout=LLM_TIMEOUT, max_retries=LLM_API_RETRIES)
     llm_router = llm.with_structured_output(Router)
     config = {"callbacks": callbacks, "metadata": {"step_name": "router"}} if callbacks else None
     return llm_router.invoke([SystemMessage(content=ROUTER_PROMPT)] + messages, config=config)
@@ -143,30 +145,41 @@ def search_news_node(state: State, config):
     """Search for news based on the ticker symbol."""
     ticker = state["ticker"]
     tracer = config["configurable"].get("tracer")
-
-    if tracer:
-        with tracer.step("tool:search_news", "tool"):
+    try:
+        if tracer:
+            with tracer.step("tool:search_news", "tool"):
+                articles = search_news(ticker)
+        else:
             articles = search_news(ticker)
-    else:
-        articles = search_news(ticker)
 
-    if not articles:
-        answer = f"No recent news found for {ticker}."
-        references = []
-    else:
-        answer = "\n".join(
-            f"- {format_news_content(a['title'], a.get('snippet'))} ({a.get('publisher') or 'Unknown'})"
-            for a in articles
+        if articles is None:
+            answer = f"There were error fetching news for {ticker}."
+            references = []
+            
+        elif len(articles) == 0:
+            answer = f"No recent news found for {ticker}."
+            references = []
+
+        else:
+            answer = "\n".join(
+                f"- {format_news_content(a['title'], a.get('snippet'))} ({a.get('publisher') or 'Unknown'})"
+                for a in articles
+            )
+            references = [
+                {
+                    "source": "search_news",
+                    "content": f"{format_news_content(a['title'], a.get('snippet'))} ({a.get('publisher') or 'Unknown'})",
+                    "url": a.get("link"),
+                }
+                for a in articles
+            ]
+
+        return Command(
+            update={"result": answer, "references": references, "messages": [AIMessage(content=answer)]}
         )
-        references = [
-            {
-                "source": "search_news",
-                "content": f"{format_news_content(a['title'], a.get('snippet'))} ({a.get('publisher') or 'Unknown'})",
-                "url": a.get("link"),
-            }
-            for a in articles
-        ]
 
-    return Command(
-        update={"result": answer, "references": references, "messages": [AIMessage(content=answer)]}
-    )
+    except Exception as e:
+            answer = f"An error occurred while fetching news for {ticker}: {str(e)}"
+            return Command(
+                update={"result": answer, "references": [], "messages": [AIMessage(content=answer)]}
+            )
