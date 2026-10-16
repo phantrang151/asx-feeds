@@ -89,8 +89,10 @@ def synthesize_insight(
     if not evidence:
         return f"Not enough evidence was gathered for {ticker} to produce an insight.{skipped_note}"
 
+    # "excerpt" first: for report chunks "content" is only the filename (a citation label) and
+    # "excerpt" holds the chunk text - same rule as agent/eval/judge.py::_format_evidence.
     evidence_text = "\n\n".join(
-        f"[{item.get('source', 'unknown')}] {item.get('content')}" for item in evidence
+        f"[{item.get('source', 'unknown')}] {item.get('excerpt') or item.get('content')}" for item in evidence
     )
 
     llm = ChatAnthropic(model=ANALYSIS_MODEL, api_key=ANTHROPIC_API_KEY, timeout=LLM_TIMEOUT, max_retries=LLM_API_RETRIES)

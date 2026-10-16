@@ -255,9 +255,15 @@ def _extract_tool_evidence(messages) -> list[dict]:
     One entry per piece of evidence a tool call actually returned - used both as input to
     synthesize_insight and (after filtering out internal-memory tool calls, see above) as
     the user-facing reference list. Tools that return multiple citable items (news
-    articles, report chunks) attach their own list of {"content", "url"} dicts as an
-    artifact (see tools/react_tools.py) so each becomes its own entry; other tools only
+    articles, report chunks) attach their own list of {"content", "url", "excerpt"?} dicts
+    as an artifact (see tools/react_tools.py) so each becomes its own entry; other tools only
     return plain text, so those become one entry with no URL.
+
+    "excerpt" is carried through when a tool sends one: for report chunks, "content" is only
+    the filename (the citation label the frontend renders as link text) and "excerpt" is the
+    actual chunk text. Dropping it left synthesis, request_trace.evidence and the judges with
+    filenames only. Tools without an excerpt (news: "content" is already headline + snippet)
+    get None.
     """
     evidence = []
     for msg in messages:
@@ -268,7 +274,12 @@ def _extract_tool_evidence(messages) -> list[dict]:
             for item in items:
                 if item.get("visibility") == "internal":
                     continue
-                evidence.append({"source": msg.name, "content": item["content"], "url": item.get("url")})
+                evidence.append({
+                    "source": msg.name,
+                    "content": item["content"],
+                    "excerpt": item.get("excerpt"),
+                    "url": item.get("url"),
+                })
         else:
             evidence.append({"source": msg.name, "content": msg.content, "url": None})
     return evidence
