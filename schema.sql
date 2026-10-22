@@ -601,6 +601,14 @@ create table if not exists request_trace (
 create index if not exists request_trace_user_time_idx on request_trace (user_id, created_at);
 create index if not exists request_trace_category_idx on request_trace (category, created_at);
 
+-- The HTTP request id from api/request_id.py's middleware - same value as the X-Request-ID
+-- response header, the [request_id] in log lines and the LangSmith run metadata, so one id joins
+-- all four. Nullable and additive (id stays the primary key that request_trace_steps/ops_alerts
+-- reference); null for rows written before it existed. Not unique on purpose: a lookup key,
+-- never a reason to lose a trace row. See scripts/migration_request_trace_request_id.sql.
+alter table request_trace add column if not exists request_id uuid;
+create index if not exists request_trace_request_id_idx on request_trace (request_id);
+
 -- One row per step inside a request_trace - the router call, each individual ReAct
 -- tool call, each guardrail check, synthesis. Child table (not a jsonb array on
 -- request_trace) because "avg duration per step type" / "which step is slowest" are

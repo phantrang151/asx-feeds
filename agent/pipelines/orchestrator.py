@@ -1,5 +1,4 @@
 from datetime import datetime, timezone
-import logging
 
 from db.queries import (
     get_all_watchlist_entries,
@@ -19,8 +18,9 @@ from .insight_graph import synthesize_insight_for
 from agent.shared.structured_output import StructuredOutputError
 
 from langchain_core.exceptions import ModelAPIError, ModelConnectionError, ModelRateLimitError, ModelTimeoutError
+from tools.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 RETRYABLE_ERRORS = (ModelAPIError, ModelConnectionError, ModelRateLimitError, ModelTimeoutError)
 
 

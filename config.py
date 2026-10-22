@@ -32,7 +32,13 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 # frontend uses the anon key instead (see frontend/.env.local.example) precisely so RLS
 # DOES apply there.
 DB_TIMEOUT = 10
-LLM_TIMEOUT = 10
+# Transient DB failures (timeouts, connection errors, PostgREST pool timeouts) are retried by
+# db/queries.py's run() - only for reads and idempotent writes, never plain INSERTs. Attempts
+# include the first try; backoff doubles each time (0.5 s, 1 s). Kept small: on the chat path
+# every retry is time the user waits, and a database that is really down won't recover in seconds.
+DB_RETRY_ATTEMPTS = 3
+DB_RETRY_BACKOFF_SECONDS = 0.5
+LLM_TIMEOUT = 30
 LLM_API_RETRIES = 2
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 # Used by app/main.py to verify the Supabase-issued JWT the frontend sends on each

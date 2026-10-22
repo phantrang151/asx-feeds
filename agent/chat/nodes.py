@@ -15,6 +15,7 @@ from agent.guardrails import keyword_scan_advice_seeking, validate_ticker
 from config import LLM_TIMEOUT, ROUTER_MODEL, ANTHROPIC_API_KEY, LLM_API_RETRIES
 from tools.search import search_news
 from agent.shared.news_text import format_news_content
+from agent.shared.structured_output import invoke_structured_with_repair
 
 _LATEST_NEWS_QUERY = re.compile(r"\b(latest|recent)\s+news\b|\bnews\s+(on|about)\b", re.IGNORECASE)
 _ASX_TICKER = re.compile(r"\b([A-Z0-9]{1,6}\.AX)\b", re.IGNORECASE)
@@ -60,11 +61,12 @@ def classify_request(messages: list, callbacks: Optional[list] = None) -> Router
     agent/guardrails/advice_check.py::check_advice_avoidance's own docstring.
 
     `callbacks`, if given, is tagged with metadata={"step_name": "router"} for
-    RequestTracer (see agent/guardrails/tracer.py)."""
+    RequestTracer (see agent/guardrails/tracer.py). Raises StructuredOutputError if the
+    output still can't be parsed after repair and a retry (api/main.py answers it)."""
     llm = ChatAnthropic(model=ROUTER_MODEL, api_key=ANTHROPIC_API_KEY, timeout=LLM_TIMEOUT, max_retries=LLM_API_RETRIES)
-    llm_router = llm.with_structured_output(Router)
     config = {"callbacks": callbacks, "metadata": {"step_name": "router"}} if callbacks else None
-    return llm_router.invoke([SystemMessage(content=ROUTER_PROMPT)] + messages, config=config)
+    return invoke_structured_with_repair(llm, Router, [SystemMessage(content=ROUTER_PROMPT)] + messages,
+                                         config=config)
 
 
 def router_node(state: State, config):

@@ -4,7 +4,15 @@ import pytest
 import httpx
 from postgrest.exceptions import APIError
 import logging
+from db.errors import DatabaseUnavailableError
 from db.queries import upsert_ticker_news
+
+
+@pytest.fixture(autouse=True)
+def no_retry_sleep():
+    """run() backs off between retries (0.5 s, 1 s) - not worth waiting for in unit tests."""
+    with patch("db.queries.time.sleep"):
+        yield
 
 
 def test_client_timeout_retry(caplog):     
@@ -67,10 +75,12 @@ def test_3_retry(caplog):
         db_error
     ]
     with patch('db.queries.get_client', return_value=mock) as mock_client:           
-        with pytest.raises(Exception) as exc_info:
+        with pytest.raises(DatabaseUnavailableError) as exc_info:
             upsert_ticker_news(rows)
 
-    assert "Max attempts reached" in str(exc_info.value)
+    # Retries exhausted -> the app's own error, which api/main.py turns into a 503.
+    # An upsert is idempotent, so the outcome is known (not completed), not uncertain.
+    assert exc_info.value.outcome_uncertain is False
     assert mock_execute.call_count == 3
 
 
@@ -87,5 +97,7 @@ def test_non_retriable_error(caplog):
         with pytest.raises(Exception) as exc_info:
             result = upsert_ticker_news(rows)
 
-    assert "Non-retriable exception:" in str(exc_info.value)
+    # Non-retriable errors are raised unchanged (no retry, no wrapping), keeping their real
+    # type for the API's error handlers / UnhandledExceptionMiddleware.
+    assert exc_info.value is unknown_error
     assert mock_execute.call_count == 1

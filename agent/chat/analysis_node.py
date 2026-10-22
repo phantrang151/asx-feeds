@@ -1,4 +1,3 @@
-import logging
 from functools import lru_cache
 
 from langchain_anthropic import ChatAnthropic
@@ -8,7 +7,7 @@ from langgraph.prebuilt import create_react_agent
 from langgraph.types import Command
 from langmem import create_manage_memory_tool, create_search_memory_tool
 
-from config import ANALYSIS_MODEL, ANTHROPIC_API_KEY, REACT_RECURSION_LIMIT, TOKEN_CEILING_PER_REQUEST
+from config import ANALYSIS_MODEL, ANTHROPIC_API_KEY, LLM_API_RETRIES, LLM_TIMEOUT, REACT_RECURSION_LIMIT, TOKEN_CEILING_PER_REQUEST
 from . import decline_messages
 from .prompts import ANALYSIS_PROMPT
 from .persistence import get_store
@@ -28,10 +27,11 @@ from tools.react_tools import (
     get_latest_price_tool,
     search_financial_reports_tool,
 )
+from tools.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
-_llm = ChatAnthropic(model=ANALYSIS_MODEL, api_key=ANTHROPIC_API_KEY)
+_llm = ChatAnthropic(model=ANALYSIS_MODEL, api_key=ANTHROPIC_API_KEY, timeout=LLM_TIMEOUT, max_retries=LLM_API_RETRIES)
 _store = get_store()
 
 

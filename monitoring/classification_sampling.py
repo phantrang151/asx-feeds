@@ -16,7 +16,6 @@ underlying data (the item, its parent feed's name/description, and the source ar
 title+snippet, via agent/shared/news_text.py::format_news_content).
 """
 
-import logging
 import math
 import random
 
@@ -30,8 +29,9 @@ from db.queries import (
 )
 from agent.eval.judge import judge_feed_classification
 from agent.shared.news_text import format_news_content
+from tools.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def _sample_size(eligible_n: int, rate: float = QUALITY_SAMPLE_RATE, cap: int = QUALITY_SAMPLE_CAP) -> int:
