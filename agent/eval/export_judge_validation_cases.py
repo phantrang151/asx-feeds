@@ -31,7 +31,6 @@ import argparse
 import json
 import os
 
-import openpyxl
 from langchain_anthropic import ChatAnthropic
 from pydantic import BaseModel, Field
 
@@ -55,6 +54,10 @@ class Facts(BaseModel):
 
 
 def _read_experiment(path: str) -> tuple[dict, list[dict]]:
+    # Imported here, not at the top: only this offline export needs openpyxl, and it isn't in
+    # requirements.txt - a top-level import broke test collection for anything importing Claims.
+    import openpyxl
+
     wb = openpyxl.load_workbook(path, data_only=True)
     row_to_id = {r[0]: r[1] for r in wb["Original Articles"].iter_rows(min_row=2, values_only=True) if r[0]}
     rows = list(wb["Answer Quality (All)"].iter_rows(values_only=True))
