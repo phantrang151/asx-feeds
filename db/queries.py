@@ -449,6 +449,24 @@ def get_recent_ticker_insights(limit: int = 20) -> list[dict]:
     )
 
 
+def get_user_ticker_insights(user_id: str, ticker: str, limit: int = 2) -> list[dict]:
+    """One user's newest ticker_insights snapshots for one ticker, newest first - what
+    get_my_thesis_tool diffs (latest vs previous) to answer "what changed in my thesis".
+    Always filtered by user_id: the backend uses the service_role key, so RLS does not
+    scope this query - the explicit filter is the only thing keeping it to one user.
+    Served by the ticker_insights_user_ticker_created_idx index."""
+    client = get_client()
+    return (
+        run(client.table("ticker_insights")
+        .select("*")
+        .eq("user_id", user_id)
+        .eq("ticker", ticker)
+        .order("created_at", desc=True)
+        .limit(limit), idempotent=True, operation="get_user_ticker_insights")
+        .data
+    )
+
+
 def get_recent_ticker_insights_in_window(hours: int = 24, limit: int = 500) -> list[dict]:
     """Bounded pool of ticker_insights rows created in the last `hours` - unlike
     get_recent_ticker_insights above (a fixed most-recent-N pull for a manually

@@ -182,6 +182,9 @@ def planner_node(state):
         )
         for f in feeds
     }
+    # Every feed, not just eligible ones - synthesize_node writes a feed_summaries entry
+    # (with its feed_id) for empty feeds too.
+    feed_ids = {f["feed_name"]: f["id"] for f in feeds}
     eligible_feeds = [f for f in feeds if items_by_feed[f["feed_name"]]]
     feed_embeddings = {f["feed_name"]: f["description_embedding"] for f in eligible_feeds}
     feed_descriptions = {f["feed_name"]: f["feed_description"] for f in eligible_feeds}
@@ -192,6 +195,7 @@ def planner_node(state):
         goto="execute_step" if plan else "synthesize",
         update={
             "items_by_feed": items_by_feed,
+            "feed_ids": feed_ids,
             "feed_embeddings": feed_embeddings,
             "feed_descriptions": feed_descriptions,
             "source_decisions": source_decisions,
@@ -311,6 +315,8 @@ def synthesize_node(state):
 
         feed_summaries.append(
             {
+                # .get(): state seeded before feed_ids existed (e.g. a direct invoke) has none.
+                "feed_id": state.get("feed_ids", {}).get(feed_name),
                 "feed_name": feed_name,
                 "status": "sufficient" if sufficient else "insufficient",
                 "summary": step["summary"] if step else None,

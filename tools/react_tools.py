@@ -1,3 +1,4 @@
+from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import tool
 
 from tools.search import search_news as _search_news
@@ -6,7 +7,9 @@ from tools.embeddings import embed
 from db.client import get_client
 from db.queries import (
     get_company_sector,
+    get_feeds_for_user,
     get_peer_tickers,
+    get_user_ticker_insights,
     match_document_chunks_for_embedding,
     match_ticker_news_for_embedding,
 )
@@ -133,6 +136,83 @@ def search_news_tool(ticker: str):
         for a in articles
     ]
     return content, references
+
+
+def _snapshot_date(insight: dict) -> str:
+    return (insight.get("created_at") or "")[:10] or "unknown date"
+
+
+def _feed_key(summary: dict) -> str:
+    """Match a feed across two snapshots by feed_id when both carry one (survives a rename),
+    falling back to feed_name for snapshots written before feed_id was stored."""
+    return summary.get("feed_id") or summary.get("feed_name")
+
+
+def _describe_feed_snapshot(summary: dict | None) -> str:
+    if summary is None:
+        return "not tracked in this snapshot"
+    text = summary.get("summary") or "no items matched this feed"
+    return f"{summary.get('status', 'insufficient')}, {summary.get('item_count', 0)} items: {text}"
+
+
+@tool(response_format="content_and_artifact")
+def get_my_thesis_tool(ticker: str, config: RunnableConfig):
+    """Get the signed-in user's own investment thesis for an ASX ticker: the feeds (research
+    questions) they track for it, plus their latest and previous saved insight snapshots
+    with a per-feed before/after comparison.
+
+    Use this FIRST for any question about the user's own thesis, feeds or insights - e.g.
+    "what has changed in my NAB thesis?", "how are my feeds for TLS.AX looking?". Snapshots
+    only refresh when the pipeline runs, so follow up with search_internal_news_tool for
+    anything newer than the latest snapshot date.
+    """
+    # From the request, never from the model: the model only ever chooses the ticker, so it
+    # cannot be steered into reading another user's thesis.
+    user_id = config["configurable"]["langgraph_user_id"]
+    feeds = get_feeds_for_user(user_id, ticker)
+    insights = get_user_ticker_insights(user_id, ticker, limit=2)
+    if not feeds and not insights:
+        return f"The user has no feeds or saved insights for {ticker}, so there is no personal thesis to compare.", []
+
+    lines = [f"The user's thesis for {ticker} - {len(feeds)} feed(s) currently tracked:"]
+    lines += [f"- {f['feed_name']}: {f['feed_description']}" for f in feeds]
+    if not insights:
+        lines.append("No insight has been generated for these feeds yet, so nothing can be compared.")
+        return "\n".join(lines), []
+
+    latest = insights[0]
+    previous = insights[1] if len(insights) > 1 else None
+    lines.append(f"\nLatest insight ({_snapshot_date(latest)}): {latest['insight_text']}")
+    if previous:
+        lines.append(f"Previous insight ({_snapshot_date(previous)}): {previous['insight_text']}")
+    else:
+        lines.append("There is only one snapshot so far, so there is no earlier insight to compare against.")
+
+    latest_feeds = {_feed_key(s): s for s in latest.get("feed_summaries") or []}
+    previous_feeds = {_feed_key(s): s for s in (previous or {}).get("feed_summaries") or []}
+    references = []
+    if latest_feeds or previous_feeds:
+        lines.append("\nPer-feed comparison (previous -> latest):")
+        # Latest snapshot's feed order first, then any feed only the previous one had (removed since).
+        for key in [*latest_feeds, *(k for k in previous_feeds if k not in latest_feeds)]:
+            now, before = latest_feeds.get(key), previous_feeds.get(key)
+            name = (now or before)["feed_name"]
+            if before and now and before["feed_name"] != now["feed_name"]:
+                name = f"{now['feed_name']} (renamed from {before['feed_name']})"
+            lines.append(f"- {name}\n  previous: {_describe_feed_snapshot(before) if previous else 'n/a'}"
+                         f"\n  latest: {_describe_feed_snapshot(now)}")
+            for label, snapshot, insight in (("latest", now, latest), ("previous", before, previous)):
+                if snapshot and snapshot.get("summary"):
+                    references.append({
+                        "content": f"Your {snapshot['feed_name']} feed - {label} insight, {_snapshot_date(insight)}",
+                        "excerpt": snapshot["summary"],
+                        "url": None,
+                    })
+    else:
+        lines.append("\nThese snapshots predate per-feed summaries, so only the overall insight text can be compared.")
+
+    lines.append(f"\nNews published after {_snapshot_date(latest)} is not reflected in these snapshots.")
+    return "\n".join(lines), references
 
 
 @tool

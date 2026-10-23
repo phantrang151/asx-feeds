@@ -300,15 +300,20 @@ create table if not exists ticker_insights (
   ticker text not null,
   insight_text text not null,
   based_on_feed_item_ids uuid[] not null default '{}',
-  -- Per-feed breakdown backing insight_text: [{feed_name, status: "sufficient" |
+  -- Per-feed breakdown backing insight_text: [{feed_id, feed_name, status: "sufficient" |
   -- "insufficient", summary, item_count, item_ids}, ...] - see synthesize_node in
-  -- agent/pipelines/insight_nodes.py. '[]' on rows written before this column existed.
+  -- agent/pipelines/insight_nodes.py. '[]' on rows written before this column existed;
+  -- feed_id is absent on rows written before it was stored (match those by feed_name).
   feed_summaries jsonb not null default '[]',
   created_at timestamptz not null default now()
 );
 -- Safe to re-run against a database created before per-feed sufficiency gating - see the
 -- insights_generated migration above for the same pattern.
 alter table ticker_insights add column if not exists feed_summaries jsonb not null default '[]';
+-- Every reader wants one user's newest snapshot(s) for a ticker: the alerts page (via
+-- latest_ticker_insights below) and get_my_thesis_tool (latest vs previous).
+create index if not exists ticker_insights_user_ticker_created_idx
+  on ticker_insights (user_id, ticker, created_at desc);
 
 -- One row per eval run (see eval/run_classification_eval.py, eval/run_chat_answer_eval.py,
 -- eval/run_guardrail_eval.py, eval/run_live_sample_eval.py) - what the admin page's
@@ -841,6 +846,18 @@ create view user_feed_items with (security_invoker = true) as
   where feeds.feed_type = 'common';
 
 grant select on user_feed_items to authenticated;
+
+-- One row per (user, ticker): that user's newest ticker_insights snapshot. ticker_insights
+-- is append-only (every synthesis inserts a row, kept as history for "what changed"), so the
+-- alerts page reads this instead of downloading every historical row just to show the
+-- newest. security_invoker for the same reason as user_feed_items above: ticker_insights'
+-- own "select own insights" policy must apply to the querying user, not the view owner.
+create or replace view latest_ticker_insights with (security_invoker = true) as
+  select distinct on (user_id, ticker) *
+  from ticker_insights
+  order by user_id, ticker, created_at desc;
+
+grant select on latest_ticker_insights to authenticated;
 
 CREATE OR REPLACE FUNCTION match_ticker_news_lexical(
     search_terms text,

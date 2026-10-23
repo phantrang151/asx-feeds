@@ -21,6 +21,7 @@ from agent.guardrails import check_output, research_guard
 from agent.guardrails.token_budget import TokenBudgetCallback, TokenBudgetExceededError
 from agent.shared.synthesize import synthesize_insight
 from tools.react_tools import (
+    get_my_thesis_tool,
     search_internal_news_tool,
     search_internal_peer_news_tool,
     search_news_tool,
@@ -66,6 +67,12 @@ def _build_prompt(state, config, store):
         "search_financial_reports_tool until you've actually met the evidence bar above, "
         "then answer.\n"
         "</ Semantic memory >\n\n"
+        "If the question is about the user's OWN thesis, feeds or insights (e.g. 'what has "
+        "changed in my thesis', 'how are my feeds looking'), call get_my_thesis_tool first: "
+        "it returns their feeds and their latest vs previous insight snapshots. Answer from "
+        "that per-feed comparison - say plainly when a feed did not change or had too little "
+        "evidence in both snapshots, rather than inflating small differences - then continue "
+        "with the research order below for news newer than the latest snapshot.\n\n"
         "Research source order is mandatory: first call search_internal_news_tool for the "
         "target ticker. Use its cached company news if it answers the question. Only when "
         "that evidence is missing, stale, or insufficient, call search_financial_reports_tool "
@@ -98,6 +105,7 @@ def _make_react_agent(ticker: str):
     return create_react_agent(
         _llm,
         tools=[
+            get_my_thesis_tool,
             search_internal_news_tool,
             search_internal_peer_news_tool,
             search_news_tool,

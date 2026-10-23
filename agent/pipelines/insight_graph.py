@@ -28,6 +28,7 @@ def synthesize_insight_for(user_id: str, ticker: str) -> dict:
             "items_by_feed": {},
             "feed_embeddings": {},
             "feed_descriptions": {},
+            "feed_ids": {},
             "source_decisions": {},
             "supplementary_items_by_feed": {},
             "plan": [],

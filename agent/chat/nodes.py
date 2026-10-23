@@ -19,7 +19,12 @@ from agent.shared.structured_output import invoke_structured_with_repair
 
 _LATEST_NEWS_QUERY = re.compile(r"\b(latest|recent)\s+news\b|\bnews\s+(on|about)\b", re.IGNORECASE)
 _ASX_TICKER = re.compile(r"\b([A-Z0-9]{1,6}\.AX)\b", re.IGNORECASE)
-_ANALYSIS_WORDS = re.compile(r"\b(why|how|compare|comparison|strategy|trend|revenue|profit|report|versus|vs)\b", re.IGNORECASE)
+# Includes the personal-thesis words so "what changed in my NAB.AX thesis based on the latest
+# news" goes to conduct_analysis (get_my_thesis_tool) instead of the plain headline shortcut.
+_ANALYSIS_WORDS = re.compile(
+    r"\b(why|how|compare|comparison|strategy|trend|revenue|profit|report|versus|vs|thesis|feeds?|insights?|changed)\b",
+    re.IGNORECASE,
+)
 
 
 def _latest_news_ticker(question: str) -> Optional[str]:
