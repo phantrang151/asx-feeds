@@ -76,9 +76,10 @@ REACT_RECURSION_LIMIT = 15
 
 # Hard ceiling on total tokens (prompt+completion, summed across every Claude call in one
 # conduct_analysis request) before the ReAct loop is aborted mid-run with a graceful
-# decline and no partial answer. PLACEHOLDER - /api/admin/langsmith/summary currently
-# only exposes an average, not a p95/max; size this from real traffic once available.
-TOKEN_CEILING_PER_REQUEST = 20000
+# decline and no partial answer. Raised from 20000 after real Claude traces: a normal
+# analysis question used ~21000 tokens and was declined. Still a placeholder - size it from
+# the observed p95 once there's more traffic.
+TOKEN_CEILING_PER_REQUEST = 40000
 
 # Per-URL timeout and worker-pool size for the citation-reachability check that runs
 # before references are shown as clickable links.
