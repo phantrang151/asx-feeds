@@ -1,7 +1,5 @@
 from datetime import datetime, timezone
 
-from matplotlib import ticker
-
 from tools.search import search_news
 from tools.embeddings import embed_batch
 from agent.shared.news_text import format_news_content

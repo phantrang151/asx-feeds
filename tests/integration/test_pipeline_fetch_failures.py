@@ -3,7 +3,6 @@ import pytest
 import logging
 from requests.exceptions import ConnectionError
 from agent.pipelines.orchestrator import run_ingestion_for_all_watchlisted_tickers
-from db.queries import get_distinct_watchlisted_tickers
 from tools.search import search_news
 
 def fake_search_news(ticker: str, max_results: int = 20):
@@ -13,14 +12,17 @@ def fake_search_news(ticker: str, max_results: int = 20):
         return []
 
 def test_local_failure_isolated(caplog):
+    # Fixed ticker list, so the test doesn't depend on what the database has watchlisted.
+    isolated_tickers = ['TLS.AX', 'CBA.AX', 'NAB.AX']
     with patch('agent.pipelines.ingestion_steps.search_news', side_effect=fake_search_news) as mock_search:
-        result = run_ingestion_for_all_watchlisted_tickers()
+        with patch('agent.pipelines.orchestrator.get_distinct_watchlisted_tickers', return_value=isolated_tickers):
+            result = run_ingestion_for_all_watchlisted_tickers()
 
     # Every ticker returned no news (or failed) - the run finishes, but the news health
     # check flags it rather than reporting success.
     assert result.get('status') == 'degraded'
     assert result.get('errors')[-1]['phase'] == 'news_health'
-    assert mock_search.call_count == len(get_distinct_watchlisted_tickers())
+    assert mock_search.call_count == len(isolated_tickers)
 
 #-----------------------------------------------------------------------------#
 
