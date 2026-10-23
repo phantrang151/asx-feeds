@@ -9,6 +9,19 @@ from requests.exceptions import ConnectionError
 from requests.exceptions import Timeout
 from requests import Response
 
+
+@pytest.fixture(autouse=True)
+def no_rss_fallback(request):
+    """These tests exercise the yfinance path; a yfinance miss would otherwise fall through to
+    a live Yahoo RSS request (see tests/test_news_fallback.py for the fallback itself). The
+    live end-to-end test keeps the real fallback."""
+    if request.node.name == "test_search_news_valid_ticker":
+        yield
+        return
+    with patch("tools.search._search_news_rss", return_value=None):
+        yield
+
+
 def test_search_news_valid_ticker():
     result = search_news("TLS.AX")
     assert len(result) > 0

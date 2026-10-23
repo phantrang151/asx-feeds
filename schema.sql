@@ -509,7 +509,9 @@ create table if not exists pipeline_runs (
   id uuid primary key default gen_random_uuid(),
   started_at timestamptz not null default now(),
   finished_at timestamptz,
-  status text not null default 'running', -- running | success | partial_failure | failed
+  -- degraded = finished without crashing, but the news health check failed (no articles
+  -- fetched, or nothing new for NEWS_STALE_AFTER_DAYS) - see orchestrator._news_health_issue.
+  status text not null default 'running', -- running | success | degraded | partial_failure | failed
   tickers_processed int not null default 0,
   feeds_classified int not null default 0,
   common_items_classified int not null default 0,

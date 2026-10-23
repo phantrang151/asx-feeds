@@ -1,9 +1,12 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+
+from config import NEWS_STALE_AFTER_DAYS
 
 from db.queries import (
     get_all_watchlist_entries,
     get_distinct_watchlisted_tickers,
     get_ticker_insight_pairs,
+    get_latest_news_published_at,
     create_pipeline_run,
     update_pipeline_run,
     insert_ops_alert,
@@ -25,19 +28,23 @@ RETRYABLE_ERRORS = (ModelAPIError, ModelConnectionError, ModelRateLimitError, Mo
 
 
 
-def _fetch_and_classify_common(tickers: list[str], errors: list[dict]) -> tuple[int, set[str]]:
+def _fetch_and_classify_common(tickers: list[str], errors: list[dict]) -> tuple[int, set[str], int]:
     """Phases 1 and 1.5: fetch + cache each ticker's news ONCE (not once per user
     watching it), then classify newly-cached articles against the shared common feed
     templates, once per ticker regardless of how many users have a common feed on it.
-    Returns total number of articles classified into a common feed, and the set of tickers"""
+    Returns total number of articles classified into a common feed, the set of tickers
+    with new common items, and how many articles the news source returned in total
+    (before dedupe) - see _news_health_issue."""
     total_common_classified = 0
     tickers_with_new_common_items = set()
     total_consecutive_failures = 0
+    total_articles_fetched = 0
 
     for ticker in tickers:
         try:
             fetch_result = fetch_and_cache_news(ticker)
-            if fetch_result == 0:
+            if fetch_result is not None:
+                total_articles_fetched += fetch_result
                 total_consecutive_failures = 0
                 ensure_company_sector_cached(ticker)
                 common_classified_count = classify_common_feeds(ticker)
@@ -60,7 +67,7 @@ def _fetch_and_classify_common(tickers: list[str], errors: list[dict]) -> tuple[
             total_common_classified = -1
             break  # Stop processing further tickers after an exception
 
-    return total_common_classified, tickers_with_new_common_items
+    return total_common_classified, tickers_with_new_common_items, total_articles_fetched
 
 
 def _classify_custom_feeds(
@@ -170,6 +177,23 @@ def _synthesize_insights(entries_needing_insight: list[dict], errors: list[dict]
     return total_insights_generated
 
 
+def _news_health_issue(tickers: list[str], articles_fetched: int) -> str | None:
+    """Why this run's news looks broken even though nothing crashed, or None if it looks fine.
+
+    Catches the silent failure that hid a four-week outage: yfinance turned Yahoo's HTTP 502s
+    into empty lists, every ticker read as "no news today", and every run reported success.
+    Two signals - the source returned nothing at all for any ticker, or the newest stored
+    article is older than NEWS_STALE_AFTER_DAYS (the source answers, but nothing new arrives)."""
+    if not tickers:
+        return None
+    if articles_fetched == 0:
+        return f"News source returned no articles for any of the {len(tickers)} watchlisted tickers."
+    newest = get_latest_news_published_at()
+    if newest and datetime.now(timezone.utc) - newest > timedelta(days=NEWS_STALE_AFTER_DAYS):
+        return f"Newest stored article was published {newest.date().isoformat()}, over {NEWS_STALE_AFTER_DAYS} days ago."
+    return None
+
+
 def run_ingestion_for_all_watchlisted_tickers() -> dict:
     """
     Four phases, in order (see _fetch_and_classify_common, _classify_custom_feeds, and
@@ -199,7 +223,7 @@ def run_ingestion_for_all_watchlisted_tickers() -> dict:
     total_skipped = -1
     total_common_classified = -1
 
-    total_common_classified, tickers_with_new_common_items = _fetch_and_classify_common(tickers, errors)
+    total_common_classified, tickers_with_new_common_items, total_articles_fetched = _fetch_and_classify_common(tickers, errors)
 
     if total_common_classified == -1:
         errors.append({"phase": "fetch_and_classify_common", "error": "System failures"})
@@ -214,7 +238,15 @@ def run_ingestion_for_all_watchlisted_tickers() -> dict:
     if not errors:
         total_insights_generated = _synthesize_insights(entries_needing_insight, errors)
 
-    if not errors:
+    news_issue = None if errors else _news_health_issue(tickers, total_articles_fetched)
+    if news_issue:
+        # Not a crash - the run finished - but its output can't be trusted to be current.
+        # Anything other than "success" makes scripts/run_weekly_job.py exit non-zero, so the
+        # scheduled GitHub Actions run fails visibly instead of reporting green.
+        logger.error("Pipeline run degraded: %s", news_issue)
+        errors.append({"phase": "news_health", "error": news_issue})
+        status = "degraded"
+    elif not errors:
         status = "success"
     #elif total_classified > 0 or total_common_classified > 0:
     #    status = "partial_failure"

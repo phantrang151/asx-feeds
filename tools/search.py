@@ -1,3 +1,10 @@
+import html
+import re
+import xml.etree.ElementTree as ET
+from email.utils import parsedate_to_datetime
+from urllib.parse import urlsplit
+
+import requests
 import yfinance as yf
 from yfinance.exceptions import YFRateLimitError, YFException
 from requests.exceptions import HTTPError
@@ -7,16 +14,105 @@ from tools.logger import get_logger
 
 logger = get_logger(__name__)
 
+# Yahoo's older per-ticker RSS feed - a separate endpoint from the news API yfinance uses, so
+# it keeps working when that API breaks (it returned HTTP 502 for every ticker from late
+# Sep 2026, which yfinance swallows into an empty list).
+_RSS_URL = "https://feeds.finance.yahoo.com/rss/2.0/headline"
+_RSS_TIMEOUT_SECONDS = 15
+_RSS_HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; TickerThesis news fetch)"}
+# RSS items carry no publisher field, so it's derived from the article link's domain.
+_PUBLISHER_BY_DOMAIN = {
+    "finance.yahoo.com": "Yahoo Finance",
+    "au.finance.yahoo.com": "Yahoo Finance",
+    "news.com.au": "news.com.au",
+    "reuters.com": "Reuters",
+    "afr.com": "AFR",
+    "bloomberg.com": "Bloomberg",
+    "zacks.com": "Zacks",
+    "simplywall.st": "Simply Wall St.",
+}
+
 class NewsRateLimitError(Exception):
     """Raised when the news provider rate limits requests."""
     pass
 
 def search_news(ticker: str, max_results: int = 20) -> list[dict] | None:
-    """Get recent news headlines for an ASX ticker using yfinance."""
+    """Get recent news headlines for an ASX ticker: yfinance first, Yahoo's RSS feed as the
+    fallback when yfinance comes back with nothing. Same return contract either way - a list
+    of {title, publisher, link, published, snippet}, [] for no news, None for a failure."""
     if not ticker:
         logger.warning("No ticker provided for news search.")
         return None
 
+    articles = _search_news_yfinance(ticker, max_results)
+    if articles:
+        return articles
+
+    rss_articles = _search_news_rss(ticker, max_results)
+    if rss_articles:
+        logger.warning(
+            "yfinance returned no news for %s; using %d articles from the Yahoo RSS fallback.",
+            ticker, len(rss_articles),
+        )
+        return rss_articles
+    # Both empty: keep yfinance's own verdict ([] = no news, None = failure).
+    return articles
+
+
+def _publisher_from_link(link: str) -> str:
+    domain = urlsplit(link).netloc.lower().removeprefix("www.")
+    return _PUBLISHER_BY_DOMAIN.get(domain) or _PUBLISHER_BY_DOMAIN.get(domain.removeprefix("au.")) or domain
+
+
+def _strip_rss_tracking(link: str) -> str:
+    """Drop Yahoo's ?.tsrc=rss suffix so the same article fetched via yfinance and via RSS
+    dedupes on the same source_url (ticker_news is unique on (ticker, source_url))."""
+    return re.sub(r"[?&]\.tsrc=rss$", "", link)
+
+
+def _search_news_rss(ticker: str, max_results: int = 20) -> list[dict] | None:
+    """Yahoo per-ticker RSS headlines in search_news's article shape. [] when the feed has no
+    items, None when it can't be fetched or parsed - never raises."""
+    try:
+        response = requests.get(
+            _RSS_URL,
+            params={"s": ticker, "region": "AU", "lang": "en-AU"},
+            headers=_RSS_HEADERS,
+            timeout=_RSS_TIMEOUT_SECONDS,
+        )
+        response.raise_for_status()
+        channel = ET.fromstring(response.content).find("channel")
+    except (requests.RequestException, ET.ParseError) as e:
+        logger.error("Yahoo RSS news fetch failed for %s: %s", ticker, e)
+        return None
+    if channel is None:
+        logger.error("Yahoo RSS response for %s has no <channel>.", ticker)
+        return None
+
+    articles = []
+    for item in channel.findall("item")[:max_results]:
+        title = (item.findtext("title") or "").strip()
+        link = (item.findtext("link") or "").strip()
+        if not title or not link:
+            continue
+        link = _strip_rss_tracking(link)
+        try:
+            published = parsedate_to_datetime(item.findtext("pubDate") or "").isoformat()
+        except (TypeError, ValueError):
+            published = ""
+        description = item.findtext("description") or ""
+        articles.append({
+            "title": html.unescape(title),
+            "publisher": _publisher_from_link(link),
+            "link": link,
+            "published": published,
+            "snippet": html.unescape(re.sub(r"<[^>]+>", "", description)).strip(),
+        })
+    return articles
+
+
+def _search_news_yfinance(ticker: str, max_results: int = 20) -> list[dict] | None:
+    """Recent news headlines for an ASX ticker using yfinance."""
     try:
         stock = yf.Ticker(ticker)
         news_items = stock.news or None

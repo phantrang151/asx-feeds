@@ -36,11 +36,13 @@ def _parse_published_at(published) -> str | None:
     return str(published)
 
 
-def fetch_and_cache_news(ticker: str) -> int:
+def fetch_and_cache_news(ticker: str) -> int | None:
     """Phase 1: pull this ticker's latest headlines ONCE - not once per user watching
     it - and cache them in ticker_news, embedding format_news_content(title, snippet)
     (title alone is too thin a signal for classify_common_feeds/classify_and_store's
-    feed matching below) in a single batch call. Returns the status of the operation (0 = success, 1 = failure)."""
+    feed matching below) in a single batch call. Returns how many articles the news source
+    returned (0 is a valid "no news" answer), or None if the fetch failed - the orchestrator
+    sums these to spot a run where the source silently returned nothing for every ticker."""
     search_news_results = search_news(ticker)
     if search_news_results is not None:
         if len(search_news_results) > 0:
@@ -64,10 +66,11 @@ def fetch_and_cache_news(ticker: str) -> int:
             ]
 
             upsert_ticker_news(rows)
+            return len(rows)
 
         return 0
     else:
-        return 1
+        return None
 
 
 def classify_common_feeds(ticker: str) -> int:

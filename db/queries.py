@@ -596,6 +596,21 @@ def mark_ticker_news_common_classified(ids: list[str], run_cutoff: str) -> None:
     ), idempotent=True, operation="mark_ticker_news_common_classified")
 
 
+def get_latest_news_published_at() -> Optional[datetime]:
+    """Publish time of the newest article in ticker_news across every ticker - the
+    orchestrator's freshness check. None when the table is empty."""
+    client = get_client()
+    rows = (
+        run(client.table("ticker_news")
+        .select("published_at")
+        .not_.is_("published_at", "null")
+        .order("published_at", desc=True)
+        .limit(1), idempotent=True, operation="get_latest_news_published_at")
+        .data
+    )
+    return datetime.fromisoformat(rows[0]["published_at"]) if rows else None
+
+
 def get_ticker_news_since(ticker: str, since: Optional[str], until: str) -> list[dict]:
     """ticker_news rows for this ticker created after `since` (or the ticker's full
     cached history if `since` is None) and no later than `until` - the pipeline run's

@@ -38,6 +38,11 @@ DB_TIMEOUT = 10
 # every retry is time the user waits, and a database that is really down won't recover in seconds.
 DB_RETRY_ATTEMPTS = 3
 DB_RETRY_BACKOFF_SECONDS = 0.5
+# Pipeline news-health check (agent/pipelines/orchestrator.py): a run is marked 'degraded'
+# when the newest article stored for any ticker was published longer ago than this - i.e. the
+# news source is answering but nothing new is arriving. Generous for a weekly job: a handful
+# of large ASX tickers always has news within a week.
+NEWS_STALE_AFTER_DAYS = 7
 LLM_TIMEOUT = 30
 LLM_API_RETRIES = 2
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")

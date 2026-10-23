@@ -16,8 +16,11 @@ def test_local_failure_isolated(caplog):
     with patch('agent.pipelines.ingestion_steps.search_news', side_effect=fake_search_news) as mock_search:
         result = run_ingestion_for_all_watchlisted_tickers()
 
-    assert result.get('status') == 'success'
-    assert mock_search.call_count == 5 # there are 5 tickers in the systems
+    # Every ticker returned no news (or failed) - the run finishes, but the news health
+    # check flags it rather than reporting success.
+    assert result.get('status') == 'degraded'
+    assert result.get('errors')[-1]['phase'] == 'news_health'
+    assert mock_search.call_count == len(get_distinct_watchlisted_tickers())
 
 #-----------------------------------------------------------------------------#
 
@@ -68,7 +71,7 @@ def test_system_failure(caplog):
 #-----------------------------------------------------------------------------#
 
 def test_phase_1_aborted():
-    with patch('agent.pipelines.orchestrator._fetch_and_classify_common', return_value =(-1,set())):
+    with patch('agent.pipelines.orchestrator._fetch_and_classify_common', return_value =(-1,set(),0)):
         with patch('agent.pipelines.orchestrator._classify_custom_feeds') as mock_custom:
             with patch('agent.pipelines.orchestrator._synthesize_insights') as mock_synthesis:
                 result = run_ingestion_for_all_watchlisted_tickers()
