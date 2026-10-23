@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import MarkdownText from './MarkdownText';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-function AnswerBlock({ question, answer, references }) {
+export function AnswerBlock({ question, answer, references }) {
   return (
     <>
       <p className="qa-question">{question}</p>
@@ -28,7 +29,7 @@ function AnswerBlock({ question, answer, references }) {
           </ul>
         </div>
       )}
-      <p className="qa-answer">{answer}</p>
+      <MarkdownText className="qa-answer" text={answer} />
     </>
   );
 }

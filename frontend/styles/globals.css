@@ -113,7 +113,8 @@ button:disabled {
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* The forms on the left are short; the feeds list on the right holds long descriptions. */
+  grid-template-columns: minmax(300px, 2fr) 3fr;
   gap: 32px;
   align-items: start;
 }
@@ -414,8 +415,55 @@ ul {
 .qa-answer {
   font-size: 14px;
   color: #444;
-  margin: 0;
-  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+/* Answers are Markdown rendered by components/MarkdownText.js */
+.qa-answer > :first-child {
+  margin-top: 0;
+}
+
+.qa-answer > :last-child {
+  margin-bottom: 0;
+}
+
+.qa-answer p {
+  margin: 0 0 10px;
+}
+
+.qa-answer h4,
+.qa-answer h5 {
+  margin: 16px 0 6px;
+  color: #222;
+}
+
+.qa-answer h4 {
+  font-size: 16px;
+}
+
+.qa-answer h5 {
+  font-size: 14px;
+}
+
+.qa-answer ul,
+.qa-answer ol {
+  margin: 0 0 10px;
+  padding-left: 20px;
+}
+
+.qa-answer li {
+  margin-bottom: 4px;
+}
+
+.qa-answer strong {
+  color: #222;
+}
+
+.qa-answer code {
+  font-size: 13px;
+  background: #eeece6;
+  padding: 1px 4px;
+  border-radius: 3px;
 }
 
 .qa-disclaimer {
@@ -475,35 +523,68 @@ ul {
 }
 
 .ticker-feeds-list .feed-list {
-  padding-left: 12px;
+  display: grid;
+  gap: 8px;
+  padding-left: 0;
+  list-style: none;
 }
 
 .ticker-feeds-list .feed-list li {
-  padding: 4px 0;
-  border-bottom: none;
+  padding: 10px 12px;
+  border: 1px solid #ece9e2;
+  border-radius: 6px;
+  background: #fcfbf9;
   font-size: 13px;
+}
+
+/* Name + type badge on the left, controls pushed right; wraps under the name when narrow. */
+.feed-item-header {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
   align-items: center;
   gap: 8px;
 }
 
-.feed-main {
-  flex: 1;
-  min-width: 160px;
+.feed-name {
+  font-size: 14px;
+}
+
+.feed-type-badge {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #777;
+}
+
+.feed-type-badge.is-custom {
+  color: var(--accent);
 }
 
 .feed-controls {
   display: flex;
   align-items: center;
   gap: 6px;
-  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.feed-threshold {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #666;
 }
 
 .feed-controls select {
   font-size: 12px;
   padding: 2px 4px;
+}
+
+.feed-description {
+  margin: 6px 0 0;
+  color: #555;
+  line-height: 1.5;
 }
 
 .feed-controls button {

@@ -48,7 +48,7 @@ test('per-request token ceiling (200 + decline) is shown in the answer box, not 
   askQuestion();
 
   const shown = await screen.findByText(TOKEN_CEILING_MESSAGE);
-  expect(shown).toHaveClass('qa-answer');
+  expect(shown.closest('.qa-answer')).not.toBeNull();
   expect(container.querySelector('.error')).toBeNull();
 });
 
