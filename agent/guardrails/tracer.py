@@ -4,7 +4,7 @@ from typing import Optional
 from uuid import UUID
 
 from langchain_core.callbacks.base import BaseCallbackHandler
-
+from agent.guardrails.token_budget import total_tokens_from
 
 class RequestTracer(BaseCallbackHandler):
     """
@@ -89,8 +89,8 @@ class RequestTracer(BaseCallbackHandler):
         self._start(run_id, metadata, "llm")
 
     def on_llm_end(self, response, *, run_id: UUID, **kwargs) -> None:
-        usage = (response.llm_output or {}).get("token_usage") or {}
-        self._finish(run_id, "llm", tokens=usage.get("total_tokens"))
+        usage = total_tokens_from(response)
+        self._finish(run_id, "llm", tokens=usage)
 
     def on_llm_error(self, error, *, run_id: UUID, **kwargs) -> None:
         self._finish(run_id, "llm", result={"error": str(error)})

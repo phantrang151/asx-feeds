@@ -2,6 +2,10 @@ import json
 
 from pydantic import BaseModel, ValidationError
 
+from tools.logger import get_logger
+
+logger = get_logger(__name__)
+
 
 class StructuredOutputError(Exception):
     """Raised by invoke_structured_with_repair when the model's tool-call output still
@@ -71,7 +75,8 @@ def _repair_candidates(raw_args, required_fields: set[str]):
                 yield _json_decode_str_fields(parsed)
 
 
-def invoke_structured_with_repair(llm, schema: type[BaseModel], prompt: str, max_attempts: int = 2) -> BaseModel:
+def invoke_structured_with_repair(llm, schema: type[BaseModel], prompt, max_attempts: int = 2,
+                                  config: dict | None = None) -> BaseModel:
     """Same contract as llm.with_structured_output(schema).invoke(prompt), except a
     malformed tool call is repaired and re-validated (see _repair_candidates) instead
     of raising Pydantic's ValidationError straight away, and the whole call is retried
@@ -79,13 +84,16 @@ def invoke_structured_with_repair(llm, schema: type[BaseModel], prompt: str, max
     same text differently) before giving up. Raises StructuredOutputError - never a
     bare ValidationError - if every attempt still fails, carrying the last raw args so
     the caller can persist/flag them instead of the failure being silently swallowed.
+
+    `prompt` is anything llm.invoke accepts (a string or a list of messages); `config` is
+    passed to every attempt, so callbacks (token budget, RequestTracer) see each one.
     """
     required_fields = set(schema.model_fields.keys())
     structured_llm = llm.with_structured_output(schema, include_raw=True)
 
     last_raw_args = None
-    for _ in range(max_attempts):
-        result = structured_llm.invoke(prompt)
+    for attempt in range(1, max_attempts + 1):
+        result = structured_llm.invoke(prompt, config=config)
         if result["parsing_error"] is None:
             return result["parsed"]
 
@@ -98,5 +106,8 @@ def invoke_structured_with_repair(llm, schema: type[BaseModel], prompt: str, max
                 return schema(**candidate)
             except (ValidationError, TypeError):
                 continue
+
+        logger.warning("Unparseable %s output (attempt %d/%d): %s; raw args: %r",
+                       schema.__name__, attempt, max_attempts, result["parsing_error"], raw_args)
 
     raise StructuredOutputError(schema.__name__, last_raw_args, max_attempts)

@@ -300,15 +300,20 @@ create table if not exists ticker_insights (
   ticker text not null,
   insight_text text not null,
   based_on_feed_item_ids uuid[] not null default '{}',
-  -- Per-feed breakdown backing insight_text: [{feed_name, status: "sufficient" |
+  -- Per-feed breakdown backing insight_text: [{feed_id, feed_name, status: "sufficient" |
   -- "insufficient", summary, item_count, item_ids}, ...] - see synthesize_node in
-  -- agent/pipelines/insight_nodes.py. '[]' on rows written before this column existed.
+  -- agent/pipelines/insight_nodes.py. '[]' on rows written before this column existed;
+  -- feed_id is absent on rows written before it was stored (match those by feed_name).
   feed_summaries jsonb not null default '[]',
   created_at timestamptz not null default now()
 );
 -- Safe to re-run against a database created before per-feed sufficiency gating - see the
 -- insights_generated migration above for the same pattern.
 alter table ticker_insights add column if not exists feed_summaries jsonb not null default '[]';
+-- Every reader wants one user's newest snapshot(s) for a ticker: the alerts page (via
+-- latest_ticker_insights below) and get_my_thesis_tool (latest vs previous).
+create index if not exists ticker_insights_user_ticker_created_idx
+  on ticker_insights (user_id, ticker, created_at desc);
 
 -- One row per eval run (see eval/run_classification_eval.py, eval/run_chat_answer_eval.py,
 -- eval/run_guardrail_eval.py, eval/run_live_sample_eval.py) - what the admin page's
@@ -327,12 +332,15 @@ alter table ticker_insights add column if not exists feed_summaries jsonb not nu
 -- monitoring/quality_sampling.py's continuous custom_feed/common_feed sampling.
 -- 'research_order' = the deterministic ordering guard's labeled call-sequence
 -- regression check (eval/run_research_order_eval.py) - no LLM calls, unlike 'guardrails'.
+-- 'judge_validation' = judge_groundedness/judge_completeness scored against a human-labelled
+-- gold set (eval/runners/run_judge_validation_eval.py) - whether the judges are RIGHT, as
+-- opposed to 'judge_drift', which only checks whether their opinion changed between runs.
 create table if not exists eval_runs (
   id uuid primary key default gen_random_uuid(),
   eval_type text not null check (
     eval_type in (
       'classification', 'chat_answer', 'insight_quality', 'feed_summary', 'guardrails',
-      'research_order', 'live_sample', 'evidence_selection', 'judge_drift'
+      'research_order', 'live_sample', 'evidence_selection', 'judge_drift', 'judge_validation'
     )
   ),
   summary jsonb not null,
@@ -347,7 +355,7 @@ create table if not exists eval_runs (
 alter table eval_runs add column if not exists fixture_version text;
 
 -- Safe to re-run against a database created before insight_quality/research_order/
--- feed_summary/evidence_selection/judge_drift existed as eval types - drops the
+-- feed_summary/evidence_selection/judge_drift/judge_validation existed as eval types - drops the
 -- constraint (not the rows), renames any pre-existing 'generation' rows to
 -- 'chat_answer' (run_generation_eval.py/qa_test_set.json were renamed to
 -- run_chat_answer_eval.py/chat_answer_test_set.json for UI/file-name consistency -
@@ -359,7 +367,7 @@ update eval_runs set eval_type = 'chat_answer' where eval_type = 'generation';
 alter table eval_runs add constraint eval_runs_eval_type_check check (
   eval_type in (
     'classification', 'chat_answer', 'insight_quality', 'feed_summary', 'guardrails',
-    'research_order', 'live_sample', 'evidence_selection', 'judge_drift'
+    'research_order', 'live_sample', 'evidence_selection', 'judge_drift', 'judge_validation'
   )
 );
 
@@ -506,7 +514,9 @@ create table if not exists pipeline_runs (
   id uuid primary key default gen_random_uuid(),
   started_at timestamptz not null default now(),
   finished_at timestamptz,
-  status text not null default 'running', -- running | success | partial_failure | failed
+  -- degraded = finished without crashing, but the news health check failed (no articles
+  -- fetched, or nothing new for NEWS_STALE_AFTER_DAYS) - see orchestrator._news_health_issue.
+  status text not null default 'running', -- running | success | degraded | partial_failure | failed
   tickers_processed int not null default 0,
   feeds_classified int not null default 0,
   common_items_classified int not null default 0,
@@ -597,6 +607,14 @@ create table if not exists request_trace (
 );
 create index if not exists request_trace_user_time_idx on request_trace (user_id, created_at);
 create index if not exists request_trace_category_idx on request_trace (category, created_at);
+
+-- The HTTP request id from api/request_id.py's middleware - same value as the X-Request-ID
+-- response header, the [request_id] in log lines and the LangSmith run metadata, so one id joins
+-- all four. Nullable and additive (id stays the primary key that request_trace_steps/ops_alerts
+-- reference); null for rows written before it existed. Not unique on purpose: a lookup key,
+-- never a reason to lose a trace row. See scripts/migration_request_trace_request_id.sql.
+alter table request_trace add column if not exists request_id uuid;
+create index if not exists request_trace_request_id_idx on request_trace (request_id);
 
 -- One row per step inside a request_trace - the router call, each individual ReAct
 -- tool call, each guardrail check, synthesis. Child table (not a jsonb array on
@@ -828,3 +846,113 @@ create view user_feed_items with (security_invoker = true) as
   where feeds.feed_type = 'common';
 
 grant select on user_feed_items to authenticated;
+
+-- One row per (user, ticker): that user's newest ticker_insights snapshot. ticker_insights
+-- is append-only (every synthesis inserts a row, kept as history for "what changed"), so the
+-- alerts page reads this instead of downloading every historical row just to show the
+-- newest. security_invoker for the same reason as user_feed_items above: ticker_insights'
+-- own "select own insights" policy must apply to the querying user, not the view owner.
+create or replace view latest_ticker_insights with (security_invoker = true) as
+  select distinct on (user_id, ticker) *
+  from ticker_insights
+  order by user_id, ticker, created_at desc;
+
+grant select on latest_ticker_insights to authenticated;
+
+CREATE OR REPLACE FUNCTION match_ticker_news_lexical(
+    search_terms text,
+    match_tickers text[],
+    match_count int DEFAULT 10
+)
+RETURNS TABLE (
+    id uuid,
+    ticker text,
+    title text,
+    snippet text,
+    lexical_score real
+)
+LANGUAGE sql STABLE
+AS $$
+    WITH lexical_results AS (
+        SELECT
+            n.id,
+            n.ticker,
+            n.title,
+            n.snippet,
+            ts_rank_cd(
+                to_tsvector(
+                    'english',
+                    coalesce(n.title, '') || ' ' ||
+                    coalesce(n.snippet, '')
+                ),
+                to_tsquery('english', search_terms)
+            ) AS lexical_score
+        FROM ticker_news n
+        WHERE n.ticker = ANY(match_tickers)
+    )
+    SELECT
+        lr.id,
+        lr.ticker,
+        lr.title,
+        lr.snippet,
+        lr.lexical_score
+    FROM lexical_results lr
+    WHERE lr.lexical_score > 0
+    ORDER BY lr.lexical_score DESC, lr.id
+    LIMIT match_count;
+$$;
+
+create table if not exists site_stats (
+  id uuid primary key default gen_random_uuid(),
+  computed_at timestamptz not null default now(),
+  active_researchers int not null,
+  feeds_created int not null,
+  articles_matched int not null,
+  insights_generated int not null
+);
+create index if not exists site_stats_computed_at_idx on site_stats (computed_at desc);
+
+-- Same posture as pipeline_runs: RLS on with no policies, so only the backend's service_role
+-- key reads or writes it. The public endpoint exposes the four numbers, never the table.
+alter table site_stats enable row level security;
+
+-- active_researchers: distinct users who asked a question, created a feed or added a ticker
+--   in the last 30 days.
+-- feeds_created: feeds currently tracked (custom and common) - deleted feeds drop out.
+-- articles_matched: distinct news articles (by URL) matched to at least one custom or common
+--   feed. A common-feed match is shared by every user on that ticker, so it counts once.
+-- insights_generated: insights where at least one feed had sufficient evidence - an insight
+--   built only from "not enough evidence" feeds is not counted as evidence-backed.
+create or replace function compute_site_stats()
+returns table (
+  active_researchers int,
+  feeds_created int,
+  articles_matched int,
+  insights_generated int
+)
+language sql
+stable
+as $$
+  select
+    (select count(distinct user_id)::int from (
+        select user_id from api_request_log where created_at > now() - interval '30 days'
+        union
+        select user_id from feeds where created_at > now() - interval '30 days'
+        union
+        select user_id from watchlist_stocks where created_at > now() - interval '30 days'
+    ) recent),
+    (select count(*)::int from feeds),
+    (select count(*)::int from (
+        select source_url from custom_feed_items where source_type = 'news' and source_url is not null
+        union
+        select source_url from common_feed_items where source_url is not null
+    ) matched),
+    (select count(*)::int from ticker_insights i
+      where exists (select 1 from jsonb_array_elements(i.feed_summaries) s
+                    where s->>'status' = 'sufficient'));
+$$;
+
+-- Backend only: not callable through PostgREST with the anon or a user's key.
+revoke execute on function compute_site_stats() from public, anon, authenticated;
+grant execute on function compute_site_stats() to service_role;
+

@@ -177,34 +177,44 @@ export default function TickerFeedsList({ tickers, feeds, onFeedDeleted, onTicke
                         {editError && <p className="error">{editError}</p>}
                       </form>
                     ) : (
+                      // Name + controls on one row, description full-width underneath, so long
+                      // descriptions don't squeeze the buttons (or the buttons the text).
                       <>
-                        <div className="feed-main">
-                          <strong>{f.feed_name}</strong> - {f.feed_description}
-                        </div>
-                        {f.feed_type === 'custom' && (
+                        <div className="feed-item-header">
+                          <strong className="feed-name">{f.feed_name}</strong>
+                          <span className={`feed-type-badge ${f.feed_type === 'custom' ? 'is-custom' : ''}`}>
+                            {f.feed_type === 'custom' ? 'Custom' : 'Common'}
+                          </span>
                           <div className="feed-controls">
-                            <select
-                              value={String(Math.round(f.match_threshold * 10) / 10)}
-                              onChange={(e) => handleThresholdChange(f.id, e.target.value)}
-                              title="Relevance threshold"
-                            >
-                              {THRESHOLD_OPTIONS.map((opt) => (
-                                <option key={opt} value={String(opt)}>
-                                  {Math.round(opt * 100)}%
-                                </option>
-                              ))}
-                            </select>
-                            <button type="button" onClick={() => startEdit(f)}>
-                              Edit
-                            </button>
-                            <button type="button" disabled={f.needs_rematch} onClick={() => handleRefresh(f.id)}>
-                              {f.needs_rematch ? 'Refresh queued' : 'Refresh'}
+                            {f.feed_type === 'custom' && (
+                              <>
+                                <label className="feed-threshold" title="Relevance threshold">
+                                  Match
+                                  <select
+                                    value={String(Math.round(f.match_threshold * 10) / 10)}
+                                    onChange={(e) => handleThresholdChange(f.id, e.target.value)}
+                                  >
+                                    {THRESHOLD_OPTIONS.map((opt) => (
+                                      <option key={opt} value={String(opt)}>
+                                        {Math.round(opt * 100)}%
+                                      </option>
+                                    ))}
+                                  </select>
+                                </label>
+                                <button type="button" onClick={() => startEdit(f)}>
+                                  Edit
+                                </button>
+                                <button type="button" disabled={f.needs_rematch} onClick={() => handleRefresh(f.id)}>
+                                  {f.needs_rematch ? 'Refresh queued' : 'Refresh'}
+                                </button>
+                              </>
+                            )}
+                            <button type="button" className="delete-button" onClick={() => handleDeleteFeed(f.id)}>
+                              Delete
                             </button>
                           </div>
-                        )}
-                        <button type="button" className="delete-button" onClick={() => handleDeleteFeed(f.id)}>
-                          Delete feed
-                        </button>
+                        </div>
+                        <p className="feed-description">{f.feed_description}</p>
                       </>
                     )}
                   </li>

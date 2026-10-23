@@ -11,7 +11,6 @@ re-run on prompt or code change) rather than replacing it - this module is purel
 additive.
 """
 
-import logging
 import math
 import random
 
@@ -30,8 +29,9 @@ from db.queries import (
 )
 from agent.eval.judge import judge_groundedness, judge_completeness, dump_unsupported_claims
 from agent.eval.insight_evidence import build_insight_evidence
+from tools.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def _sample_size(eligible_n: int, rate: float = QUALITY_SAMPLE_RATE, cap: int = QUALITY_SAMPLE_CAP) -> int:

@@ -27,14 +27,21 @@ from config import JUDGE_MODEL, ANTHROPIC_API_KEY
 
 class UnsupportedClaim(BaseModel):
     statement: str = Field(description="The exact claim from the insight that isn't backed by the evidence.")
-    issue_type: Literal["contradicting", "unsupported"] = Field(
+    issue_type: Literal["contradicting", "partially_supported", "unsupported"] = Field(
         description="'contradicting' if the evidence actively states something different from or opposite to this "
-        "claim; 'unsupported' if the evidence simply never addresses it (absence of evidence, not evidence of "
-        "the opposite)."
+        "claim; 'partially_supported' if part of the claim is stated in the evidence but another part (an added "
+        "detail, cause, purpose, timing, qualifier or definition) is not; 'unsupported' if the evidence never "
+        "addresses the claim at all (absence of evidence, not evidence of the opposite). All three mean the claim "
+        "is NOT supported."
+    )
+    unsupported_part: str = Field(
+        description="The exact words of the claim that the evidence does not back: for 'partially_supported', only "
+        "the added part (e.g. 'during the transaction process'); for 'contradicting' or 'unsupported', the whole "
+        "claim."
     )
     explanation: str = Field(
-        description="One sentence explaining why this claim is contradicting or unsupported, referencing what "
-        "the evidence actually says (or doesn't)."
+        description="One sentence explaining why this claim is contradicting, partially supported or unsupported, "
+        "referencing what the evidence actually says (or doesn't)."
     )
 
 
@@ -45,11 +52,12 @@ class GroundednessJudgment(BaseModel):
         "going beyond what the evidence says."
     )
     unsupported_claims: list[UnsupportedClaim] = Field(
-        description="Specific claims in the insight that are NOT supported by the evidence. Empty if fully grounded."
+        description="Specific claims in the insight that are NOT fully supported by the evidence - contradicting, "
+        "partially supported or unsupported. Empty if fully grounded."
     )
     grounded: bool = Field(
-        description="True only if groundedness_pct is 100 - i.e. every claim in the insight is supported "
-        "by the evidence, with zero exceptions."
+        description="True only if groundedness_pct is 100 - i.e. every claim in the insight is fully supported "
+        "by the evidence, with zero exceptions. A partially supported claim makes this False."
     )
 
 
@@ -76,6 +84,11 @@ class CompletenessJudgment(BaseModel):
     omitted_points: list[str] = Field(
         description="Specific relevant points present in the evidence but missing from the answer. "
         "Empty if fully covered."
+    )
+    off_topic_points: list[str] = Field(
+        default_factory=list,
+        description="Evidence points judged OFF-TOPIC for the question, and therefore excluded from "
+        "coverage_pct and omitted_points. Empty if every evidence point is relevant."
     )
 
 
@@ -113,10 +126,33 @@ def judge_groundedness(insight: str, evidence: list[dict]) -> GroundednessJudgme
         "the evidence it was given - not whether it's true in general, only whether "
         "THIS evidence supports it. For each specific claim in the insight that goes "
         "beyond what the evidence actually says, classify it as 'contradicting' (the "
-        "evidence states something different or opposite) or 'unsupported' (the "
-        "evidence simply doesn't address it at all), and explain why. Score what "
-        "percentage of the insight's claims are actually supported (100 = fully "
-        "grounded, no exceptions).\n\n"
+        "evidence states something different or opposite), 'partially_supported' "
+        "(part of the claim is in the evidence but another part is not) or "
+        "'unsupported' (the evidence doesn't address it at all), name the part the "
+        "evidence doesn't back, and explain why.\n\n"
+        "Be strict about information, not wording:\n"
+        "- A claim is supported if the evidence states the same information, even in "
+        "different words. Rewording, synonyms, summaries and small wording differences "
+        "that don't change the meaning are supported (e.g. 'above target' vs 'above the "
+        "target band', 'scaling A$400m in value' vs 'targeting A$400m in value').\n"
+        "- A claim is partially_supported if it ADDS information the evidence doesn't "
+        "contain - a new detail, cause, purpose, timing, comparison, prediction or "
+        "definition. Test: would a reader learn something from the claim that the "
+        "evidence doesn't tell them? If yes, it is not fully supported (e.g. 'a "
+        "hotter-than-expected print' adds a comparison with expectations that 'a hot "
+        "print' doesn't make).\n"
+        "- Interpretations and implications ('suggests', 'likely', 'positioned as', "
+        "'aims to') are claims too; they are supported only if the evidence itself "
+        "says them.\n"
+        "- General knowledge, definitions, background facts and recommendations (e.g. "
+        "where to find more information) are claims too; they are unsupported unless "
+        "the evidence states them, even if they are true in the real world.\n"
+        "- Statements about the evidence itself (what it does or doesn't contain, or "
+        "that an item is unrelated to the topic) are supported if they accurately "
+        "describe the evidence AS GIVEN here. Don't reject them because the snippets "
+        "might be truncated.\n\n"
+        "Score what percentage of the insight's claims are fully supported (100 = "
+        "fully grounded, no exceptions).\n\n"
         f"Evidence:\n{evidence_text}\n\n"
         f"Insight:\n{insight}"
     )
@@ -176,6 +212,25 @@ def judge_completeness(question: str, insight: str, evidence: list[dict]) -> Com
         "not how long it is. Evidence that's off-topic for the question, or redundant "
         "with a point the answer already makes, doesn't count against the score - only "
         "relevant content the answer left out.\n\n"
+        "What counts as relevant:\n"
+        "- An evidence point is RELEVANT if a good answer to this specific question could "
+        "reasonably use it: it is about the subject the question asks about (the same "
+        "company AND topic), or it gives direct context, a cause or an effect for that "
+        "subject. Borderline or indirect points count as relevant.\n"
+        "- An evidence point is OFF-TOPIC if it is about a different company or subject the "
+        "question doesn't ask about, or about the same company but an unrelated topic that "
+        "has no bearing on the question.\n"
+        "- Examples: for 'What is Company X's new mobile app?', 'Company Y reported higher "
+        "quarterly sales' is off-topic (different company and subject), and 'Company X "
+        "cut its marketing budget' is off-topic (same company, unrelated topic); for 'Why "
+        "are home loan approvals falling?', 'the central bank raised interest rates' is "
+        "relevant (rates directly affect home loans).\n\n"
+        "How to grade:\n"
+        "1. First decide which evidence points are relevant and list the off-topic ones in "
+        "off_topic_points. Do this even if there is only one evidence point - being the "
+        "only evidence does not make a point relevant.\n"
+        "2. Then judge coverage of the relevant points only. If no evidence point is "
+        "relevant, return coverage_pct 100 and an empty omitted_points list.\n\n"
         f"Question:\n{question}\n\n"
         f"Evidence:\n{evidence_text}\n\n"
         f"Answer:\n{insight}"

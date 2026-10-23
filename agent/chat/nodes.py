@@ -1,3 +1,5 @@
+
+
 import re
 from typing import Optional
 
@@ -10,13 +12,19 @@ from .schemas import State, Router
 from .prompts import ROUTER_PROMPT
 from . import decline_messages
 from agent.guardrails import keyword_scan_advice_seeking, validate_ticker
-from config import ROUTER_MODEL, ANTHROPIC_API_KEY
+from config import LLM_TIMEOUT, ROUTER_MODEL, ANTHROPIC_API_KEY, LLM_API_RETRIES
 from tools.search import search_news
 from agent.shared.news_text import format_news_content
+from agent.shared.structured_output import invoke_structured_with_repair
 
 _LATEST_NEWS_QUERY = re.compile(r"\b(latest|recent)\s+news\b|\bnews\s+(on|about)\b", re.IGNORECASE)
 _ASX_TICKER = re.compile(r"\b([A-Z0-9]{1,6}\.AX)\b", re.IGNORECASE)
-_ANALYSIS_WORDS = re.compile(r"\b(why|how|compare|comparison|strategy|trend|revenue|profit|report|versus|vs)\b", re.IGNORECASE)
+# Includes the personal-thesis words so "what changed in my NAB.AX thesis based on the latest
+# news" goes to conduct_analysis (get_my_thesis_tool) instead of the plain headline shortcut.
+_ANALYSIS_WORDS = re.compile(
+    r"\b(why|how|compare|comparison|strategy|trend|revenue|profit|report|versus|vs|thesis|feeds?|insights?|changed)\b",
+    re.IGNORECASE,
+)
 
 
 def _latest_news_ticker(question: str) -> Optional[str]:
@@ -58,11 +66,12 @@ def classify_request(messages: list, callbacks: Optional[list] = None) -> Router
     agent/guardrails/advice_check.py::check_advice_avoidance's own docstring.
 
     `callbacks`, if given, is tagged with metadata={"step_name": "router"} for
-    RequestTracer (see agent/guardrails/tracer.py)."""
-    llm = ChatAnthropic(model=ROUTER_MODEL, api_key=ANTHROPIC_API_KEY)
-    llm_router = llm.with_structured_output(Router)
+    RequestTracer (see agent/guardrails/tracer.py). Raises StructuredOutputError if the
+    output still can't be parsed after repair and a retry (api/main.py answers it)."""
+    llm = ChatAnthropic(model=ROUTER_MODEL, api_key=ANTHROPIC_API_KEY, timeout=LLM_TIMEOUT, max_retries=LLM_API_RETRIES)
     config = {"callbacks": callbacks, "metadata": {"step_name": "router"}} if callbacks else None
-    return llm_router.invoke([SystemMessage(content=ROUTER_PROMPT)] + messages, config=config)
+    return invoke_structured_with_repair(llm, Router, [SystemMessage(content=ROUTER_PROMPT)] + messages,
+                                         config=config)
 
 
 def router_node(state: State, config):
@@ -143,30 +152,41 @@ def search_news_node(state: State, config):
     """Search for news based on the ticker symbol."""
     ticker = state["ticker"]
     tracer = config["configurable"].get("tracer")
-
-    if tracer:
-        with tracer.step("tool:search_news", "tool"):
+    try:
+        if tracer:
+            with tracer.step("tool:search_news", "tool"):
+                articles = search_news(ticker)
+        else:
             articles = search_news(ticker)
-    else:
-        articles = search_news(ticker)
 
-    if not articles:
-        answer = f"No recent news found for {ticker}."
-        references = []
-    else:
-        answer = "\n".join(
-            f"- {format_news_content(a['title'], a.get('snippet'))} ({a.get('publisher') or 'Unknown'})"
-            for a in articles
+        if articles is None:
+            answer = f"There were error fetching news for {ticker}."
+            references = []
+            
+        elif len(articles) == 0:
+            answer = f"No recent news found for {ticker}."
+            references = []
+
+        else:
+            answer = "\n".join(
+                f"- {format_news_content(a['title'], a.get('snippet'))} ({a.get('publisher') or 'Unknown'})"
+                for a in articles
+            )
+            references = [
+                {
+                    "source": "search_news",
+                    "content": f"{format_news_content(a['title'], a.get('snippet'))} ({a.get('publisher') or 'Unknown'})",
+                    "url": a.get("link"),
+                }
+                for a in articles
+            ]
+
+        return Command(
+            update={"result": answer, "references": references, "messages": [AIMessage(content=answer)]}
         )
-        references = [
-            {
-                "source": "search_news",
-                "content": f"{format_news_content(a['title'], a.get('snippet'))} ({a.get('publisher') or 'Unknown'})",
-                "url": a.get("link"),
-            }
-            for a in articles
-        ]
 
-    return Command(
-        update={"result": answer, "references": references, "messages": [AIMessage(content=answer)]}
-    )
+    except Exception as e:
+            answer = f"An error occurred while fetching news for {ticker}: {str(e)}"
+            return Command(
+                update={"result": answer, "references": [], "messages": [AIMessage(content=answer)]}
+            )
