@@ -33,7 +33,7 @@ function mockApiResponse(status, body) {
 }
 
 function askQuestion(text = "What was ANZ's FY2025 profit?") {
-  fireEvent.change(screen.getByPlaceholderText(/Why is Telstra/), { target: { value: text } });
+  fireEvent.change(screen.getByPlaceholderText(/Ask a question/), { target: { value: text } });
   fireEvent.click(screen.getByRole('button', { name: 'Ask' }));
 }
 
@@ -85,4 +85,23 @@ test('a 429 without a detail falls back to a generic message', async () => {
   askQuestion();
 
   expect(await screen.findByText('Failed to get an answer.')).toHaveClass('error');
+});
+
+test('sample questions use the given ticker and fill the box without asking', () => {
+  global.fetch = jest.fn();
+  render(<AskQuestion sampleTicker="NAB.AX" />);
+
+  const chip = screen.getByRole('button', { name: /What has changed in my NAB\.AX investment thesis\?/ });
+  expect(chip).toHaveTextContent('My investment thesis');
+  expect(screen.getAllByRole('button', { name: /NAB\.AX/ })).toHaveLength(3);
+
+  fireEvent.click(chip);
+  expect(screen.getByPlaceholderText(/Ask a question/)).toHaveValue('What has changed in my NAB.AX investment thesis?');
+  expect(global.fetch).not.toHaveBeenCalled(); // filled in for editing, not sent
+});
+
+test('no sample questions until the user has a ticker', () => {
+  render(<AskQuestion />);
+  expect(screen.queryByRole('button', { name: /investment thesis/ })).toBeNull();
+  expect(screen.getByText(/Add a ticker and a feed/)).toBeInTheDocument();
 });

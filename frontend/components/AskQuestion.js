@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import MarkdownText from './MarkdownText';
 
@@ -34,7 +34,22 @@ export function AnswerBlock({ question, answer, references }) {
   );
 }
 
-export default function AskQuestion() {
+// Shown in the empty answer box. Only questions the chat can actually answer today: each is
+// about one ticker's thesis, which get_my_thesis_tool reads (questions spanning every tracked
+// company aren't supported yet). The full ticker (e.g. NAB.AX) keeps the router unambiguous.
+function sampleQuestions(ticker) {
+  return [
+    { category: 'My investment thesis', question: `What has changed in my ${ticker} investment thesis?` },
+    { category: 'My feeds and insights', question: `Are there any contradictions across my ${ticker} feeds?` },
+    {
+      category: 'Historical comparisons',
+      question: `Which of my previous ${ticker} conclusions are no longer supported?`,
+    },
+  ];
+}
+
+export default function AskQuestion({ sampleTicker = null }) {
+  const inputRef = useRef(null);
   const [threadId] = useState(() => crypto.randomUUID());
   const [question, setQuestion] = useState('');
   const [current, setCurrent] = useState(null);
@@ -92,9 +107,10 @@ export default function AskQuestion() {
     <div>
       <form onSubmit={handleSubmit} className="inline-form">
         <input
+          ref={inputRef}
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
-          placeholder="e.g. Why is Telstra's profit increasing? TLS.AX"
+          placeholder="Ask a question about one of your tickers"
           required
         />
         <button type="submit" disabled={asking || !question.trim()}>
@@ -109,7 +125,35 @@ export default function AskQuestion() {
         ) : current ? (
           <AnswerBlock question={current.question} answer={current.answer} references={current.references} />
         ) : (
-          <p className="qa-placeholder">Ask something above - the answer will show up here.</p>
+          <div className="qa-samples">
+            {sampleTicker ? (
+              <>
+                <p className="qa-placeholder">Ask something above, or try one of these about your thesis:</p>
+                <div className="qa-sample-list">
+                  {sampleQuestions(sampleTicker).map(({ category, question: q }) => (
+                    <button
+                      key={q}
+                      type="button"
+                      className="qa-sample"
+                      onClick={() => {
+                        // Fill in rather than send, so the question can be edited first.
+                        setQuestion(q);
+                        inputRef.current?.focus();
+                      }}
+                    >
+                      <span className="qa-sample-category">{category}</span>
+                      <span className="qa-sample-question">{q}</span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <p className="qa-placeholder">
+                Ask something above - the answer will show up here. Add a ticker and a feed below to ask
+                about your own thesis.
+              </p>
+            )}
+          </div>
         )}
       </div>
 
