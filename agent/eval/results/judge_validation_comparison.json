@@ -1,0 +1,3608 @@
+{
+  "summary": {
+    "n_cases": 22,
+    "n_skipped_unlabelled": 0,
+    "groundedness_per_claim": {
+      "n": 361,
+      "caught_unsupported": 98,
+      "accepted_supported": 241,
+      "wrongly_rejected": 12,
+      "wrongly_accepted": 10,
+      "problem_catch_rate": 0.9074,
+      "false_alarm_rate": 0.0474,
+      "agreement_rate": 0.9391
+    },
+    "completeness_per_fact": {
+      "n": 85,
+      "caught_missing": 13,
+      "confirmed_covered": 69,
+      "wrongly_flagged_missing": 2,
+      "missed_omission": 1,
+      "problem_catch_rate": 0.9286,
+      "false_alarm_rate": 0.0282,
+      "agreement_rate": 0.9647
+    },
+    "completeness_irrelevant_facts": {
+      "n": 30,
+      "correctly_not_penalised": 30,
+      "wrongly_penalised": 0,
+      "not_penalised_rate": 1.0
+    },
+    "fact_relevance": {
+      "n": 115,
+      "relevant_kept": 84,
+      "relevant_dismissed": 1,
+      "off_topic_dismissed": 30,
+      "off_topic_kept": 0,
+      "agreement_rate": 0.9913
+    },
+    "whole_answer": {
+      "groundedness_score_gap": {
+        "n": 22,
+        "mean_abs_diff": 11.9,
+        "mean_diff_judge_minus_human": -2.2
+      },
+      "grounded_verdict_agreement": 0.9545,
+      "completeness_score_gap": {
+        "n": 19,
+        "mean_abs_diff": 7.7,
+        "mean_diff_judge_minus_human": 1.2
+      }
+    }
+  },
+  "cases": [
+    {
+      "id": "q1",
+      "question": "How is CBA using AI to improve software engineering productivity?",
+      "claims": [
+        {
+          "claim": "Approximately 80% of CBA's engineers are now using AI agents as part of their development workflow.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The 80% figure comes from comments by Ranil Boteju.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Ranil Boteju is CBA's Chief AI Officer.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "CBA reports that AI agents have helped triple code output among engineers using them.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The AI tooling has been credited with helping resolve more than 15,000 security issues.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "This suggests the AI is being used not just for writing new code but also for identifying and remediating vulnerabilities or technical debt.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "This engineering initiative is part of a larger push at CBA to scale AI value across the organization.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": true,
+          "outcome": "wrongly_accepted"
+        },
+        {
+          "claim": "The larger push is reportedly targeting around A$400 million in value.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Boteju emphasizes a 'humans in the loop' approach.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The 'humans in the loop' approach means AI augments rather than fully automates engineering decisions.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "The evidence doesn't specify which AI tools/platforms are being used.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "It is unknown whether the tools involve GitHub Copilot, custom internal models, or other coding assistants.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence doesn't provide a timeline for when the 80% adoption was reached.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence doesn't provide a breakdown of how the A$400 million figure breaks down by function.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "There is a second piece of evidence about AI replacing customer service jobs at CBA.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The customer service AI evidence relates to a different part of CBA's AI strategy.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "The customer service AI evidence isn't directly relevant to the software engineering productivity question.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        }
+      ],
+      "facts": [
+        {
+          "fact": "80% of CBA's engineers use AI agents.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "The AI agents have tripled code output.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "The AI agents have helped resolve over 15,000 security issues.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "Ranil Boteju is CBA's chief AI officer.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "CBA is scaling A$400m in AI value with humans in the loop.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "AI is replacing customer service jobs at CBA, Microsoft and Uber.",
+          "relevant": false,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        }
+      ],
+      "whole_answer": {
+        "human_groundedness_pct": 76.5,
+        "judge_groundedness_pct": 75,
+        "human_grounded": false,
+        "judge_grounded": false,
+        "human_completeness_pct": 100.0,
+        "judge_completeness_pct": 100
+      }
+    },
+    {
+      "id": "q2",
+      "question": "What technology leadership changes has CBA made to support its AI strategy?",
+      "claims": [
+        {
+          "claim": "Reuters reports that CBA has appointed a new Chief Information Officer (CIO).",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Reuters reports that CBA has appointed a new Chief Technology Officer (CTO).",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The CIO and CTO appointments have an explicit mandate to strengthen the bank's technology strategy.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": false,
+          "outcome": "wrongly_rejected"
+        },
+        {
+          "claim": "The CIO and CTO appointments have an explicit mandate to strengthen the bank's AI strategy.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": false,
+          "outcome": "wrongly_rejected"
+        },
+        {
+          "claim": "The evidence provided does not include the names of the newly appointed CIO and CTO.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence provided does not include further details on the backgrounds of the newly appointed CIO and CTO.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "CBA has a dedicated Chief AI Officer named Ranil Boteju.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Ranil Boteju is leading efforts to scale AI value across the bank.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Under Ranil Boteju's leadership, CBA has driven adoption of AI coding agents among roughly 80% of the bank's engineers.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "The adoption of AI coding agents has tripled code output.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "CBA used AI tools to help resolve over 15,000 security issues.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "CBA is pursuing a 'humans in the loop' approach to scaling AI-generated value.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The AI-generated value being scaled is described as A$400 million.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence does not detail the specific names of the newly appointed CIO/CTO.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence does not detail the start dates of the newly appointed CIO/CTO.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence does not detail the prior experience of the newly appointed CIO/CTO.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence does not detail how the CIO/CTO roles are structured relative to the Chief AI Officer.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Additional sourcing would be required to obtain specifics about the CIO/CTO appointments.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        }
+      ],
+      "facts": [
+        {
+          "fact": "CBA appointed a new CIO and CTO to boost its technology and AI strategy.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "Ranil Boteju is CBA's chief AI officer.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "AI is replacing customer service jobs at CBA, Microsoft and Uber.",
+          "relevant": false,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        }
+      ],
+      "whole_answer": {
+        "human_groundedness_pct": 94.4,
+        "judge_groundedness_pct": 80,
+        "human_grounded": false,
+        "judge_grounded": false,
+        "human_completeness_pct": 100.0,
+        "judge_completeness_pct": 100
+      }
+    },
+    {
+      "id": "q3",
+      "question": "How is CBA modernising its payment services?",
+      "claims": [
+        {
+          "claim": "CBA has launched a new payout platform called PaidIt.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "PaidIt is designed to get ahead of Australia's planned cheque phase-out.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "PaidIt combines three functions in one system: recipient verification, communications, and payment delivery.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "PaidIt aims to streamline how payouts are made and received.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "CBA has a broader AI push that is not payments-specific.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "CBA's AI push reportedly targets A$400 million in value.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The A$400 million figure comes from comments by CBA's chief AI officer.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "CBA's AI push includes AI agents used by engineers to boost productivity.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "CBA's AI agents are used by engineers to resolve security issues.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "CBA's AI infrastructure likely underpins fraud detection relevant to payments.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "CBA's AI infrastructure likely underpins security improvements relevant to payments.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "The evidence does not detail specific payment-related AI applications at CBA.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "CBA is part of a coalition of global banks flagging risks from AI shopping agents.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "AI shopping agents make purchases on consumers' behalf.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The coalition warns that AI shopping agents could expose card details.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The coalition warns that AI shopping agents could create new fraud vulnerabilities.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The coalition warns that AI shopping agents could create new data privacy vulnerabilities.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "This suggests CBA is engaging in industry-wide discussions about security standards as payment technology evolves.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "The evidence provided is fairly limited on payments modernisation specifically.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Most of the evidence centers on PaidIt and the broader AI strategy.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "There is no detail on other potential initiatives CBA may be pursuing, such as real-time payment rails.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "There is no detail on other potential initiatives CBA may be pursuing, such as digital wallet integration.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "There is no detail on other potential initiatives CBA may be pursuing, such as infrastructure upgrades.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "A fuller picture beyond these points cannot be given based on the available evidence.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        }
+      ],
+      "facts": [
+        {
+          "fact": "CBA unveiled a payout platform called PaidIt ahead of its exit from cheques.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "PaidIt combines recipient verification, communications and payment delivery in one system.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "A coalition of global banks warns AI shopping agents could expose card details.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "A coalition of global banks warns AI shopping agents could weaken payment security.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "archTIS extended the maturity date of a A$4 million CBA lending facility.",
+          "relevant": false,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        },
+        {
+          "fact": "A Simply Wall St article discusses CBA's profit uptick and the RBA countdown.",
+          "relevant": false,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        }
+      ],
+      "whole_answer": {
+        "human_groundedness_pct": 70.8,
+        "judge_groundedness_pct": 55,
+        "human_grounded": false,
+        "judge_grounded": false,
+        "human_completeness_pct": 100.0,
+        "judge_completeness_pct": 95
+      }
+    },
+    {
+      "id": "q4",
+      "question": "What are the risks associated with AI-powered shopping and payment agents?",
+      "claims": [
+        {
+          "claim": "A coalition of global banks warns about risks associated with AI-powered shopping and payment agents.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The coalition of global banks includes NatWest.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The coalition of global banks includes Bank of America.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Agentic AI tools can make purchases on a consumer's behalf.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Agentic AI tools making purchases could expose sensitive card information during the transaction process.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "AI commerce tools may bypass existing authentication and fraud-prevention mechanisms.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "AI commerce tools may undermine existing authentication and fraud-prevention mechanisms.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Existing authentication and fraud-prevention mechanisms were designed around human-initiated transactions, not autonomous agents acting for consumers.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Banks flag that AI shopping agents could become a new vector for scams.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Fraudsters may exploit gaps in how AI shopping agents verify transactions.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Fraudsters may exploit gaps in how AI shopping agents interact with merchants.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "The automation of shopping and payment decisions by AI agents raises concerns about data privacy.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "There are concerns about how consumer data is collected, stored, and shared across the AI tool, merchants, and payment networks.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "A core concern raised by the bank coalition is that the pace of AI commerce development is outstripping fraud protections currently in place.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "A core concern raised by the bank coalition is that the pace of AI commerce development is outstripping regulatory frameworks currently in place.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "This pace mismatch creates a gap where consumers may be inadequately protected.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence does not provide CBA-specific details on how these risks apply directly to its own operations or customers.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence does not quantify potential financial exposure.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The warnings cited are industry-wide statements from a coalition of banks rather than CBA-specific risk disclosures.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        }
+      ],
+      "facts": [
+        {
+          "fact": "AI shopping agents could increase the risk of scams and fraud.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "AI shopping agents could lead to data privacy breaches.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "AI shopping agents could expose card details.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "AI shopping agents could weaken payment security.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "NatWest, Bank of America and other banks say AI commerce tools are advancing faster than industry safeguards.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "Goldman Sachs warns AI is wiping out 11,000 jobs per month.",
+          "relevant": false,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        },
+        {
+          "fact": "AI is replacing customer service jobs at CBA, Microsoft and Uber.",
+          "relevant": false,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        }
+      ],
+      "whole_answer": {
+        "human_groundedness_pct": 57.9,
+        "judge_groundedness_pct": 45,
+        "human_grounded": false,
+        "judge_grounded": false,
+        "human_completeness_pct": 100.0,
+        "judge_completeness_pct": 100
+      }
+    },
+    {
+      "id": "q5",
+      "question": "What challenges are Australian banks facing in mortgage lending?",
+      "claims": [
+        {
+          "claim": "Australian banks, including CBA, are facing challenges in mortgage lending.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": false,
+          "outcome": "wrongly_rejected"
+        },
+        {
+          "claim": "Reports indicate a downturn in mortgage lending volumes.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Mortgage lending has historically been a lucrative business line for the major banks.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "The downturn in mortgage lending has led investors to question whether current valuations on Australia's big banks are justified.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "CBA forecast additional RBA rate hikes in 2023.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "NAB forecast additional RBA rate hikes in 2023.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "ANZ forecast additional RBA rate hikes in 2023.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Market expectations, based on fast-money/speculative positioning, point to further monetary tightening.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The further tightening could potentially extend into November.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Higher interest rates increase borrowing costs for mortgage customers.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Higher borrowing costs can dampen new loan demand.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Higher borrowing costs can pressure household affordability.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Higher borrowing costs can potentially increase mortgage stress among existing borrowers.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Higher borrowing costs can potentially increase arrears among existing borrowers.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "A 'hot' inflation print was cited as a key driver reigniting rate hike expectations.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Banks are contending with a macro environment where persistent inflation is forcing further monetary tightening.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": true,
+          "outcome": "wrongly_accepted"
+        },
+        {
+          "claim": "Persistent inflation is compounding the pressure on mortgage volumes and borrower capacity.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "The core challenge is a squeeze between slowing loan demand and a higher-rate environment.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "This squeeze threatens the growth of the mortgage lending segment for Australian banks.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "This squeeze threatens the profitability of the mortgage lending segment for Australian banks.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "The evidence does not provide specific figures such as the exact decline in mortgage volumes.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence does not provide specific figures such as arrears rates.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence does not provide specific figures such as margin compression data.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence does not provide CBA-specific commentary beyond its participation in the rate-hike forecast.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "It is not possible to quantify the scale of these challenges from the evidence.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "It is not possible to detail how these challenges differ across the major banks from the evidence.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        }
+      ],
+      "facts": [
+        {
+          "fact": "Mortgage demand has plummeted, a downturn in a lucrative business for Australia's biggest banks.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "Investors are questioning the rich valuations of Australia's biggest banks.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "CBA and NAB joined ANZ in forecasting another rate hike this year.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "A hot inflation print reignited rate-hike expectations.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "Speculative investors are betting on an RBA rate hike in November.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "archTIS extended the maturity date of a A$4 million CBA lending facility.",
+          "relevant": false,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        }
+      ],
+      "whole_answer": {
+        "human_groundedness_pct": 42.3,
+        "judge_groundedness_pct": 65,
+        "human_grounded": false,
+        "judge_grounded": false,
+        "human_completeness_pct": 100.0,
+        "judge_completeness_pct": 95
+      }
+    },
+    {
+      "id": "q6",
+      "question": "What are the latest expectations for Australian interest rates?",
+      "claims": [
+        {
+          "claim": "The latest expectations point toward further monetary tightening by the Reserve Bank of Australia (RBA).",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The expectation of further tightening is driven by persistently high inflation.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Three of Australia's four major banks are now forecasting another rate hike this year.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The three major banks forecasting another rate hike include CBA and NAB.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "CBA and NAB join ANZ in forecasting another rate hike this year.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "This shift in forecasts came after a hotter-than-expected inflation print.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "The hotter-than-expected inflation print reignited concerns about price pressures.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": false,
+          "outcome": "wrongly_rejected"
+        },
+        {
+          "claim": "Market positioning in futures/speculative trading shows increasing bets on a rate hike at the RBA's November meeting.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Inflation is still running above the central bank's target band.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Broader commentary notes that global interest rate expectations have pushed up funding costs.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Bond yields in major markets are reflecting expectations for tighter central bank policy more broadly.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "This reinforces the domestic narrative of inflation remaining the key swing factor for the RBA's decisions.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": true,
+          "outcome": "wrongly_accepted"
+        },
+        {
+          "claim": "The prevailing expectation reflected in this evidence is for at least one more RBA rate hike.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "This rate hike is likely to occur around the November meeting.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": true,
+          "outcome": "wrongly_accepted"
+        },
+        {
+          "claim": "Inflation data is the primary driver of that outlook.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "The evidence does not include any specific commentary on rate-cut expectations.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence does not include any specific commentary on a longer-term rate path beyond this near-term hike expectation.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        }
+      ],
+      "facts": [
+        {
+          "fact": "CBA and NAB joined ANZ in forecasting another rate hike this year.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "The forecasts followed a hot inflation print.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "Speculative investors increasingly bet the RBA will raise rates in November.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "Inflation remains above the RBA's target.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "Higher global interest rate expectations have pushed up funding costs.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "Bond yields across major markets reflect expectations of tighter central bank policy.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        }
+      ],
+      "whole_answer": {
+        "human_groundedness_pct": 70.6,
+        "judge_groundedness_pct": 75,
+        "human_grounded": false,
+        "judge_grounded": false,
+        "human_completeness_pct": 100.0,
+        "judge_completeness_pct": 95
+      }
+    },
+    {
+      "id": "q7",
+      "question": "What is CBA doing to expand investment opportunities for retail customers?",
+      "claims": [
+        {
+          "claim": "The evidence provided doesn't address this question.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The items gathered include an article on profit and RBA rate expectations.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The items gathered include a note on CBA's lending facility to archTIS.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The items gathered include a piece on AI replacing customer service jobs.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "None of the gathered items speak to any initiatives by Commonwealth Bank to expand investment products for retail customers.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "None of the gathered items speak to any initiatives by Commonwealth Bank to expand investment platforms for retail customers.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "None of the gathered items speak to any initiatives by Commonwealth Bank to expand investment opportunities for retail customers.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "I don't have information to answer what's actually being asked here.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        }
+      ],
+      "facts": [
+        {
+          "fact": "archTIS extended the maturity date of a A$4 million CBA lending facility.",
+          "relevant": false,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        },
+        {
+          "fact": "AI is replacing customer service jobs at CBA, Microsoft and Uber.",
+          "relevant": false,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        }
+      ],
+      "whole_answer": {
+        "human_groundedness_pct": 100.0,
+        "judge_groundedness_pct": 100,
+        "human_grounded": true,
+        "judge_grounded": true,
+        "human_completeness_pct": null,
+        "judge_completeness_pct": 100
+      }
+    },
+    {
+      "id": "q8",
+      "question": "How is AI affecting employment at Commonwealth Bank?",
+      "claims": [
+        {
+          "claim": "Bloomberg reports that AI is replacing customer service jobs at CBA.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Bloomberg reports similar AI-driven job shifts at Microsoft.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Bloomberg reports similar AI-driven job shifts at Uber.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Earlier this year, CBA was reported to have cut customer service roles after deploying an AI voice bot.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "There is a broader trend noted in the evidence of companies rehiring workers after AI-driven layoffs when automation underdelivered.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "It is not specified in the evidence whether CBA was among the companies reversing course on AI-driven layoffs.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "CBA's chief AI officer is Ranil Boteju.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Ranil Boteju describes scaling roughly A$400 million in 'AI value'.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "CBA uses a human-in-the-loop model rather than pure automation.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "About 80% of CBA's engineers reportedly use AI coding agents.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The bank says AI coding agents have tripled code output.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The bank says AI coding agents have helped resolve more than 15,000 security issues.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "This points to AI augmenting technical/engineering staff rather than simply replacing them.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "The bank has appointed new CIO/CTO leadership specifically to advance its technology and AI strategy.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "This signals continued investment in AI-related roles at the leadership and technical level.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "The evidence suggests a mixed employment effect at CBA.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "There is contraction in customer-service-type roles attributed to AI automation.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "There is expansion or reinforcement of technical/engineering roles where AI is used as a productivity tool with human oversight.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "The evidence does not provide specific figures on net headcount change.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence does not provide specific figures on total roles affected.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence does not provide forward guidance on workforce size.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "A full quantitative picture isn't available from what's been gathered.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        }
+      ],
+      "facts": [
+        {
+          "fact": "AI is replacing customer service jobs at CBA.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "80% of CBA's engineers use AI agents, tripling code output.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "CBA's chief AI officer describes scaling A$400m in AI value with humans in the loop.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "CBA appointed a new CIO and CTO to boost its technology and AI strategy.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "Companies are rehiring workers laid off for AI as automation falls short.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "Goldman Sachs warns AI is still wiping out 11,000 jobs per month.",
+          "relevant": true,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": false,
+          "outcome": "caught_missing",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "NatWest, Bank of America and four other banks warn AI shopping tools are outpacing fraud protections.",
+          "relevant": false,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        },
+        {
+          "fact": "archTIS extended the maturity date of a A$4 million CBA lending facility.",
+          "relevant": false,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        }
+      ],
+      "whole_answer": {
+        "human_groundedness_pct": 77.3,
+        "judge_groundedness_pct": 60,
+        "human_grounded": false,
+        "judge_grounded": false,
+        "human_completeness_pct": 83.3,
+        "judge_completeness_pct": 100
+      }
+    },
+    {
+      "id": "q9",
+      "question": "What is CBA's latest dividend payout ratio?",
+      "claims": [
+        {
+          "claim": "The evidence provided does not contain specific figures on Commonwealth Bank's (CBA.AX) dividend payout ratio.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Several articles reference CBA as a dividend-paying stock.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": true,
+          "outcome": "wrongly_accepted"
+        },
+        {
+          "claim": "The yield for CBA is generally cited above 3% in the referenced articles.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "None of the referenced articles disclose the actual payout ratio.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The payout ratio is the percentage of earnings paid out as dividends.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "The payout ratio figure is needed to answer the question accurately.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "The payout ratio figure would typically be found in CBA's latest annual or half-year results/investor presentation.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "CBA's latest annual or half-year results/investor presentation is not included in the evidence gathered here.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        }
+      ],
+      "facts": [
+        {
+          "fact": "Commonwealth Bank is featured as a dividend share for reliable income in a 3%+ yield screener.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": false,
+          "outcome": "wrongly_flagged_missing",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "archTIS extended the maturity date of a A$4 million CBA lending facility.",
+          "relevant": false,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        }
+      ],
+      "whole_answer": {
+        "human_groundedness_pct": 37.5,
+        "judge_groundedness_pct": 70,
+        "human_grounded": false,
+        "judge_grounded": false,
+        "human_completeness_pct": 100.0,
+        "judge_completeness_pct": 80
+      }
+    },
+    {
+      "id": "q10",
+      "question": "What was CBA's exact net profit for FY2025?",
+      "claims": [
+        {
+          "claim": "The evidence provided does not include CBA's exact net profit figure for FY2025.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The only directly relevant item is a Simply Wall St. piece referencing a 'profit uptick' for Commonwealth Bank.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The Simply Wall St. piece does not include the specific dollar figure for net profit.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The second piece of evidence relates to LGT, a different company.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The second piece of evidence (relating to LGT) is not relevant to this question.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "To answer the question accurately, one would need CBA's official FY2025 results announcement.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": true,
+          "outcome": "wrongly_accepted"
+        },
+        {
+          "claim": "CBA's official FY2025 results announcement is typically released in August.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Alternatively, one would need a financial data source reporting the precise statutory net profit after tax figure.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Alternatively, one would need a financial data source reporting the precise cash net profit after tax figure.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        }
+      ],
+      "facts": [
+        {
+          "fact": "A Simply Wall St article refers to a profit uptick at CBA.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "LGT reported a 17% rise in H1 profit.",
+          "relevant": false,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        }
+      ],
+      "whole_answer": {
+        "human_groundedness_pct": 55.6,
+        "judge_groundedness_pct": 75,
+        "human_grounded": false,
+        "judge_grounded": false,
+        "human_completeness_pct": 100.0,
+        "judge_completeness_pct": 100
+      }
+    },
+    {
+      "id": "q11",
+      "question": "Has CBA faced any recent regulatory action or penalties from ASIC, APRA or AUSTRAC?",
+      "claims": [
+        {
+          "claim": "Based on the evidence gathered, there is no information that directly answers the question.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The search results returned don't mention any recent ASIC regulatory actions, investigations, or penalties against Commonwealth Bank.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The search results returned don't mention any recent APRA regulatory actions, investigations, or penalties against Commonwealth Bank.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The search results returned don't mention any recent AUSTRAC regulatory actions, investigations, or penalties against Commonwealth Bank.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "One search result item relates to an unrelated lending facility CBA extended to a third-party company, archTIS.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The other search result item is a general earnings/interest-rate commentary piece with no regulatory content.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": false,
+          "outcome": "wrongly_rejected"
+        },
+        {
+          "claim": "To properly answer whether CBA has faced recent regulatory action, one should check ASIC's enforcement register and media releases for CBA-related actions.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "To properly answer whether CBA has faced recent regulatory action, one should check APRA's recent correspondence, capital add-ons, or enforcement notices concerning CBA.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "To properly answer whether CBA has faced recent regulatory action, one should check AUSTRAC's compliance updates.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "AUSTRAC compliance updates are notably relevant given CBA's historical 2018 AUSTRAC settlement over anti-money laundering breaches.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "To properly answer whether CBA has faced recent regulatory action, one should check CBA's own ASX disclosures and annual report sections on regulatory and compliance matters.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "It is recommended to source directly from the regulators' websites or CBA's latest investor disclosures for an accurate, up-to-date answer.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "The evidence provided here doesn't cover this topic.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": false,
+          "outcome": "wrongly_rejected"
+        }
+      ],
+      "facts": [
+        {
+          "fact": "archTIS extended the maturity date of a A$4 million CBA lending facility.",
+          "relevant": false,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        }
+      ],
+      "whole_answer": {
+        "human_groundedness_pct": 53.8,
+        "judge_groundedness_pct": 45,
+        "human_grounded": false,
+        "judge_grounded": false,
+        "human_completeness_pct": null,
+        "judge_completeness_pct": 100
+      }
+    },
+    {
+      "id": "q12",
+      "question": "What are CBA's climate commitments, such as net-zero targets or limits on fossil-fuel lending?",
+      "claims": [
+        {
+          "claim": "The evidence provided doesn't address this question.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "None of the gathered material touches on CBA's climate policy.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "None of the gathered material touches on CBA's net-zero commitments.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "None of the gathered material touches on CBA's emissions-reduction targets.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "None of the gathered material touches on any restrictions on fossil-fuel financing by CBA.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The articles instead cover unrelated topics.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": false,
+          "outcome": "wrongly_rejected"
+        },
+        {
+          "claim": "One unrelated topic covered is a lending facility to archTIS.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "One unrelated topic covered is CBA's AI initiatives.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "One unrelated topic covered is interest rate speculation.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "One unrelated topic covered is mortgage demand trends.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "One unrelated topic covered is general profit commentary.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "To properly answer the question, one would need to look at CBA's dedicated climate disclosures.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "One example of such a disclosure is CBA's annual Climate Report.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Another example is CBA's Group environmental and social framework/credit policies covering sectors like oil, gas, coal, and thermal power.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Another example is CBA's stated net-zero by 2050 ambition with associated interim targets.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "None of these climate disclosure materials appear in the evidence set here.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        }
+      ],
+      "facts": [
+        {
+          "fact": "LGT reported a 17% rise in H1 profit.",
+          "relevant": false,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        },
+        {
+          "fact": "Speculative investors are betting on a November RBA rate hike.",
+          "relevant": false,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        }
+      ],
+      "whole_answer": {
+        "human_groundedness_pct": 75.0,
+        "judge_groundedness_pct": 60,
+        "human_grounded": false,
+        "judge_grounded": false,
+        "human_completeness_pct": null,
+        "judge_completeness_pct": 100
+      }
+    },
+    {
+      "id": "h1",
+      "question": "What new payout platform has CBA introduced to replace cheque-based payments?",
+      "claims": [
+        {
+          "claim": "Commonwealth Bank has introduced PaidIt.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "PaidIt is a new payout platform.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "PaidIt is designed to replace cheque-based payments.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "PaidIt was introduced ahead of cheques being phased out.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The information is according to Retail Banker International.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "PaidIt combines three functions within a single system.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "One of the functions PaidIt combines is recipient verification.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "One of the functions PaidIt combines is communications.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "One of the functions PaidIt combines is payment delivery.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "This integrated approach is positioned as CBA's solution for handling payouts that would traditionally have been made by cheque.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": true,
+          "outcome": "wrongly_accepted"
+        },
+        {
+          "claim": "This integrated approach consolidates what were previously separate steps into one platform.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        }
+      ],
+      "facts": [
+        {
+          "fact": "CBA unveiled a payout platform called PaidIt.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "PaidIt was launched ahead of CBA's exit from cheques.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "PaidIt combines recipient verification, communications and payment delivery in one system.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "LGT reported a 17% rise in H1 profit.",
+          "relevant": false,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        },
+        {
+          "fact": "Tencent's AI spending plans will draw investor scrutiny.",
+          "relevant": false,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        }
+      ],
+      "whole_answer": {
+        "human_groundedness_pct": 72.7,
+        "judge_groundedness_pct": 65,
+        "human_grounded": false,
+        "judge_grounded": false,
+        "human_completeness_pct": 100.0,
+        "judge_completeness_pct": 100
+      }
+    },
+    {
+      "id": "h2",
+      "question": "How has CBA supported archTIS with a A$4 million financing facility?",
+      "claims": [
+        {
+          "claim": "CBA provided archTIS Ltd (ASX:AR9) with an A$4 million lending facility",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The A$4 million lending facility is described as non-dilutive working capital",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Non-dilutive working capital means archTIS can access funds without issuing additional shares",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Non-dilutive working capital preserves existing shareholders' ownership stakes",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "CBA has recently extended the maturity date of the facility",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "CBA extended the facility's maturity date rather than originating a new facility",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "A stated purpose of the facility is to support contract execution",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Supporting contract execution likely helps archTIS bridge cash flow needs tied to fulfilling customer contracts",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "It is common for smaller tech/software companies that contract payments may lag delivery costs",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Another stated purpose of the facility is to support growth",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "archTIS is responding to rising demand for its data security products",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The gathered evidence does not include specifics on the interest rate attached to the facility",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The gathered evidence does not include specifics on the terms attached to the facility",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The gathered evidence does not include specifics on the covenants attached to the facility",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The gathered evidence does not include the original date the facility was established",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The gathered evidence does not include the facility's original maturity date",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The gathered evidence does not include the new maturity date following the extension",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The gathered evidence does not indicate whether the facility is secured",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The gathered evidence does not indicate what assets the facility may be secured against, if any",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The gathered evidence does not include how much of the A$4 million has been drawn down",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The gathered evidence does not include how much of the A$4 million remains available",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The gathered evidence does not include further details on how CBA's broader institutional/business banking lending criteria applied to this arrangement",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "For further details, one should check archTIS's ASX announcements directly",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "The source material used here is a brief Proactive news summary rather than the full company filing",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        }
+      ],
+      "facts": [
+        {
+          "fact": "archTIS extended the maturity date of a A$4 million CBA lending facility.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "The facility gives archTIS access to non-dilutive working capital.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "The facility supports contract execution and growth.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "archTIS is responding to growing demand for its data security products.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "CommSec plans more U.S. IPOs after 28,000 SpaceX applications.",
+          "relevant": false,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        }
+      ],
+      "whole_answer": {
+        "human_groundedness_pct": 70.8,
+        "judge_groundedness_pct": 75,
+        "human_grounded": false,
+        "judge_grounded": false,
+        "human_completeness_pct": 100.0,
+        "judge_completeness_pct": 95
+      }
+    },
+    {
+      "id": "h3",
+      "question": "What changes has CBA made to its CIO and CTO positions?",
+      "claims": [
+        {
+          "claim": "CBA has appointed a new Chief Information Officer (CIO).",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "CBA has appointed a new Chief Technology Officer (CTO).",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The appointment of the new CIO/CTO is explicitly framed as a move to strengthen the bank's technology and AI strategy.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "This framing is per Reuters.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": false,
+          "outcome": "wrongly_rejected"
+        },
+        {
+          "claim": "The evidence does not include the names of the incoming executives.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence does not include the names of the outgoing executives.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence does not include the effective date of the appointments.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence does not include further detail on the specific mandates of the new CIO/CTO.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "CBA has a separate Chief AI Officer.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The Chief AI Officer is named Ranil Boteju.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Ranil Boteju has spoken publicly about scaling roughly A$400 million in AI-related value.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Around 80% of the bank's engineers reportedly use AI agents to boost code output.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Around 80% of the bank's engineers reportedly use AI agents to address security issues.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The Chief AI Officer role appears distinct from the CIO/CTO appointments mentioned.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The research provided does not give specifics on who was appointed to the CIO/CTO roles.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The research provided does not give specifics on who the new CIO/CTO replaced.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The research provided does not give specifics on the backgrounds of the new CIO/CTO.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The research provided does not give specifics on the strategic rationale beyond the general reference to 'boosting technology, AI strategy.'",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Obtaining specifics such as names, start dates, and prior roles would require additional sourcing beyond what's here.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        }
+      ],
+      "facts": [
+        {
+          "fact": "CBA appointed a new CIO and CTO.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "The appointments are meant to boost CBA's technology and AI strategy.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "archTIS extended the maturity date of a A$4 million CBA lending facility.",
+          "relevant": false,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        }
+      ],
+      "whole_answer": {
+        "human_groundedness_pct": 100.0,
+        "judge_groundedness_pct": 85,
+        "human_grounded": true,
+        "judge_grounded": false,
+        "human_completeness_pct": 100.0,
+        "judge_completeness_pct": 100
+      }
+    },
+    {
+      "id": "h4",
+      "question": "How is CBA generating A$400 million in value from its AI initiatives?",
+      "claims": [
+        {
+          "claim": "The clearest detail on CBA's A$400 million AI value figure comes from an interview with Ranil Boteju.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Ranil Boteju is CBA's Chief AI Officer.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The interview with Ranil Boteju was published in Retail Banker International.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The reported A$400 million value appears to stem from a few specific operational gains.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Around 80% of CBA's engineers now use AI coding agents.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "CBA says the use of AI coding agents has tripled code output.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "AI tools have been used to resolve more than 15,000 security issues at CBA.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Boteju frames the program as keeping humans involved in AI-assisted workflows rather than fully automating them.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": false,
+          "outcome": "wrongly_rejected"
+        },
+        {
+          "claim": "Keeping humans in the loop is presented as central to how the value is being captured responsibly.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "A Bloomberg report notes that CBA is using AI to replace certain customer service roles.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The Bloomberg report also notes that firms like Microsoft and Uber are using AI to replace certain customer service roles.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "This suggests workforce/cost efficiency is likely part of the broader AI value story.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "The evidence doesn't quantify how much of the A$400 million the workforce/cost efficiency contributes specifically.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "CBA has recently appointed a new CIO and CTO specifically to advance its technology and AI strategy.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": false,
+          "outcome": "wrongly_rejected"
+        },
+        {
+          "claim": "The appointment of a new CIO and CTO is reported per Reuters.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The new CIO and CTO appointments indicate the initiative is still scaling organizationally.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "There is no detailed breakdown in the provided material of exactly how the A$400 million figure is calculated.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The provided material does not break down the A$400 million figure into cost savings vs. revenue generation vs. productivity value.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "There is no line-item attribution across business units for the A$400 million figure in the provided material.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence provided does not go into the precise methodology or composition of the A$400 million figure beyond the engineering productivity and security examples cited.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        }
+      ],
+      "facts": [
+        {
+          "fact": "Ranil Boteju, CBA's chief AI officer, discussed scaling A$400m in AI value.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "CBA keeps humans in the loop in its AI work.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "80% of CBA's engineers use AI agents.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "The AI agents triple code output.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "The AI agents helped resolve over 15,000 security issues.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "AI is replacing customer service jobs at CBA.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "CBA appointed a new CIO and CTO to boost its technology and AI strategy.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "Tencent's AI spending plans will draw investor scrutiny.",
+          "relevant": false,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        },
+        {
+          "fact": "NatWest, Bank of America and four other banks warn AI shopping tools are outpacing fraud protections.",
+          "relevant": false,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        }
+      ],
+      "whole_answer": {
+        "human_groundedness_pct": 80.0,
+        "judge_groundedness_pct": 65,
+        "human_grounded": false,
+        "judge_grounded": false,
+        "human_completeness_pct": 100.0,
+        "judge_completeness_pct": 100
+      }
+    },
+    {
+      "id": "q1_incomplete",
+      "question": "How is CBA using AI to improve software engineering productivity?",
+      "claims": [
+        {
+          "claim": "Approximately 80% of CBA's engineers are now using AI agents as part of their development workflow.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The 80% figure comes from comments by Ranil Boteju.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Ranil Boteju is CBA's Chief AI Officer.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "This engineering initiative is part of a larger push at CBA to scale AI value across the organization.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": true,
+          "outcome": "wrongly_accepted"
+        },
+        {
+          "claim": "The larger push is reportedly targeting around A$400 million in value.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Boteju emphasizes a 'humans in the loop' approach.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The 'humans in the loop' approach means AI augments rather than fully automates engineering decisions.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "The evidence doesn't specify which AI tools/platforms are being used.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "It is unknown whether the tools involve GitHub Copilot, custom internal models, or other coding assistants.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence doesn't provide a timeline for when the 80% adoption was reached.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence doesn't provide a breakdown of how the A$400 million figure breaks down by function.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "There is a second piece of evidence about AI replacing customer service jobs at CBA.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The customer service AI evidence relates to a different part of CBA's AI strategy.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "The customer service AI evidence isn't directly relevant to the software engineering productivity question.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        }
+      ],
+      "facts": [
+        {
+          "fact": "80% of CBA's engineers use AI agents.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "The AI agents have tripled code output.",
+          "relevant": true,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": false,
+          "outcome": "caught_missing",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "The AI agents have helped resolve over 15,000 security issues.",
+          "relevant": true,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": false,
+          "outcome": "caught_missing",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "Ranil Boteju is CBA's chief AI officer.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "CBA is scaling A$400m in AI value with humans in the loop.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "AI is replacing customer service jobs at CBA, Microsoft and Uber.",
+          "relevant": false,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        }
+      ],
+      "whole_answer": {
+        "human_groundedness_pct": 78.6,
+        "judge_groundedness_pct": 75,
+        "human_grounded": false,
+        "judge_grounded": false,
+        "human_completeness_pct": 60.0,
+        "judge_completeness_pct": 55
+      }
+    },
+    {
+      "id": "q4_incomplete",
+      "question": "What are the risks associated with AI-powered shopping and payment agents?",
+      "claims": [
+        {
+          "claim": "A coalition of global banks warns about risks associated with AI-powered shopping and payment agents.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The coalition of global banks includes NatWest.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The coalition of global banks includes Bank of America.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Agentic AI tools can make purchases on a consumer's behalf.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Agentic AI tools making purchases could expose sensitive card information during the transaction process.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "AI commerce tools may bypass existing authentication and fraud-prevention mechanisms.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "AI commerce tools may undermine existing authentication and fraud-prevention mechanisms.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Existing authentication and fraud-prevention mechanisms were designed around human-initiated transactions, not autonomous agents acting for consumers.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Banks flag that AI shopping agents could become a new vector for scams.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Fraudsters may exploit gaps in how AI shopping agents verify transactions.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Fraudsters may exploit gaps in how AI shopping agents interact with merchants.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "The evidence does not provide CBA-specific details on how these risks apply directly to its own operations or customers.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence does not quantify potential financial exposure.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The warnings cited are industry-wide statements from a coalition of banks rather than CBA-specific risk disclosures.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        }
+      ],
+      "facts": [
+        {
+          "fact": "AI shopping agents could increase the risk of scams and fraud.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "AI shopping agents could lead to data privacy breaches.",
+          "relevant": true,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": false,
+          "outcome": "caught_missing",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "AI shopping agents could expose card details.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "AI shopping agents could weaken payment security.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "NatWest, Bank of America and other banks say AI commerce tools are advancing faster than industry safeguards.",
+          "relevant": true,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": false,
+          "outcome": "caught_missing",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "Goldman Sachs warns AI is wiping out 11,000 jobs per month.",
+          "relevant": false,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        },
+        {
+          "fact": "AI is replacing customer service jobs at CBA, Microsoft and Uber.",
+          "relevant": false,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        }
+      ],
+      "whole_answer": {
+        "human_groundedness_pct": 57.1,
+        "judge_groundedness_pct": 55,
+        "human_grounded": false,
+        "judge_grounded": false,
+        "human_completeness_pct": 60.0,
+        "judge_completeness_pct": 85
+      }
+    },
+    {
+      "id": "q5_incomplete",
+      "question": "What challenges are Australian banks facing in mortgage lending?",
+      "claims": [
+        {
+          "claim": "Australian banks, including CBA, are facing challenges in mortgage lending.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": false,
+          "outcome": "wrongly_rejected"
+        },
+        {
+          "claim": "CBA forecast additional RBA rate hikes in 2023.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "NAB forecast additional RBA rate hikes in 2023.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "ANZ forecast additional RBA rate hikes in 2023.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Market expectations, based on fast-money/speculative positioning, point to further monetary tightening.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The further tightening could potentially extend into November.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Higher interest rates increase borrowing costs for mortgage customers.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Higher borrowing costs can dampen new loan demand.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Higher borrowing costs can pressure household affordability.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Higher borrowing costs can potentially increase mortgage stress among existing borrowers.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Higher borrowing costs can potentially increase arrears among existing borrowers.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "A 'hot' inflation print was cited as a key driver reigniting rate hike expectations.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Banks are contending with a macro environment where persistent inflation is forcing further monetary tightening.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": true,
+          "outcome": "wrongly_accepted"
+        },
+        {
+          "claim": "The evidence does not provide specific figures such as arrears rates.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence does not provide specific figures such as margin compression data.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence does not provide CBA-specific commentary beyond its participation in the rate-hike forecast.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "It is not possible to quantify the scale of these challenges from the evidence.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "It is not possible to detail how these challenges differ across the major banks from the evidence.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        }
+      ],
+      "facts": [
+        {
+          "fact": "Mortgage demand has plummeted, a downturn in a lucrative business for Australia's biggest banks.",
+          "relevant": true,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": false,
+          "outcome": "caught_missing",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "Investors are questioning the rich valuations of Australia's biggest banks.",
+          "relevant": true,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": false,
+          "outcome": "caught_missing",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "CBA and NAB joined ANZ in forecasting another rate hike this year.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "A hot inflation print reignited rate-hike expectations.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "Speculative investors are betting on an RBA rate hike in November.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "archTIS extended the maturity date of a A$4 million CBA lending facility.",
+          "relevant": false,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        }
+      ],
+      "whole_answer": {
+        "human_groundedness_pct": 44.4,
+        "judge_groundedness_pct": 55,
+        "human_grounded": false,
+        "judge_grounded": false,
+        "human_completeness_pct": 60.0,
+        "judge_completeness_pct": 55
+      }
+    },
+    {
+      "id": "q6_incomplete",
+      "question": "What are the latest expectations for Australian interest rates?",
+      "claims": [
+        {
+          "claim": "The latest expectations point toward further monetary tightening by the Reserve Bank of Australia (RBA).",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The expectation of further tightening is driven by persistently high inflation.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Market positioning in futures/speculative trading shows increasing bets on a rate hike at the RBA's November meeting.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Inflation is still running above the central bank's target band.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Broader commentary notes that global interest rate expectations have pushed up funding costs.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Bond yields in major markets are reflecting expectations for tighter central bank policy more broadly.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "This reinforces the domestic narrative of inflation remaining the key swing factor for the RBA's decisions.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": true,
+          "outcome": "wrongly_accepted"
+        },
+        {
+          "claim": "The prevailing expectation reflected in this evidence is for at least one more RBA rate hike.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "This rate hike is likely to occur around the November meeting.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Inflation data is the primary driver of that outlook.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "The evidence does not include any specific commentary on rate-cut expectations.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence does not include any specific commentary on a longer-term rate path beyond this near-term hike expectation.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        }
+      ],
+      "facts": [
+        {
+          "fact": "CBA and NAB joined ANZ in forecasting another rate hike this year.",
+          "relevant": true,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": false,
+          "outcome": "caught_missing",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "The forecasts followed a hot inflation print.",
+          "relevant": true,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": false,
+          "outcome": "caught_missing",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "Speculative investors increasingly bet the RBA will raise rates in November.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "Inflation remains above the RBA's target.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "Higher global interest rate expectations have pushed up funding costs.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "Bond yields across major markets reflect expectations of tighter central bank policy.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        }
+      ],
+      "whole_answer": {
+        "human_groundedness_pct": 66.7,
+        "judge_groundedness_pct": 80,
+        "human_grounded": false,
+        "judge_grounded": false,
+        "human_completeness_pct": 66.7,
+        "judge_completeness_pct": 55
+      }
+    },
+    {
+      "id": "q8_incomplete",
+      "question": "How is AI affecting employment at Commonwealth Bank?",
+      "claims": [
+        {
+          "claim": "Bloomberg reports that AI is replacing customer service jobs at CBA.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Bloomberg reports similar AI-driven job shifts at Microsoft.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Bloomberg reports similar AI-driven job shifts at Uber.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Earlier this year, CBA was reported to have cut customer service roles after deploying an AI voice bot.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "There is a broader trend noted in the evidence of companies rehiring workers after AI-driven layoffs when automation underdelivered.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "It is not specified in the evidence whether CBA was among the companies reversing course on AI-driven layoffs.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "About 80% of CBA's engineers reportedly use AI coding agents.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The bank says AI coding agents have tripled code output.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The bank says AI coding agents have helped resolve more than 15,000 security issues.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "This points to AI augmenting technical/engineering staff rather than simply replacing them.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "The evidence suggests a mixed employment effect at CBA.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "There is contraction in customer-service-type roles attributed to AI automation.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "There is expansion or reinforcement of technical/engineering roles where AI is used as a productivity tool with human oversight.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "The evidence does not provide specific figures on net headcount change.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence does not provide specific figures on total roles affected.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The evidence does not provide forward guidance on workforce size.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "A full quantitative picture isn't available from what's been gathered.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        }
+      ],
+      "facts": [
+        {
+          "fact": "AI is replacing customer service jobs at CBA.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "80% of CBA's engineers use AI agents, tripling code output.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "CBA's chief AI officer describes scaling A$400m in AI value with humans in the loop.",
+          "relevant": true,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": false,
+          "outcome": "caught_missing",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "CBA appointed a new CIO and CTO to boost its technology and AI strategy.",
+          "relevant": true,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": false,
+          "outcome": "caught_missing",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "Companies are rehiring workers laid off for AI as automation falls short.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": false,
+          "outcome": "wrongly_flagged_missing",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "Goldman Sachs warns AI is still wiping out 11,000 jobs per month.",
+          "relevant": true,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": true,
+          "outcome": "missed_omission",
+          "judge_relevant": false,
+          "relevance_outcome": "relevant_dismissed"
+        },
+        {
+          "fact": "NatWest, Bank of America and four other banks warn AI shopping tools are outpacing fraud protections.",
+          "relevant": false,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        },
+        {
+          "fact": "archTIS extended the maturity date of a A$4 million CBA lending facility.",
+          "relevant": false,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        }
+      ],
+      "whole_answer": {
+        "human_groundedness_pct": 76.5,
+        "judge_groundedness_pct": 60,
+        "human_grounded": false,
+        "judge_grounded": false,
+        "human_completeness_pct": 50.0,
+        "judge_completeness_pct": 85
+      }
+    },
+    {
+      "id": "h4_incomplete",
+      "question": "How is CBA generating A$400 million in value from its AI initiatives?",
+      "claims": [
+        {
+          "claim": "The clearest detail on CBA's A$400 million AI value figure comes from an interview with Ranil Boteju.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Ranil Boteju is CBA's Chief AI Officer.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The interview with Ranil Boteju was published in Retail Banker International.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The reported A$400 million value appears to stem from a few specific operational gains.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "Around 80% of CBA's engineers now use AI coding agents.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "CBA says the use of AI coding agents has tripled code output.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "Boteju frames the program as keeping humans involved in AI-assisted workflows rather than fully automating them.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": false,
+          "outcome": "wrongly_rejected"
+        },
+        {
+          "claim": "Keeping humans in the loop is presented as central to how the value is being captured responsibly.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "A Bloomberg report notes that CBA is using AI to replace certain customer service roles.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The Bloomberg report also notes that firms like Microsoft and Uber are using AI to replace certain customer service roles.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "This suggests workforce/cost efficiency is likely part of the broader AI value story.",
+          "human_covered_in_evidence": false,
+          "judge_covered_in_evidence": false,
+          "outcome": "caught_unsupported"
+        },
+        {
+          "claim": "The evidence doesn't quantify how much of the A$400 million the workforce/cost efficiency contributes specifically.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "There is no detailed breakdown in the provided material of exactly how the A$400 million figure is calculated.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "The provided material does not break down the A$400 million figure into cost savings vs. revenue generation vs. productivity value.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        },
+        {
+          "claim": "There is no line-item attribution across business units for the A$400 million figure in the provided material.",
+          "human_covered_in_evidence": true,
+          "judge_covered_in_evidence": true,
+          "outcome": "accepted_supported"
+        }
+      ],
+      "facts": [
+        {
+          "fact": "Ranil Boteju, CBA's chief AI officer, discussed scaling A$400m in AI value.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "CBA keeps humans in the loop in its AI work.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "80% of CBA's engineers use AI agents.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "The AI agents triple code output.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "The AI agents helped resolve over 15,000 security issues.",
+          "relevant": true,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": false,
+          "outcome": "caught_missing",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "AI is replacing customer service jobs at CBA.",
+          "relevant": true,
+          "human_covered_in_answer": true,
+          "judge_covered_in_answer": true,
+          "outcome": "confirmed_covered",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "CBA appointed a new CIO and CTO to boost its technology and AI strategy.",
+          "relevant": true,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": false,
+          "outcome": "caught_missing",
+          "judge_relevant": true,
+          "relevance_outcome": "relevant_kept"
+        },
+        {
+          "fact": "Tencent's AI spending plans will draw investor scrutiny.",
+          "relevant": false,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        },
+        {
+          "fact": "NatWest, Bank of America and four other banks warn AI shopping tools are outpacing fraud protections.",
+          "relevant": false,
+          "human_covered_in_answer": false,
+          "judge_covered_in_answer": true,
+          "outcome": "correctly_not_penalised",
+          "judge_relevant": false,
+          "relevance_outcome": "off_topic_dismissed"
+        }
+      ],
+      "whole_answer": {
+        "human_groundedness_pct": 80.0,
+        "judge_groundedness_pct": 70,
+        "human_grounded": false,
+        "judge_grounded": false,
+        "human_completeness_pct": 71.4,
+        "judge_completeness_pct": 80
+      }
+    }
+  ]
+}

@@ -4,7 +4,8 @@ from typing import Optional
 from langchain_anthropic import ChatAnthropic
 from pydantic import BaseModel, Field
 
-from config import JUDGE_MODEL, ANTHROPIC_API_KEY
+from agent.shared.structured_output import invoke_structured_with_repair
+from config import JUDGE_MODEL, ANTHROPIC_API_KEY, LLM_API_RETRIES, LLM_TIMEOUT
 
 # Cheap first layer: phrasing that directly tells the reader what to do with the stock.
 # Deliberately narrow (recommendation verbs + buy/sell/hold/invest) rather than matching
@@ -69,9 +70,11 @@ def llm_judge_advice_check(text: str, callbacks: Optional[list] = None) -> Advic
     metadata={"step_name": "output_guardrail_llm"} - same pattern as
     agent/shared/synthesize.py's synthesize_insight, so conduct_analysis_node can attach
     the per-user daily token-budget callback and RequestTracer here too (see
-    agent/guardrails/daily_token_budget.py, agent/guardrails/tracer.py)."""
-    llm = ChatAnthropic(model=JUDGE_MODEL, api_key=ANTHROPIC_API_KEY)
-    judge = llm.with_structured_output(AdviceJudgment)
+    agent/guardrails/daily_token_budget.py, agent/guardrails/tracer.py).
+
+    Fails closed: if the judgment still can't be parsed after repair and a retry, it raises
+    StructuredOutputError rather than letting an unchecked answer through."""
+    llm = ChatAnthropic(model=JUDGE_MODEL, api_key=ANTHROPIC_API_KEY,timeout=LLM_TIMEOUT, max_retries=LLM_API_RETRIES)
     prompt = (
         "You are a compliance reviewer for a financial analysis tool. This tool is only "
         "allowed to explain what happened to a stock and why - it must never recommend "
@@ -80,7 +83,7 @@ def llm_judge_advice_check(text: str, callbacks: Optional[list] = None) -> Advic
         f"Text:\n{text}"
     )
     config = {"callbacks": callbacks, "metadata": {"step_name": "output_guardrail_llm"}} if callbacks else None
-    return judge.invoke(prompt, config=config)
+    return invoke_structured_with_repair(llm, AdviceJudgment, prompt, config=config)
 
 
 def check_advice_avoidance(text: str, callbacks: Optional[list] = None, tracer=None) -> tuple[bool, list[str], str]:

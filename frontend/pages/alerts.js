@@ -121,12 +121,20 @@ export default function Alerts() {
         setLoadingItems(false);
       });
 
-    // ticker_insights holds insight_graph's cross-feed summary, one row per synthesis
-    // run - RLS ("select own insights") already scopes this to the signed-in user.
+    // latest_ticker_insights is the newest ticker_insights row per ticker (that table keeps
+    // every synthesis run as history) - RLS ("select own insights") still scopes it to the
+    // signed-in user through the view's security_invoker. Falls back to the full table if the
+    // view isn't there (scripts/migration_latest_ticker_insights.sql not applied yet) - the
+    // latestInsightByTicker memo below picks the newest per ticker either way.
     supabase
-      .from('ticker_insights')
+      .from('latest_ticker_insights')
       .select('*')
       .order('created_at', { ascending: false })
+      .then(({ data, error }) =>
+        error
+          ? supabase.from('ticker_insights').select('*').order('created_at', { ascending: false })
+          : { data, error }
+      )
       .then(({ data, error }) => {
         if (!error) setInsights(data);
       });

@@ -1,0 +1,194 @@
+[
+  {
+    "question_id": "q1",
+    "config": "semantic_k10",
+    "answer": "Based on the evidence available, I can't directly answer how CBA is using AI specifically to improve software engineering productivity.\n\nThe two pieces of evidence I have touch on related but distinct topics:\n\n- **AI value scaling (A$400m)**: This piece discusses CBA's broader AI strategy with a \"humans in the loop\" approach, but the evidence doesn't specify whether this A$400m figure relates to software engineering use cases, customer service, or other business functions.\n- **Customer service job replacement**: This Bloomberg piece covers AI's impact on customer service roles at CBA (alongside Microsoft and Uber), which is a different application area than software engineering/developer productivity.\n\nNeither source provides detail on:\n- Specific AI coding tools or copilots CBA may be using for developers\n- Metrics on engineering velocity, code quality, or deployment frequency\n- Internal platforms or partnerships aimed at software development productivity\n\nIf you're specifically interested in CBA's engineering/developer productivity initiatives, I'd need evidence more directly focused on that topic—such as statements from CBA's technology or engineering leadership, details on internal tooling, or disclosures in investor presentations about technology/engineering efficiency gains.",
+    "shared_with": null
+  },
+  {
+    "question_id": "q1",
+    "config": "hybrid_k10",
+    "answer": "Based on the gathered evidence, here's what's specifically relevant to CBA's use of AI in software engineering:\n\n**Key details from the Ranil Boteju interview (Retail Banker International):**\n- CBA's chief AI officer, Ranil Boteju, is overseeing efforts to scale roughly A$400 million in value derived from AI deployment across the bank\n- **80% of CBA's engineers now use AI agents** as part of their workflow\n- This AI agent adoption has reportedly helped **triple code output** among engineering teams\n- AI tools have also been used to **resolve over 15,000 security issues**\n- The approach emphasizes \"humans in the loop\" — meaning AI is used to augment engineers rather than fully automate the function, with human oversight built into the process\n\n**Supporting context:**\n- CBA recently appointed a new CIO and CTO specifically to boost its technology and AI strategy (Reuters), suggesting continued organizational investment in scaling these engineering capabilities\n\n**What the evidence does not cover:**\nThe evidence doesn't provide specifics on which AI tools or platforms CBA is using (e.g., GitHub Copilot, internally built models, etc.), nor does it detail the engineering productivity metrics beyond the \"tripled code output\" claim, how that was measured, or timelines for further rollout. There's also no detail on cost savings or ROI specific to the engineering function within the broader A$400 million value figure cited.\n\nThe other evidence items (AI replacing customer service roles, bank warnings on AI shopping agents, Tencent's AI spending, broader job-loss commentary) relate to AI more generally in banking or other companies, not CBA's software engineering practices specifically, so I've excluded them from this answer.",
+    "shared_with": null
+  },
+  {
+    "question_id": "q2",
+    "config": "semantic_k10",
+    "answer": "Based on the evidence available, here's what's been reported about CBA's technology leadership changes tied to its AI strategy:\n\n- **New CIO and CTO appointments**: Reuters reported that Commonwealth Bank of Australia has appointed a new Chief Information Officer (CIO) and Chief Technology Officer (CTO), explicitly framed as moves to bolster the bank's technology and AI strategy.\n- **Dedicated AI leadership**: Coverage from Retail Banker International references an interview with CBA's \"AI chief,\" indicating the bank has a specific executive role focused on AI strategy and scaling AI initiatives (described in that context as generating around A$400 million in value, with a \"humans in the loop\" approach).\n\n**What the evidence doesn't cover**: The specific names of the newly appointed CIO/CTO, their backgrounds, start dates, or reporting structure aren't detailed in the available material. There's also no information on whether these are newly created positions or replacements of prior executives, nor details on broader organizational restructuring beyond these roles.\n\nSeparately, the Bloomberg piece on AI replacing customer service jobs at CBA relates to workforce/operational impacts of AI deployment rather than leadership appointments, so it doesn't directly speak to your question about technology leadership changes.",
+    "shared_with": null
+  },
+  {
+    "question_id": "q2",
+    "config": "hybrid_k10",
+    "answer": "Based on the available evidence, CBA has made two notable technology leadership moves tied to its AI strategy:\n\n- **New CIO and CTO appointments**: CBA appointed a new Chief Information Officer and Chief Technology Officer, with Reuters reporting these moves are intended to boost the bank's broader technology and AI strategy.\n\n- **Chief AI Officer – Ranil Boteju**: CBA has a dedicated Chief AI Officer, Ranil Boteju, who is leading efforts to scale AI value across the bank. In an interview, he discussed how the bank has driven roughly A$400 million in AI-related value, with about 80% of CBA's engineers now using AI agents to triple code output and help resolve over 15,000 security issues.\n\nThe evidence doesn't provide additional detail on the specific individuals named to the CIO/CTO roles, their backgrounds, or further organizational changes beyond these two leadership-related developments.",
+    "shared_with": null
+  },
+  {
+    "question_id": "q3",
+    "config": "semantic_k10",
+    "answer": "The evidence provided doesn't actually address CBA's payment services modernisation efforts. The available items cover unrelated topics:\n\n- A $4 million credit facility CBA extended to archTIS (a technology company), unrelated to CBA's own payment infrastructure\n- Commentary on CBA's profit trends and RBA (Reserve Bank of Australia) rate expectations\n- A report on CBA (along with Microsoft and Uber) using AI to replace customer service roles, which relates to operational cost-cutting rather than payments technology specifically\n\nNone of these sources detail specific initiatives such as new payment rails, digital wallet integration, real-time payment systems, merchant services upgrades, or partnerships aimed at modernising how CBA processes or facilitates payments.\n\nIf you're looking for specifics on CBA's payments strategy, I'd need evidence covering areas like its work on the New Payments Platform (NPP), digital banking app updates, merchant/POS technology, or fintech partnerships — none of which appear in the material gathered here.",
+    "shared_with": null
+  },
+  {
+    "question_id": "q3",
+    "config": "hybrid_k10",
+    "answer": "Based on the evidence available, the clearest example of CBA modernising its payment services is the launch of **PaidIt**, a new payout platform introduced ahead of the phase-out of cheques in Australia. Key features reported include:\n\n- **Recipient verification** – built-in checks to confirm the identity of payment recipients before funds are sent.\n- **Integrated communications** – messaging capabilities bundled with the payment process, likely to notify or confirm transactions with recipients.\n- **Payment delivery** – the actual transfer mechanism, consolidated into the same system rather than relying on separate tools.\n\nThe platform appears designed to replace cheque-based payouts with a more digital, verified, and streamlined process as cheques are phased out.\n\nSeparately, the evidence shows CBA is investing heavily in **AI integration across its operations** (e.g., AI agents used by engineers, AI replacing some customer service roles), which may support broader digital banking modernisation, though the evidence doesn't explicitly tie these AI initiatives to payment services specifically.\n\nThe evidence does not provide further detail on other payment modernisation efforts (e.g., real-time payments infrastructure, digital wallets, or international transfer upgrades), so I can't speak to those areas based on what's here.",
+    "shared_with": null
+  },
+  {
+    "question_id": "q4",
+    "config": "semantic_k10",
+    "answer": "Based on the evidence gathered, here are the key risks that have been flagged with AI-powered shopping and payment agents:\n\n- **Increased scam and fraud exposure**: Banks (reporting includes CBA among those cited) have warned that AI shopping agents can be exploited by bad actors, creating new vectors for fraudulent transactions.\n\n- **Fraud protections lagging behind the technology**: Existing fraud detection and prevention systems were largely built around human-initiated transactions. AI agents that can browse, select, and pay on a consumer's behalf are moving faster than banks' ability to adapt safeguards, creating a gap where fraudulent activity may go undetected.\n\n- **Data privacy breaches**: Because these agents often need access to personal and financial data to function (payment details, shopping preferences, account information), there's heightened risk of sensitive data being exposed, mishandled, or intercepted.\n\n- **Reduced human oversight**: CBA's own commentary (from its AI chief) emphasizes a \"humans in the loop\" approach to its roughly A$400 million in AI-driven initiatives — implying an acknowledged risk that fully autonomous AI decision-making in financial transactions could lead to errors or missed red flags without human checks.\n\n**What the evidence doesn't cover**: There are no specific figures quantifying fraud losses linked to AI shopping agents, no regulatory response details, and no CBA-specific financial exposure or risk-mitigation spending tied directly to this issue beyond the general A$400m AI program reference. If you're looking for quantified impact on CBA's financials or regulatory/compliance costs, the available evidence doesn't address that.",
+    "shared_with": null
+  },
+  {
+    "question_id": "q4",
+    "config": "hybrid_k10",
+    "answer": "Based on the available evidence, a coalition of global banks—including NatWest and Bank of America—has flagged several specific risks associated with AI-powered shopping and payment agents:\n\n- **Exposure of card details**: Agentic AI tools that transact on a consumer's behalf may expose payment card information in ways traditional checkout processes don't.\n- **Weakened payment security**: The mechanics of AI agents making purchases autonomously could undermine existing safeguards built around human-initiated transactions.\n- **Increased scam risk**: Banks warn these tools create new vectors for fraudsters to exploit, as AI agents may be manipulated or impersonated.\n- **Data privacy breaches**: The handling of sensitive financial and personal data by AI agents raises concerns about unauthorized access or leakage.\n- **Fraud protections lagging innovation**: A core theme across the warnings is that AI commerce tools are advancing faster than the industry's fraud-detection and security infrastructure can adapt, creating a gap banks say needs to be addressed.\n\nThe evidence does not detail CBA's specific exposure to these risks or any particular mitigation steps it has taken regarding AI shopping/payment agents specifically. CBA's own AI initiatives referenced in the evidence (its AI chief's comments on internal engineering use, the PaidIt payment platform, and leadership appointments) relate to internal AI deployment and payments infrastructure rather than directly addressing the agentic AI shopping/payment risks the banking coalition raised.",
+    "shared_with": null
+  },
+  {
+    "question_id": "q5",
+    "config": "semantic_k10",
+    "answer": "Based on the evidence gathered, here are the key challenges facing Australian banks in mortgage lending:\n\n- **Plummeting mortgage demand**: Investors are bracing for tough conditions as home loan demand has reportedly fallen sharply, which directly pressures the core lending growth that banks like CBA rely on.\n\n- **Rising interest rate environment**: Three of the four major Australian banks are forecasting another rate hike this year, and market participants (\"fast money\") are positioning for a November RBA hike aimed at combating inflation. Higher rates can further dampen borrower demand and affordability, compounding the slowdown in mortgage volumes, while also raising questions about mortgage stress and repayment capacity among existing borrowers.\n\n**Note on evidence limitations**: The search results provided are fairly thin on this specific topic. One item (the archTIS credit facility) is not relevant to mortgage lending challenges. The evidence does not include specifics on CBA's own mortgage book performance, net interest margins, arrears rates, or competitive dynamics (e.g., broker-originated lending, cashback wars) that typically feature in deeper analysis of this topic. If you need a more complete picture, additional data on CBA's loan growth, margin compression, and asset quality trends would be needed.",
+    "shared_with": null
+  },
+  {
+    "question_id": "q5",
+    "config": "hybrid_k10",
+    "answer": "Based on the evidence available, two main challenges stand out for Australian banks, including CBA, in mortgage lending:\n\n- **Slowing mortgage demand**: Reuters reporting (Aug 25) indicates investors are growing cautious about the rich valuations of Australia's major banks as mortgage lending—historically a key profit driver—is experiencing a downturn in demand.\n\n- **Rising interest rate expectations**: CBA, along with NAB and ANZ, forecast another RBA rate hike this year after a hotter-than-expected inflation reading (Aug 27). Separately, speculative markets were pricing in increased odds of a November RBA rate hike as inflation remained above target. Higher rates tend to compound affordability pressures on borrowers and can further dampen mortgage demand, creating a tension between funding costs and loan growth.\n\nThe evidence doesn't provide additional detail on other specific mortgage-related challenges (e.g., arrears levels, competitive pricing pressure between banks, or regulatory capital requirements), so I can't speak to those aspects based on what's here.",
+    "shared_with": null
+  },
+  {
+    "question_id": "q6",
+    "config": "semantic_k10",
+    "answer": "Based on the available evidence, here's what the latest expectations for Australian interest rates look like:\n\n- **Further rate hikes anticipated:** Three of Australia's four major banks are forecasting another interest rate increase this year, suggesting the tightening cycle may not be over.\n- **November RBA meeting in focus:** Market commentary (\"Fast Money Bets on November RBA Hike\") points to expectations that the Reserve Bank of Australia (RBA) could raise rates at its November meeting as part of continued efforts to combat inflation.\n- **Inflation remains the key driver:** The rationale behind expected hikes centers on persistent inflationary pressure, which is keeping the RBA in a hawkish stance.\n- **Mixed implications for banks:** While higher rates can support net interest margins for banks like CBA, the evidence also notes that mortgage demand is \"plummeting,\" and bank investors are bracing for tougher conditions — suggesting rate hikes may be weighing on loan growth and household borrowing capacity.\n- **Uncertainty around income/dividends:** Some commentary frames the environment as one where \"cash income looks less certain,\" hinting at broader uncertainty in how rate expectations are evolving and their effect on yield-oriented stocks.\n\nIn summary, the evidence points to an expectation of at least one more RBA rate hike (potentially around November), driven by ongoing inflation concerns, alongside signs that higher rates are already dampening mortgage demand. The evidence does not provide specific rate levels, updated RBA guidance, or a detailed timeline beyond this general picture.",
+    "shared_with": null
+  },
+  {
+    "question_id": "q6",
+    "config": "hybrid_k10",
+    "answer": "Based on the evidence, the market and major banks have shifted toward expecting **further RBA rate hikes rather than cuts**, following stronger-than-expected inflation data:\n\n- **CBA, NAB, and ANZ** (three of Australia's four major banks) are now all forecasting an additional RBA rate hike this year, after a hotter-than-expected inflation print.\n- **Market-based bets** (per Bloomberg) show speculative investors increasingly pricing in a **November RBA hike**, as inflation remains above the central bank's target band.\n- Broader commentary notes that **bond yields and funding costs** are reflecting expectations of tighter central bank policy, which is feeding into how income/dividend-focused investors are positioning in bank stocks.\n\nIn short, the latest expectation is for **tighter monetary policy** — i.e., at least one more hike — rather than imminent easing, driven by persistent inflation pressure.\n\nNo further detail is provided in the evidence on the expected terminal cash rate level, timing beyond November, or subsequent RBA commentary/guidance.",
+    "shared_with": null
+  },
+  {
+    "question_id": "q7",
+    "config": "semantic_k10",
+    "answer": "Based on the evidence gathered, there isn't specific information addressing what CBA is doing to expand investment opportunities for retail customers. The available news items cover other topics—CBA's profit results and interest rate outlook, a credit facility extended to a third-party company (archTIS), and AI-related job changes in customer service—but none of these directly detail new investment products, platforms, or services aimed at retail/individual investors.\n\nTo properly answer your question, I'd need additional evidence such as details on CBA's retail investment platforms (e.g., CommSec offerings), new managed funds or ETF partnerships, superannuation products, robo-advice services, or any recent announcements specifically about expanding retail customers' access to investment opportunities.",
+    "shared_with": null
+  },
+  {
+    "question_id": "q7",
+    "config": "hybrid_k10",
+    "answer": "The evidence gathered doesn't address this specific question. None of the available news, financial figures, or price movement data speak to any initiatives CBA has launched to expand investment products, platforms, or opportunities for retail (individual) customers — such as new brokerage offerings, managed funds, superannuation products, or investment apps.\n\nThe items retrieved instead cover unrelated topics: AI adoption in customer service and engineering, a lending facility extended to a third-party tech company (archTIS), and general commentary on CBA's profit trends ahead of an RBA rate decision. None of these describe retail investment product expansion.\n\nIf you're specifically interested in CBA's retail investment offerings (e.g., CommSec, managed funds, superannuation tie-ins, or digital investment tools), that would require a more targeted search of CBA's product announcements or investor communications, as the current evidence set doesn't cover it.",
+    "shared_with": null
+  },
+  {
+    "question_id": "q8",
+    "config": "semantic_k10",
+    "answer": "Based on the evidence gathered, here's what's known about AI's effect on employment at Commonwealth Bank (CBA):\n\n- **Customer service roles affected**: A Bloomberg report specifically names CBA alongside Microsoft and Uber as companies where AI is replacing customer service jobs.\n\n- **Leadership restructuring around AI**: CBA has appointed new CIO and CTO executives specifically to boost its technology and AI strategy, signaling a deliberate push to accelerate AI adoption across the organization.\n\n- **Large-scale AI investment with a \"humans in the loop\" approach**: An interview with CBA's AI chief describes the bank scaling roughly A$400 million in AI-driven value, but notably frames this as a human-AI collaboration model rather than pure automation/replacement. This suggests at least some AI deployment is designed to augment rather than fully replace staff.\n\n- **Possible reversal pattern seen elsewhere**: A broader Quartz report notes that some companies are rehiring workers previously laid off for AI roles after automation \"fell short\" of expectations. This evidence is general industry commentary, not specific to CBA, so it's unclear whether this pattern applies to CBA's own workforce decisions.\n\n**What the evidence doesn't cover**: There are no specific figures on the number of CBA jobs cut or created due to AI, no details on which departments beyond customer service have been affected, and no CBA-specific confirmation of whether the company has reversed any AI-related layoffs (unlike the general industry trend noted above). The evidence also doesn't clarify the net employment impact — i.e., whether AI is reducing CBA's total headcount or simply shifting roles toward AI-oversight functions.",
+    "shared_with": null
+  },
+  {
+    "question_id": "q8",
+    "config": "hybrid_k10",
+    "answer": "Based on the available evidence, here's what's known about AI's impact on employment at Commonwealth Bank:\n\n**Job displacement in customer service**\n- Bloomberg reporting indicates AI is replacing customer service jobs at CBA, alongside similar trends at Microsoft and Uber.\n\n**AI boosting engineering productivity (not necessarily cutting jobs)**\n- CBA's chief AI officer, Ranil Boteju, has described scaling roughly A$400 million in AI value using a \"humans in the loop\" approach.\n- According to this account, about 80% of CBA's engineers now use AI agents, which has tripled code output and helped resolve over 15,000 security issues — suggesting AI is being used to augment existing technical staff rather than purely replace them.\n\n**Leadership/organizational changes**\n- CBA recently appointed a new CIO and CTO specifically to advance its technology and AI strategy, signaling continued investment in AI capability at a leadership level.\n\n**Gaps in the evidence**\nThe evidence does not provide specifics on:\n- The actual number or percentage of CBA jobs eliminated due to AI\n- Which departments beyond customer service are affected\n- Net employment changes (total hiring vs. layoffs) at the bank\n- Any official CBA statements quantifying workforce impact\n\nSo the picture from the evidence is mixed: there are reports of customer service job losses, while separately, AI is being described internally as a tool that enhances engineer productivity rather than directly replacing technical staff. The full scope and scale of AI's net effect on CBA's overall headcount isn't detailed in the evidence provided.",
+    "shared_with": null
+  },
+  {
+    "question_id": "q9",
+    "config": "semantic_k10",
+    "answer": "The evidence provided doesn't include CBA's actual dividend payout ratio figures or payout data (dividend per share vs. earnings per share). The search results are headlines about dividend-stock comparison articles and general commentary, but none of them contain the specific payout ratio metric needed to answer this question.\n\nTo answer accurately, I'd need data such as CBA's most recent interim/final dividend per share alongside its corresponding earnings per share (or net profit and total dividends paid), which isn't present in what's been gathered here.",
+    "shared_with": null
+  },
+  {
+    "question_id": "q9",
+    "config": "hybrid_k10",
+    "answer": "The evidence provided doesn't include CBA's actual dividend payout ratio or the underlying figures (EPS and dividend per share) needed to calculate it. The search results reference general dividend-yield screener articles and unrelated corporate news (AI initiatives, a lending facility to archTIS, a new payments platform), but none of them state CBA's payout ratio.\n\nI'd need more specific data—such as CBA's latest full-year or half-year earnings per share and declared dividend per share—to determine the payout ratio accurately.",
+    "shared_with": null
+  },
+  {
+    "question_id": "q10",
+    "config": "semantic_k10",
+    "answer": "Based on the evidence provided, I don't have the exact net profit figure for Commonwealth Bank of Australia's (CBA.AX) FY2025. The search results returned don't contain this specific financial data — one article references a \"profit uptick\" without a stated figure, and the other is unrelated (covering LGT, a different bank). I can't confirm an exact FY2025 net profit number from the material gathered.",
+    "shared_with": null
+  },
+  {
+    "question_id": "q10",
+    "config": "hybrid_k10",
+    "answer": "The evidence provided doesn't include CBA's exact FY2025 net profit figure. None of the news items cite the specific dollar amount reported for the bank's full-year earnings — they touch on unrelated topics like AI initiatives, a lending facility to a third party, dividend yield screens, and commentary about a \"profit uptick\" without quantifying it.\n\nTo get the precise FY2025 net profit figure, you'd need to check CBA's official full-year results announcement (typically released in August) or a financial data provider with the actual reported numbers.",
+    "shared_with": null
+  },
+  {
+    "question_id": "q11",
+    "config": "semantic_k10",
+    "answer": "Based on the evidence provided, there is no information about any recent regulatory action or penalties against CBA (Commonwealth Bank of Australia) from ASIC, APRA, or AUSTRAC. The two news items available relate to an unrelated business facility extended to a third-party company (archTIS) and general commentary on CBA's profit outlook and interest rate expectations — neither touches on regulatory or compliance matters.\n\nIf you're specifically researching CBA's regulatory history or current standing with these bodies, you would need to consult additional sources, such as ASIC's enforcement register, APRA's public actions, AUSTRAC's compliance notices, or CBA's own regulatory disclosures in its annual report or ASX announcements.",
+    "shared_with": null
+  },
+  {
+    "question_id": "q11",
+    "config": "hybrid_k10",
+    "answer": "Based on the evidence gathered, there is nothing here that points to recent regulatory action or penalties against CBA from ASIC, APRA, or AUSTRAC. The news items provided relate to unrelated topics — a lending facility extended to a separate company (archTIS), commentary on CBA's profit outlook ahead of an RBA decision, and stories about CBA's AI initiatives.\n\nIf you're specifically looking for regulatory/compliance developments (e.g., enforcement actions, fines, compliance orders, or remediation programs), the evidence here doesn't cover that, so I can't give you a reliable answer on that front. You'd want to check ASIC, APRA, and AUSTRAC's public enforcement registers or CBA's regulatory disclosures directly for the most current and accurate picture.",
+    "shared_with": null
+  },
+  {
+    "question_id": "q12",
+    "config": "semantic_k10",
+    "answer": "Not enough evidence was gathered for CBA.AX to produce an insight.",
+    "shared_with": null
+  },
+  {
+    "question_id": "q12",
+    "config": "hybrid_k10",
+    "answer": "The evidence provided doesn't address CBA's climate commitments, net-zero targets, or fossil-fuel lending policies. The articles gathered instead cover unrelated topics—AI adoption and job impacts at CBA, interest rate speculation, mortgage lending trends, and a lending facility extended to a third-party company (archTIS).\n\nI don't have sourced information here to answer your question on CBA's climate-related policies. If you'd like, I can look specifically for CBA's sustainability reports, climate disclosures, or public statements on fossil-fuel financing and net-zero commitments.",
+    "shared_with": null
+  },
+  {
+    "question_id": "h1",
+    "config": "semantic_k10",
+    "answer": "Based on the evidence available, CBA has unveiled a new payout platform aimed at replacing cheque-based payments ahead of the broader industry phase-out of cheques. However, the available evidence only includes the headline of this development and does not provide further details—such as the specific name of the platform, its features, technology partners, or rollout timeline.\n\nIf you need those specifics (e.g., what the platform is called, how it works, or when it launches), I don't have sufficient detail in the current evidence to answer that part of the question accurately.",
+    "shared_with": null
+  },
+  {
+    "question_id": "h1",
+    "config": "hybrid_k10",
+    "answer": "Commonwealth Bank has introduced **PaidIt**, a new payout platform designed to replace cheque-based payments ahead of cheques being phased out. According to reporting from Retail Banker International, PaidIt combines three functions within a single system:\n\n- **Recipient verification**\n- **Communications**\n- **Payment delivery**\n\nThe platform is positioned as CBA's solution for handling payouts that would previously have been made via cheque, consolidating the verification and notification steps alongside the actual transfer of funds into one integrated system.",
+    "shared_with": null
+  },
+  {
+    "question_id": "h2",
+    "config": "semantic_k10",
+    "answer": "Based on the evidence available, here's what I can confirm: archTIS has extended (renewed/expanded) a A$4 million financing facility with Commonwealth Bank of Australia to support its contract execution and growth plans.\n\nHowever, the evidence provided does not include the specific details needed to fully answer your question, such as:\n\n- The structure of the facility (e.g., working capital line, revolving credit, invoice financing, etc.)\n- Interest rates, terms, or covenants attached to the facility\n- When the facility was originally established versus this extension\n- How archTIS intends to deploy the funds across specific contracts or growth initiatives\n- Any collateral or security arrangements\n\nThe second piece of evidence relates to CBA's own financial results and RBA rate expectations, which doesn't shed light on the archTIS facility specifics.\n\nIf you need the granular details of this financing arrangement, I'd recommend checking archTIS's official ASX announcements or CBA's business lending disclosures, as the current evidence only confirms the facility's existence and headline purpose at a high level.",
+    "shared_with": null
+  },
+  {
+    "question_id": "h2",
+    "config": "hybrid_k10",
+    "answer": "Based on the available evidence, here's what I can tell you about CBA's support for archTIS:\n\n- **Nature of support**: CBA provided archTIS Ltd (ASX:AR9, OTCQB:ARHLF) with a **A$4 million lending facility**, described as non-dilutive working capital.\n- **Recent development**: archTIS has **extended the maturity date** of this existing facility, rather than securing a new one. The facility was previously due to mature, and this extension maintains archTIS's access to the funds.\n- **Stated purpose**: The facility is intended to support archTIS's **contract execution and growth**, as the company responds to increasing demand for its data security products.\n\nThe evidence does not provide further specifics such as the interest rate, repayment terms, original origination date, or the exact new maturity date of the facility. If you need those details, that information isn't covered in what's been gathered here.",
+    "shared_with": null
+  },
+  {
+    "question_id": "h3",
+    "config": "semantic_k10",
+    "answer": "Based on the evidence available, here's what can be confirmed:\n\n**CBA has appointed new Chief Information Officer (CIO) and Chief Technology Officer (CTO) executives**, as reported by Reuters. The stated purpose of these appointments is to strengthen the bank's technology and AI strategy.\n\nUnfortunately, the evidence provided does not include further details such as:\n- The names of the individuals appointed\n- Who they are replacing, or whether these are newly created roles\n- The specific timing of the changes\n- Their professional backgrounds or prior experience\n- Specific mandates or strategic priorities tied to the AI/technology push\n\nThe second piece of evidence (regarding profit and RBA rate expectations) does not relate to this leadership question and hasn't been used in this answer.\n\nIf you need more specifics on the appointments—such as names, backgrounds, or strategic rationale—I'd recommend checking CBA's official investor relations announcements or the full Reuters article for details not captured in the evidence provided here.",
+    "shared_with": null
+  },
+  {
+    "question_id": "h3",
+    "config": "hybrid_k10",
+    "answer": "Based on the evidence available, here's what's been reported regarding leadership changes at CBA's technology functions:\n\n**Confirmed change:**\n- CBA has appointed a new **CIO (Chief Information Officer)** and a new **CTO (Chief Technology Officer)**, according to Reuters. The stated rationale is to strengthen the bank's technology and AI strategy.\n\n**Limitations of the evidence:**\nThe available information does not include:\n- The names of the incoming (or outgoing) CIO and CTO\n- Specific details on what changes in strategy, structure, or reporting lines accompany these appointments\n- Timing/effective dates of the transitions\n\n**Related but distinct context:**\n- The evidence also references **Ranil Boteju**, described as CBA's \"chief AI officer,\" who discusses scaling roughly A$400 million in AI-driven value and the bank's use of AI agents among engineers. This is a separate role from CIO/CTO, though it points to the broader technology leadership push mentioned in the Reuters item.\n- A Bloomberg piece notes AI is replacing customer service roles at CBA (among other companies), which may be tangentially related to the broader tech/AI restructuring but doesn't speak directly to the CIO/CTO changes.\n\nIn short, the evidence confirms new CIO and CTO appointments tied to an AI/technology strategy push, but doesn't provide specifics on who was appointed, who they replaced, or structural details of the change. If you need those specifics, additional sourcing beyond what's gathered here would be required.",
+    "shared_with": null
+  },
+  {
+    "question_id": "h4",
+    "config": "semantic_k10",
+    "answer": "Based on the evidence available, here's what can be said about CBA's A$400 million AI value claim:\n\n**What the evidence confirms:**\n- CBA has publicly stated it is scaling to A$400 million in value generated from AI initiatives, as discussed by the bank's AI chief in an interview with Retail Banker International. The approach is described as keeping \"humans in the loop\" rather than fully automating decisions.\n- Separately, Bloomberg has reported that CBA (alongside Microsoft and Uber) is using AI in ways that are replacing customer service roles — suggesting cost reduction in customer service operations is at least one component of the AI strategy.\n\n**What the evidence does not clarify:**\nThe gathered evidence does not provide a detailed breakdown of how the A$400 million figure is actually composed — for example, it doesn't specify what portion comes from cost savings (such as reduced customer service headcount) versus revenue generation, fraud/risk reduction, productivity gains, or other efficiency measures. The interview headline references \"scaling\" this value with humans in the loop, implying a governance/oversight model, but the specific mechanics or financial breakdown of the A$400 million aren't detailed in what's available.\n\n**Not directly relevant:**\nThe archTIS A$4 million facility appears to be an unrelated financing arrangement (a loan CBA extended to a contract management software company), not part of CBA's own AI value generation. The Simply Wall St. piece on profit and RBA rate expectations also doesn't connect to the AI value figure specifically.\n\nIn short, the evidence confirms CBA's A$400 million AI value target exists and that customer service automation is one visible element, but it doesn't offer a full explanation of how that figure breaks down across different business areas or value drivers. You may want to look for CBA's investor presentations, annual report, or more detailed statements from its AI leadership for that breakdown.",
+    "shared_with": null
+  },
+  {
+    "question_id": "h4",
+    "config": "hybrid_k10",
+    "answer": "Based on the available evidence, here's what's known about CBA's A$400 million AI value claim:\n\n**What's confirmed:**\n- CBA's Chief AI Officer, Ranil Boteju, discussed scaling to A$400 million in AI value in an interview with Retail Banker International, with a specific emphasis on a \"humans in the loop\" approach.\n- Two concrete drivers are cited in that interview:\n  - **Engineering productivity**: roughly 80% of CBA's engineers now use AI agents, which has reportedly **tripled code output**.\n  - **Security**: AI tools have helped resolve **over 15,000 security issues**.\n- Separately, Bloomberg reporting indicates CBA is among companies (alongside Microsoft and Uber) using AI to **replace customer service roles**, suggesting cost/headcount reduction in customer service functions is another contributing lever.\n- CBA has also been **restructuring its technology leadership** (new CIO/CTO appointments per Reuters) specifically to advance its technology and AI strategy, which may support further scaling of these initiatives.\n\n**What the evidence does not cover:**\nThe available sources don't provide a detailed breakdown of how the A$400 million figure is calculated (e.g., a split between cost savings, productivity gains, fraud/risk reduction, or revenue generation), nor the timeframe over which this value is measured or realized. The interview headline references the figure, but the full methodology or financial attribution isn't detailed in the evidence provided. If you're looking for a precise accounting of the A$400 million, that level of detail isn't available here.",
+    "shared_with": null
+  }
+]

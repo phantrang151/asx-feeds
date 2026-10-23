@@ -214,13 +214,19 @@ function QualityClaim({ claim }) {
   if (typeof claim === 'string') {
     return <li className="quality-claim">{claim}</li>;
   }
-  const isContradicting = claim.issue_type === 'contradicting';
+  // Any other / older value falls back to 'unsupported'.
+  const badges = {
+    contradicting: 'Contradicting',
+    partially_supported: 'Partially supported',
+    unsupported: 'Unsupported',
+  };
+  const type = badges[claim.issue_type] ? claim.issue_type : 'unsupported';
+  const showPart = type === 'partially_supported' && claim.unsupported_part;
   return (
     <li className="quality-claim">
-      <span className={`quality-claim-badge ${isContradicting ? 'contradicting' : 'unsupported'}`}>
-        {isContradicting ? 'Contradicting' : 'Unsupported'}
-      </span>
+      <span className={`quality-claim-badge ${type}`}>{badges[type]}</span>
       <span className="quality-claim-statement">{claim.statement}</span>
+      {showPart && <span className="quality-claim-explanation"> (unsupported part: "{claim.unsupported_part}")</span>}
       <span className="quality-claim-explanation"> - {claim.explanation}</span>
     </li>
   );
