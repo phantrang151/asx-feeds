@@ -43,6 +43,7 @@ from agent.guardrails.citations import filter_reachable_references
 from agent.guardrails.tracer import RequestTracer
 from agent.guardrails.alerts import evaluate_alerts
 from agent.shared.structured_output import StructuredOutputError
+from stats.site_stats import latest_site_stats
 from api.auth import get_user_id_from_token
 from api.admin import router as admin_router
 from api.request_id import REQUEST_ID_HEADER, add_request_id
@@ -233,6 +234,19 @@ def _resynthesize_insight(user_id: str, ticker: str, action: str) -> None:
     except Exception:
         logger.exception("Insight re-synthesis failed after %s for %s/%s", action, user_id, ticker)
 
+
+
+@app.get("/api/public/site-stats")
+def site_stats_endpoint():
+    """
+    The front page's marketing numbers - no login needed. Serves the latest weekly snapshot
+    (see stats/site_stats.py) rather than counting on every visit. 404 until the weekly job
+    has run once, so the front page can hide the section instead of showing zeros.
+    """
+    stats = latest_site_stats()
+    if stats is None:
+        raise HTTPException(status_code=404, detail="Site statistics are not available yet.")
+    return stats
 
 @app.post("/api/tickers")
 def create_ticker_endpoint(req: TickerCreateRequest, authorization: str = Header(...)):

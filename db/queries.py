@@ -1383,3 +1383,29 @@ def sample_recent_request_traces(n: int, hours: int = 24) -> list[dict]:
 
     rows = get_eligible_request_traces_for_sampling(hours)
     return random.sample(rows, min(n, len(rows)))
+
+
+def compute_site_stats() -> dict:
+    """The four public front-page numbers, calculated now by the compute_site_stats SQL
+    function (see scripts/migration_site_stats.sql for what each one counts)."""
+    client = get_client()
+    result = run(client.rpc("compute_site_stats"), idempotent=True, operation="compute_site_stats")
+    return result.data[0]
+
+
+def insert_site_stats(stats: dict) -> dict:
+    client = get_client()
+    result = run(client.table("site_stats").insert(stats), idempotent=False, operation="insert_site_stats")
+    return result.data[0]
+
+
+def get_latest_site_stats() -> Optional[dict]:
+    client = get_client()
+    result = run(
+        client.table("site_stats")
+        .select("computed_at, active_researchers, feeds_created, articles_matched, insights_generated")
+        .order("computed_at", desc=True)
+        .limit(1),
+        idempotent=True, operation="get_latest_site_stats",
+    )
+    return result.data[0] if result.data else None
