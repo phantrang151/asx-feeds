@@ -5,18 +5,24 @@
   same way, without ever touching the rest of the app.
 */
 .landing {
-  --paper: #EDEEE7;
+  --paper: #F3F1EC;
   --paper-raised: #FFFFFF;
-  --paper-sunken: #E4E5DD;
-  --ink: #171A20;
-  --ink-soft: #4B505A;
-  --ink-faint: #82868E;
-  --accent: #B8791E;
-  --accent-deep: #8C5A16;
-  --accent-soft: rgba(184, 121, 30, 0.13);
-  --rule: #CACCC2;
-  --rule-strong: #A9ACA0;
-  --shadow: rgba(23, 26, 32, 0.1);
+  --paper-sunken: #EBE8E1;
+  --ink: #1F1E1B;
+  --ink-soft: #57544E;
+  --ink-faint: #6E6A63;
+  --accent: #8B5E1A;
+  --accent-deep: #6E4A14;
+  --accent-soft: rgba(139, 94, 26, 0.12);
+  --accent-wash: #FAF5EA;
+  --on-accent: #FFFFFF;
+  /* hero headline keeps the production colours from before the warm palette */
+  --hero-lead: color-mix(in srgb, #82868E 80%, #171A20);
+  --hero-soft: #4B505A;
+  --hero-accent: #B8791E;
+  --rule: #DDD9CF;
+  --rule-strong: #C7C2B6;
+  --shadow: rgba(40, 32, 20, 0.08);
   --up: #3F7855;
   --down: #A8432E;
   /* One font (Inter, loaded once in _document.js) for the whole app, landing included -
@@ -37,6 +43,11 @@
     --accent: #E3A94A;
     --accent-deep: #F0BE6E;
     --accent-soft: rgba(227, 169, 74, 0.16);
+    --accent-wash: #252219;
+    --on-accent: #17130A;
+    --hero-lead: color-mix(in srgb, var(--ink-faint) 80%, var(--ink));
+    --hero-soft: var(--ink-soft);
+    --hero-accent: var(--accent);
     --rule: #33353D;
     --rule-strong: #45474F;
     --shadow: rgba(0, 0, 0, 0.45);
@@ -111,7 +122,7 @@
 
 /* ---------- shared layout ---------- */
 .wrap {
-  max-width: 1080px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 0 32px;
 }
@@ -200,7 +211,7 @@
   margin: 0;
   padding: 0;
   display: flex;
-  gap: 26px;
+  gap: 36px;
   width: max-content;
 }
 .tapeTrack li {
@@ -209,22 +220,16 @@
   white-space: nowrap;
   color: var(--ink-soft);
 }
-.sym {
+/* scoped to the tape so they outrank `.tapeTrack li`; .up/.down come after .sym to override its colour */
+.tapeTrack .sym {
   color: var(--ink);
   font-weight: 600;
 }
-.up {
+.tapeTrack .up {
   color: var(--up);
 }
-.down {
+.tapeTrack .down {
   color: var(--down);
-}
-.finePrint {
-  flex: none;
-  font-family: var(--mono);
-  font-size: 0.64rem;
-  color: var(--ink-faint);
-  letter-spacing: 0.02em;
 }
 @media (prefers-reduced-motion: no-preference) {
   .tapeTrack ul {
@@ -242,11 +247,6 @@
     transform: translateX(-50%);
   }
 }
-@media (max-width: 640px) {
-  .finePrint {
-    display: none;
-  }
-}
 
 /* ---------- buttons ---------- */
 .btn {
@@ -254,136 +254,592 @@
   align-items: center;
   gap: 8px;
   font-family: var(--mono);
-  font-size: 0.78rem;
-  letter-spacing: 0.05em;
+  font-size: 0.92rem;
+  font-weight: 500;
+  line-height: 1.4; /* <button> doesn't inherit line-height, <a> does - pin it so both match */
   text-decoration: none;
-  padding: 13px 22px;
-  border-radius: 3px;
+  padding: 10px 18px;
+  border-radius: 8px;
   cursor: pointer;
   border: 1px solid transparent;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 .btnPrimary {
   background: var(--accent);
-  color: #17130a;
+  color: var(--on-accent);
 }
 .btnPrimary:hover {
   background: var(--accent-deep);
 }
+.landing .btnGhost {
+  background: var(--paper-raised);
+  border-color: var(--rule-strong);
+  color: var(--ink);
+}
+.btnGhost:hover {
+  border-color: var(--ink-faint);
+}
+
 /* ---------- hero ---------- */
 .hero {
-  padding-top: 76px;
-  padding-bottom: 76px;
+  padding-top: 56px;
+  padding-bottom: 80px;
+}
+.heroGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 56px;
+  align-items: stretch;
+}
+/* Same height as the diagram card: headline on its top edge, buttons on its bottom edge,
+   with any spare height shared evenly between the headline, subhead and buttons. */
+.heroText {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 .hero h1 {
-  font-size: clamp(2.15rem, 4.6vw, 3.25rem);
-  line-height: 1.14;
-  letter-spacing: -0.01em;
-  margin-top: 18px;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.025em;
 }
-/* Three-line headline builds from quiet to loud, so the accent lands on the payoff line.
-   leadLine nudges --ink-faint toward --ink for large-text contrast in both themes. */
+/* Three-line headline builds from quiet to loud, so the accent lands on the payoff line. */
 .hero h1 .leadLine {
-  color: color-mix(in srgb, var(--ink-faint) 80%, var(--ink));
+  color: var(--hero-lead);
 }
 .hero h1 .softLine {
-  color: var(--ink-soft);
+  color: var(--hero-soft);
 }
 .hero h1 .accentLine {
-  color: var(--accent);
+  color: var(--hero-accent);
 }
 .subhead {
-  font-size: 1.12rem;
+  font-size: 1rem;
   color: var(--ink-soft);
-  margin-top: 26px;
+  margin-top: 22px;
   max-width: 60ch;
 }
 .ctas {
   display: flex;
   align-items: center;
-  gap: 20px;
-  margin-top: 34px;
+  gap: 12px;
+  margin-top: 28px;
   flex-wrap: wrap;
 }
-.ctas .secondaryLink {
-  font-family: var(--mono);
-  font-size: 0.78rem;
+
+/* hero stats: weekly platform numbers under the CTAs */
+.heroStats {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--rule);
+}
+.heroStatsLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--ink-soft);
-  text-decoration: underline;
-  text-decoration-color: var(--rule-strong);
-  text-underline-offset: 4px;
-  cursor: pointer;
 }
-/* ---------- value props ---------- */
-.valueGrid {
+.statusDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--up);
+}
+.heroStatsGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: var(--rule);
-  border: 1px solid var(--rule);
-  margin-top: 40px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 14px 0 0;
 }
-.valueCard {
-  background: var(--paper);
-  padding: 30px 26px 34px;
+.heroStatsGrid > div {
+  display: flex;
+  flex-direction: column-reverse; /* number above its label; dt stays first for screen readers */
 }
-.valueCard .tag {
+.heroStatsGrid dt {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+.heroStatsGrid dd {
+  margin: 0 0 2px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--ink);
+}
+.statPlaceholder {
   display: inline-block;
-  border: 1px solid var(--accent);
-  border-radius: 2px;
-  padding: 3px 8px;
+  width: 28px;
+  height: 3px;
+  vertical-align: middle;
+  background: var(--accent);
+  opacity: 0.6;
 }
-.valueCard h3 {
-  font-size: 1.12rem;
-  margin-top: 16px;
+
+/* hero diagram: sources -> TickerThesis AI (sorted into feeds) -> insight, which loops back */
+.heroCard {
+  /* Flex column so the connector and the arrow can grow when the text column beside it is
+     taller - the diagram spreads out instead of leaving a blank strip at the bottom. */
+  display: flex;
+  flex-direction: column;
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+  border-radius: 16px;
+  padding: 22px 24px 24px;
+  box-shadow: 0 24px 60px var(--shadow);
+}
+.sourceGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.sourceTile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 16px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  background: var(--paper-raised);
+}
+/* The user's own past insights - accent-tinted and dashed, like "+ Your own" below. */
+.sourceTileOwn {
+  background: var(--accent-wash);
+  border: 1px dashed color-mix(in srgb, var(--accent) 45%, transparent);
+}
+.sourceIcon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+  color: var(--accent);
+}
+.sourceIcon svg {
+  width: 18px;
+  height: 18px;
+}
+.sourceLabel {
+  margin-top: 12px;
+  font-size: 0.86rem;
+  font-weight: 600;
   line-height: 1.3;
 }
-.valueCard p {
+.sourceSub {
+  font-size: 0.76rem;
+  line-height: 1.4;
   color: var(--ink-soft);
-  font-size: 0.98rem;
-  margin-top: 12px;
+}
+.sourceTileOwn .sourceSub {
+  color: var(--accent);
+}
+.funnel {
+  flex: 1 0 36px;
+  width: 100%;
+  height: auto;
+  min-height: 36px;
+  color: var(--rule-strong);
+}
+.aiPanel {
+  border: 1px solid #7A5218;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.aiBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 14px 16px;
+  background: #7A5218; /* deep brown from the accent family; same in both themes */
+  color: #FFFFFF;
+}
+.aiName {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+.aiIcon {
+  width: 18px;
+  height: 18px;
+  color: #F5CD86;
+}
+.aiFeeds {
+  padding: 12px 16px 14px;
+  background: var(--paper-raised);
+}
+.aiFeedsLabel {
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+.feedChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.feedChip {
+  padding: 4px 11px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--paper);
+  font-size: 0.78rem;
+}
+.feedChipOwn {
+  background: transparent;
+  border: 1px dashed color-mix(in srgb, var(--accent) 50%, transparent);
+  color: var(--accent);
+  font-weight: 500;
+}
+.flowArrow {
+  flex: 1 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-faint);
+  line-height: 1;
+  padding: 8px 0;
+}
+.insightBox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 15px 16px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--rule));
+  background: var(--accent-wash);
+}
+.insightIcon {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  color: var(--accent);
+}
+.insightTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+.insightLoop {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+.insightLoop svg {
+  width: 14px;
+  height: 14px;
 }
 @media (max-width: 900px) {
-  .valueGrid {
-    grid-template-columns: repeat(2, 1fr);
+  .heroGrid {
+    grid-template-columns: 1fr;
+    gap: 40px;
   }
 }
 @media (max-width: 560px) {
-  .valueGrid {
+  .sourceGrid {
     grid-template-columns: 1fr;
+  }
+  .heroCard {
+    padding: 20px;
   }
 }
 
-/* ---------- screenshot strip ---------- */
-.shotStrip {
+/* ---------- product screens: step list beside the active screen ---------- */
+.sectionTitle {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  line-height: 1.2;
+  margin-top: 12px;
+  color: var(--ink);
+}
+.productSteps {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 28px;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.4fr);
+  gap: 36px;
+  align-items: stretch;
   margin-top: 40px;
 }
-.shot {
+/* Same height as the screenshot beside it: first step level with the frame's top edge, last
+   step level with its bottom edge, spare height shared between the steps. */
+.stepList {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+}
+.stepButton {
+  position: relative;
+  display: flex;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 18px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  overflow: hidden;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.stepButton:hover {
+  background: var(--paper-raised);
+}
+.stepButtonActive {
+  background: var(--paper-raised);
+  border-color: var(--rule-strong);
+  box-shadow: 0 4px 14px var(--shadow);
+}
+/* Cues that the steps drive the screenshot: inactive steps are dimmed and light up on hover,
+   and the active card points at the screenshot with an arrow. */
+.stepButton:not(.stepButtonActive) .stepBody {
+  opacity: 0.62;
+  transition: opacity 0.2s ease;
+}
+.stepButton:not(.stepButtonActive):hover .stepBody {
+  opacity: 1;
+}
+.stepButton:not(.stepButtonActive):hover .stepTitle {
+  color: var(--accent);
+}
+.stepItem {
+  position: relative;
+}
+/* On the wrapper, not the button: the button clips its overflow for the progress bar. */
+.stepItemActive::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -8px;
+  width: 14px;
+  height: 14px;
+  background: var(--paper-raised);
+  border-top: 1px solid var(--rule-strong);
+  border-right: 1px solid var(--rule-strong);
+  transform: translateY(-50%) rotate(45deg);
+  z-index: 1;
+}
+.stepNum {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent);
+  padding-top: 3px;
+}
+.stepBody {
+  display: grid;
+  gap: 6px;
+}
+.stepTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--ink);
+}
+.stepText {
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+.stepNote {
+  font-size: 0.82rem;
+  color: var(--ink-faint);
+}
+.stepPoints {
+  display: grid;
+  gap: 6px;
+  margin: 4px 0;
+}
+.stepPoints > span {
+  position: relative;
+  padding-left: 22px;
+  font-size: 0.92rem;
+  color: var(--ink);
+}
+.stepPoints > span::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 0.45em;
+  width: 10px;
+  height: 5px;
+  border-left: 2px solid var(--accent);
+  border-bottom: 2px solid var(--accent);
+  transform: rotate(-45deg);
+}
+
+.stepProgress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 100%;
+  background: var(--accent);
+  transform-origin: left;
+  transform: scaleX(0);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .stepProgress {
+    animation-name: stepProgress;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+  }
+  .productSteps:hover .stepProgress,
+  .productSteps:focus-within .stepProgress {
+    animation-play-state: paused;
+  }
+}
+@keyframes stepProgress {
+  to {
+    transform: scaleX(1);
+  }
+}
+.stepShotInline {
+  display: none;
+}
+@media (max-width: 900px) {
+  .productSteps {
+    grid-template-columns: 1fr;
+  }
+  .stepShot,
+  .stepProgress {
+    display: none;
+  }
+  .stepList {
+    gap: 32px;
+  }
+  .stepButton,
+  .stepButtonActive,
+  .stepButton:hover {
+    padding: 0;
+    border: none;
+    background: none;
+    box-shadow: none;
+    cursor: default;
+  }
+  .stepButton:not(.stepButtonActive) .stepBody {
+    opacity: 1;
+  }
+  .stepButton:not(.stepButtonActive):hover .stepTitle {
+    color: var(--ink);
+  }
+  .stepItemActive::after {
+    display: none;
+  }
+  .stepShotInline {
+    display: block;
+    margin-top: 16px;
+  }
+}
+
+/* screenshot framed as an app window */
+.shotFrame {
   display: block;
   width: 100%;
   margin: 0;
+  padding: 0;
   border: 1px solid var(--rule-strong);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--paper-raised);
+  box-shadow: 0 10px 30px var(--shadow);
+  cursor: zoom-in;
+  font: inherit;
+  text-align: left;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.shotFrame:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px var(--shadow);
+}
+.shotFrame:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.windowBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 14px;
   background: var(--paper-sunken);
-  aspect-ratio: 4 / 3;
-  border-radius: 4px;
+  border-bottom: 1px solid var(--rule);
+}
+.windowDots {
+  display: flex;
+  gap: 6px;
+}
+.windowDots i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--rule-strong);
+}
+.windowTitle {
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.shotViewport {
+  display: block;
   position: relative;
   overflow: hidden;
-  padding: 0;
-  cursor: pointer;
-  font: inherit;
+  background: #fff; /* the screenshots are light-mode captures */
 }
-.shot img {
+.shotViewport img {
   display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top;
-  transition: transform 0.2s ease;
+  height: auto;
 }
-.shot:hover img {
-  transform: scale(1.03);
+/* Desktop panel: one frame for all captures so switching steps doesn't shift the layout, and
+   it ends level with the step list. The frame is at least tall enough for the tallest capture
+   (fig-3's ratio) and stretches to the list's height when the list is taller; each capture is
+   shown whole, pinned to the top. */
+.stepShot {
+  display: flex;
+}
+.stepShot .shotFrame {
+  display: flex;
+  flex-direction: column;
+}
+.stepShot .shotViewport {
+  flex: 1;
+  aspect-ratio: 1362 / 1092;
+}
+.stepShot .shotViewport img {
+  animation: shotFadeIn 0.35s ease;
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  object-fit: contain;
+  object-position: top center;
+}
+@keyframes shotFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stepShot .shotViewport img {
+    animation: none;
+  }
 }
 .expandIcon {
   position: absolute;
@@ -395,13 +851,6 @@
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.55);
   color: #fff;
-}
-.shotCap {
-  margin-top: 14px;
-  font-size: 0.92rem;
-  font-style: italic;
-  color: var(--ink-soft);
-  text-align: center;
 }
 
 /* ---------- screenshot lightbox ---------- */
@@ -447,11 +896,6 @@
 @media (max-width: 760px) {
   .lightboxOverlay {
     padding: 20px;
-  }
-}
-@media (max-width: 760px) {
-  .shotStrip {
-    grid-template-columns: 1fr;
   }
 }
 

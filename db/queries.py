@@ -1,8 +1,64 @@
 import statistics
+import time
 from typing import Optional
 from datetime import datetime, timedelta, timezone
-
+import httpx
+from postgrest.exceptions import APIError
+from config import DB_RETRY_ATTEMPTS, DB_RETRY_BACKOFF_SECONDS
 from db.client import get_client
+from db.errors import DatabaseUnavailableError
+from tools.logger import get_logger
+
+logger = get_logger(__name__)
+
+# PostgREST / Postgres error codes that mean "try again later", not "this request is wrong":
+# PGRST003 = PostgREST timed out waiting for a pooled connection; 57014 = statement timeout.
+_TRANSIENT_DB_CODES = {"PGRST003", "57014"}
+
+
+def is_retriable_exception(e: Exception) -> bool:
+    """True for transient failures worth retrying: the request timed out or never connected
+    (httpx), or the database/PostgREST reported a timeout. Everything else - bad data,
+    constraint violations, permissions, bugs - fails the same way on every attempt."""
+    if isinstance(e, (httpx.TimeoutException, httpx.NetworkError)):
+        return True
+    return isinstance(e, APIError) and e.code in _TRANSIENT_DB_CODES
+
+
+def run(query, *, idempotent: bool = False, essential: bool = True, operation: str = "database query"):
+    """Executes one PostgREST query under the app's retry policy.
+
+    - idempotent=True (reads, read-only RPCs, upserts on a unique key, updates that SET fixed
+      values by key, deletes by key): transient failures are retried DB_RETRY_ATTEMPTS times
+      with doubling backoff - running it again cannot change the result.
+    - idempotent=False (plain INSERTs): never retried. A timeout after the request was sent
+      may mean the row was already committed (atomicity guarantees all-or-nothing, not that
+      the caller learns which), so a retry could duplicate it.
+
+    When a transient failure is not resolved:
+    - essential=True  -> raises DatabaseUnavailableError (outcome_uncertain for non-idempotent
+      writes), which api/main.py turns into a 503.
+    - essential=False -> best-effort telemetry (request traces, alerts): logs and returns None,
+      so a lost trace never fails an otherwise good response. Callers must handle None.
+    Non-transient errors are raised unchanged, for the caller or the API's error handling.
+    (PostgREST itself already retries GET requests on Cloudflare 503/520 inside execute().)
+    """
+    attempts = DB_RETRY_ATTEMPTS if idempotent else 1
+    for attempt in range(1, attempts + 1):
+        try:
+            return query.execute()
+        except Exception as e:
+            if not is_retriable_exception(e):
+                raise
+            if attempt < attempts:
+                logger.warning("Transient DB error during %s (attempt %s/%s), retrying: %s",
+                               operation, attempt, attempts, e)
+                time.sleep(DB_RETRY_BACKOFF_SECONDS * 2 ** (attempt - 1))
+                continue
+            if not essential:
+                logger.error("Best-effort write %s failed, continuing without it: %s", operation, e)
+                return None
+            raise DatabaseUnavailableError(operation, outcome_uncertain=not idempotent) from e
 
 
 def get_feeds_for_user(user_id: str, ticker: Optional[str] = None) -> list[dict]:
@@ -10,7 +66,7 @@ def get_feeds_for_user(user_id: str, ticker: Optional[str] = None) -> list[dict]
     query = client.table("feeds").select("*").eq("user_id", user_id)
     if ticker:
         query = query.eq("ticker", ticker)
-    return query.execute().data
+    return run(query, idempotent=True, operation="get_feeds_for_user").data
 
 
 def create_feed(
@@ -25,7 +81,7 @@ def create_feed(
 ) -> dict:
     client = get_client()
     result = (
-        client.table("feeds")
+        run(client.table("feeds")
         .insert(
             {
                 "user_id": user_id,
@@ -37,8 +93,7 @@ def create_feed(
                 "feed_type": feed_type,
                 "common_feed_template_id": common_feed_template_id,
             }
-        )
-        .execute()
+        ), idempotent=False, operation="create_feed")
     )
     return result.data[0]
 
@@ -48,7 +103,7 @@ def get_feed(feed_id: str, user_id: str) -> Optional[dict]:
     for a feed that doesn't exist or isn't the caller's."""
     client = get_client()
     result = (
-        client.table("feeds").select("*").eq("id", feed_id).eq("user_id", user_id).limit(1).execute()
+        run(client.table("feeds").select("*").eq("id", feed_id).eq("user_id", user_id).limit(1), idempotent=True, operation="get_feed")
     )
     return result.data[0] if result.data else None
 
@@ -82,12 +137,11 @@ def update_feed(
 
     client = get_client()
     result = (
-        client.table("feeds")
+        run(client.table("feeds")
         .update(updates)
         .eq("id", feed_id)
         .eq("user_id", user_id)
-        .eq("feed_type", "custom")
-        .execute()
+        .eq("feed_type", "custom"), idempotent=True, operation="update_feed")
     )
     return result.data[0] if result.data else None
 
@@ -100,12 +154,11 @@ def delete_feed(feed_id: str, user_id: str) -> Optional[dict]:
     didn't exist / wasn't the caller's."""
     client = get_client()
     result = (
-        client.table("feeds")
+        run(client.table("feeds")
         .delete()
         .eq("id", feed_id)
         .eq("user_id", user_id)
-        .select("*")
-        .execute()
+        .select("*"), idempotent=True, operation="delete_feed")
     )
     return result.data[0] if result.data else None
 
@@ -114,16 +167,15 @@ def delete_ticker_for_user(ticker: str, user_id: str) -> bool:
     """Deletes this user's feeds and watchlist row for a ticker. Feed-item rows cascade
     from feed deletion; shared ticker and common-feed news are intentionally retained."""
     client = get_client()
-    feeds = client.table("feeds").select("id").eq("user_id", user_id).eq("ticker", ticker).execute().data
+    feeds = run(client.table("feeds").select("id").eq("user_id", user_id).eq("ticker", ticker), idempotent=True, operation="delete_ticker_for_user").data
     had_feeds = bool(feeds)
-    client.table("feeds").delete().eq("user_id", user_id).eq("ticker", ticker).execute()
+    run(client.table("feeds").delete().eq("user_id", user_id).eq("ticker", ticker), idempotent=True, operation="delete_ticker_for_user")
     result = (
-        client.table("watchlist_stocks")
+        run(client.table("watchlist_stocks")
         .delete()
         .eq("user_id", user_id)
         .eq("ticker", ticker)
-        .select("id")
-        .execute()
+        .select("id"), idempotent=True, operation="delete_ticker_for_user")
     )
     return had_feeds or bool(result.data)
 
@@ -134,25 +186,24 @@ def set_feed_needs_rematch(feed_id: str, user_id: str) -> Optional[dict]:
     classify_and_store). Same ownership+custom-only scoping as update_feed."""
     client = get_client()
     result = (
-        client.table("feeds")
+        run(client.table("feeds")
         .update({"needs_rematch": True})
         .eq("id", feed_id)
         .eq("user_id", user_id)
-        .eq("feed_type", "custom")
-        .execute()
+        .eq("feed_type", "custom"), idempotent=True, operation="set_feed_needs_rematch")
     )
     return result.data[0] if result.data else None
 
 
 def get_common_feed_templates() -> list[dict]:
     client = get_client()
-    return client.table("common_feed_templates").select("*").execute().data
+    return run(client.table("common_feed_templates").select("*"), idempotent=True, operation="get_common_feed_templates").data
 
 
 def get_common_feed_template(template_id: str) -> Optional[dict]:
     client = get_client()
     result = (
-        client.table("common_feed_templates").select("*").eq("id", template_id).limit(1).execute()
+        run(client.table("common_feed_templates").select("*").eq("id", template_id).limit(1), idempotent=True, operation="get_common_feed_template")
     )
     return result.data[0] if result.data else None
 
@@ -171,7 +222,7 @@ def upsert_common_feed_template(
     deliberate threshold change the next time someone re-runs the seed script."""
     client = get_client()
     result = (
-        client.table("common_feed_templates")
+        run(client.table("common_feed_templates")
         .upsert(
             {
                 "name": name,
@@ -180,8 +231,7 @@ def upsert_common_feed_template(
                 "match_threshold": match_threshold,
             },
             on_conflict="name",
-        )
-        .execute()
+        ), idempotent=True, operation="upsert_common_feed_template")
     )
     return result.data[0]
 
@@ -195,7 +245,7 @@ def insert_feed_item(
 ) -> dict:
     client = get_client()
     result = (
-        client.table("custom_feed_items")
+        run(client.table("custom_feed_items")
         .insert(
             {
                 "feed_id": feed_id,
@@ -204,8 +254,7 @@ def insert_feed_item(
                 "source_url": source_url,
                 "content_embedding": content_embedding,
             }
-        )
-        .execute()
+        ), idempotent=False, operation="insert_feed_item")
     )
     return result.data[0]
 
@@ -213,11 +262,10 @@ def insert_feed_item(
 def get_custom_feed_items(feed_id: str) -> list[dict]:
     client = get_client()
     return (
-        client.table("custom_feed_items")
+        run(client.table("custom_feed_items")
         .select("*")
         .eq("feed_id", feed_id)
-        .order("created_at", desc=True)
-        .execute()
+        .order("created_at", desc=True), idempotent=True, operation="get_custom_feed_items")
         .data
     )
 
@@ -229,12 +277,11 @@ def get_common_feed_items(common_feed_template_id: str, ticker: str) -> list[dic
     'common'."""
     client = get_client()
     return (
-        client.table("common_feed_items")
+        run(client.table("common_feed_items")
         .select("*")
         .eq("common_feed_template_id", common_feed_template_id)
         .eq("ticker", ticker)
-        .order("created_at", desc=True)
-        .execute()
+        .order("created_at", desc=True), idempotent=True, operation="get_common_feed_items")
         .data
     )
 
@@ -246,22 +293,20 @@ def get_recent_custom_feed_items_for_sampling(hours: int = 24, limit: int = 500)
     sample_custom_feed_quality."""
     client = get_client()
     items = (
-        client.table("custom_feed_items")
+        run(client.table("custom_feed_items")
         .select("id, feed_id, content_summary, source_url, created_at")
         .gte("created_at", (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat())
-        .limit(limit)
-        .execute()
+        .limit(limit), idempotent=True, operation="get_recent_custom_feed_items_for_sampling")
         .data
     )
     if not items:
         return []
     feed_ids = list({item["feed_id"] for item in items})
     feeds = (
-        client.table("feeds")
+        run(client.table("feeds")
         .select("id, ticker, feed_name, feed_description, feed_type")
         .in_("id", feed_ids)
-        .eq("feed_type", "custom")
-        .execute()
+        .eq("feed_type", "custom"), idempotent=True, operation="get_recent_custom_feed_items_for_sampling")
         .data
     )
     feeds_by_id = {f["id"]: f for f in feeds}
@@ -284,18 +329,17 @@ def get_recent_common_feed_items_for_sampling(hours: int = 24, limit: int = 500)
     monitoring/quality_sampling.py's sample_common_feed_quality."""
     client = get_client()
     items = (
-        client.table("common_feed_items")
+        run(client.table("common_feed_items")
         .select("id, common_feed_template_id, ticker, content_summary, source_url, created_at")
         .gte("created_at", (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat())
-        .limit(limit)
-        .execute()
+        .limit(limit), idempotent=True, operation="get_recent_common_feed_items_for_sampling")
         .data
     )
     if not items:
         return []
     template_ids = list({item["common_feed_template_id"] for item in items})
     templates = (
-        client.table("common_feed_templates").select("id, name, description").in_("id", template_ids).execute().data
+        run(client.table("common_feed_templates").select("id, name, description").in_("id", template_ids), idempotent=True, operation="get_recent_common_feed_items_for_sampling").data
     )
     templates_by_id = {t["id"]: t for t in templates}
     return [
@@ -319,8 +363,8 @@ def get_items_by_ids(ids: list[str]) -> dict[str, str]:
     if not ids:
         return {}
     client = get_client()
-    custom = client.table("custom_feed_items").select("id, content_summary").in_("id", ids).execute().data
-    common = client.table("common_feed_items").select("id, content_summary").in_("id", ids).execute().data
+    custom = run(client.table("custom_feed_items").select("id, content_summary").in_("id", ids), idempotent=True, operation="get_items_by_ids").data
+    common = run(client.table("common_feed_items").select("id, content_summary").in_("id", ids), idempotent=True, operation="get_items_by_ids").data
     return {row["id"]: row["content_summary"] for row in (*custom, *common)}
 
 
@@ -334,11 +378,10 @@ def get_ticker_news_titles(ticker: str, source_urls: list[str]) -> dict[str, dic
         return {}
     client = get_client()
     rows = (
-        client.table("ticker_news")
+        run(client.table("ticker_news")
         .select("title, publisher, source_url, snippet")
         .eq("ticker", ticker)
-        .in_("source_url", source_urls)
-        .execute()
+        .in_("source_url", source_urls), idempotent=True, operation="get_ticker_news_titles")
         .data
     )
     return {row["source_url"]: row for row in rows}
@@ -353,7 +396,7 @@ def insert_ticker_insight(
 ) -> dict:
     client = get_client()
     result = (
-        client.table("ticker_insights")
+        run(client.table("ticker_insights")
         .insert(
             {
                 "user_id": user_id,
@@ -362,8 +405,7 @@ def insert_ticker_insight(
                 "based_on_feed_item_ids": based_on_feed_item_ids,
                 "feed_summaries": feed_summaries,
             }
-        )
-        .execute()
+        ), idempotent=False, operation="insert_ticker_insight")
     )
     return result.data[0]
 
@@ -372,14 +414,14 @@ def get_all_watchlist_entries() -> list[dict]:
     """Every (user, ticker) pair currently watchlisted by anyone - what phase 2 (custom
     feed classification) of the ingestion pipeline loops over."""
     client = get_client()
-    return client.table("watchlist_stocks").select("user_id, ticker").execute().data
+    return run(client.table("watchlist_stocks").select("user_id, ticker"), idempotent=True, operation="get_all_watchlist_entries").data
 
 
 def get_distinct_watchlisted_tickers() -> list[str]:
     """Every ticker at least one user is watching, deduplicated - what phase 1 (news
     fetch + cache) loops over, so a ticker watched by 100 users still gets fetched once."""
     client = get_client()
-    result = client.table("watchlist_stocks").select("ticker").execute()
+    result = run(client.table("watchlist_stocks").select("ticker"), idempotent=True, operation="get_distinct_watchlisted_tickers")
     return sorted({row["ticker"] for row in result.data})
 
 
@@ -389,7 +431,7 @@ def get_ticker_insight_pairs() -> list[dict]:
     from "generated before, nothing new since", since only the latter should be skipped
     when a run adds no fresh evidence."""
     client = get_client()
-    return client.table("ticker_insights").select("user_id, ticker").execute().data
+    return run(client.table("ticker_insights").select("user_id, ticker"), idempotent=True, operation="get_ticker_insight_pairs").data
 
 
 def get_recent_ticker_insights(limit: int = 20) -> list[dict]:
@@ -399,11 +441,28 @@ def get_recent_ticker_insights(limit: int = 20) -> list[dict]:
     is genuinely a sample of real recent syntheses, not a snapshot of current state."""
     client = get_client()
     return (
-        client.table("ticker_insights")
+        run(client.table("ticker_insights")
         .select("*")
         .order("created_at", desc=True)
-        .limit(limit)
-        .execute()
+        .limit(limit), idempotent=True, operation="get_recent_ticker_insights")
+        .data
+    )
+
+
+def get_user_ticker_insights(user_id: str, ticker: str, limit: int = 2) -> list[dict]:
+    """One user's newest ticker_insights snapshots for one ticker, newest first - what
+    get_my_thesis_tool diffs (latest vs previous) to answer "what changed in my thesis".
+    Always filtered by user_id: the backend uses the service_role key, so RLS does not
+    scope this query - the explicit filter is the only thing keeping it to one user.
+    Served by the ticker_insights_user_ticker_created_idx index."""
+    client = get_client()
+    return (
+        run(client.table("ticker_insights")
+        .select("*")
+        .eq("user_id", user_id)
+        .eq("ticker", ticker)
+        .order("created_at", desc=True)
+        .limit(limit), idempotent=True, operation="get_user_ticker_insights")
         .data
     )
 
@@ -416,11 +475,10 @@ def get_recent_ticker_insights_in_window(hours: int = 24, limit: int = 500) -> l
     (QUALITY_SAMPLE_RATE/CAP in config.py), not just the newest N regardless of window."""
     client = get_client()
     return (
-        client.table("ticker_insights")
+        run(client.table("ticker_insights")
         .select("*")
         .gte("created_at", (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat())
-        .limit(limit)
-        .execute()
+        .limit(limit), idempotent=True, operation="get_recent_ticker_insights_in_window")
         .data
     )
 
@@ -429,7 +487,7 @@ def create_pipeline_run() -> str:
     """Logs the start of a pipeline run and returns its id, so progress can be updated
     once the run finishes (or partially finishes)."""
     client = get_client()
-    result = client.table("pipeline_runs").insert({"status": "running"}).execute()
+    result = run(client.table("pipeline_runs").insert({"status": "running"}), idempotent=False, operation="create_pipeline_run")
     return result.data[0]["id"]
 
 
@@ -444,7 +502,7 @@ def update_pipeline_run(
     errors: list[dict],
 ) -> None:
     client = get_client()
-    client.table("pipeline_runs").update(
+    run(client.table("pipeline_runs").update(
         {
             "status": status,
             "tickers_processed": tickers_processed,
@@ -455,7 +513,7 @@ def update_pipeline_run(
             "errors": errors,
             "finished_at": datetime.now(timezone.utc).isoformat(),
         }
-    ).eq("id", run_id).execute()
+    ).eq("id", run_id), idempotent=True, operation="update_pipeline_run")
 
 
 def get_recent_pipeline_runs(
@@ -474,9 +532,8 @@ def get_recent_pipeline_runs(
     if until:
         query = query.lte("started_at", until)
     return (
-        query.order("started_at", desc=True)
-        .range(offset, offset + limit - 1)
-        .execute()
+        run(query.order("started_at", desc=True)
+        .range(offset, offset + limit - 1), idempotent=True, operation="get_recent_pipeline_runs")
         .data
     )
 
@@ -492,7 +549,7 @@ def match_feed_for_embedding(
     Returns feeds ordered by similarity, highest first.
     """
     client = get_client()
-    result = client.rpc(
+    result = run(client.rpc(
         "match_feeds",
         {
             "query_embedding": embedding,
@@ -500,7 +557,7 @@ def match_feed_for_embedding(
             "match_ticker": ticker,
             "match_count": match_count,
         },
-    ).execute()
+    ), idempotent=True, operation="match_feed_for_embedding")
     return result.data
 
 
@@ -510,12 +567,11 @@ def match_common_feed_template_for_embedding(
     """Calls the match_common_feed_templates() Postgres function - the single
     ticker-agnostic top match for one ticker_news row's embedding."""
     client = get_client()
-    result = client.rpc(
+    result = run(client.rpc(
         "match_common_feed_templates",
         {"query_embedding": embedding, "match_count": match_count},
-    ).execute()
+    ), idempotent=True, operation="match_common_feed_template_for_embedding")
     return result.data
-
 
 def upsert_ticker_news(rows: list[dict]) -> None:
     """
@@ -529,9 +585,9 @@ def upsert_ticker_news(rows: list[dict]) -> None:
     if not rows:
         return
     client = get_client()
-    client.table("ticker_news").upsert(
-        rows, on_conflict="ticker,source_url", ignore_duplicates=True
-    ).execute()
+    # Idempotent: ignore_duplicates on the (ticker, source_url) key makes a retry harmless.
+    run(client.table("ticker_news").upsert(rows, on_conflict="ticker,source_url", ignore_duplicates=True),
+        idempotent=True, operation="upsert_ticker_news")
 
 
 def get_unclassified_ticker_news(ticker: str) -> list[dict]:
@@ -539,11 +595,10 @@ def get_unclassified_ticker_news(ticker: str) -> list[dict]:
     what phase 1.5 loops over, regardless of how many users watch this ticker."""
     client = get_client()
     return (
-        client.table("ticker_news")
+        run(client.table("ticker_news")
         .select("*")
         .eq("ticker", ticker)
-        .is_("common_classified_at", "null")
-        .execute()
+        .is_("common_classified_at", "null"), idempotent=True, operation="get_unclassified_ticker_news")
         .data
     )
 
@@ -554,9 +609,24 @@ def mark_ticker_news_common_classified(ids: list[str], run_cutoff: str) -> None:
     if not ids:
         return
     client = get_client()
-    client.table("ticker_news").update({"common_classified_at": run_cutoff}).in_(
+    run(client.table("ticker_news").update({"common_classified_at": run_cutoff}).in_(
         "id", ids
-    ).execute()
+    ), idempotent=True, operation="mark_ticker_news_common_classified")
+
+
+def get_latest_news_published_at() -> Optional[datetime]:
+    """Publish time of the newest article in ticker_news across every ticker - the
+    orchestrator's freshness check. None when the table is empty."""
+    client = get_client()
+    rows = (
+        run(client.table("ticker_news")
+        .select("published_at")
+        .not_.is_("published_at", "null")
+        .order("published_at", desc=True)
+        .limit(1), idempotent=True, operation="get_latest_news_published_at")
+        .data
+    )
+    return datetime.fromisoformat(rows[0]["published_at"]) if rows else None
 
 
 def get_ticker_news_since(ticker: str, since: Optional[str], until: str) -> list[dict]:
@@ -568,7 +638,7 @@ def get_ticker_news_since(ticker: str, since: Optional[str], until: str) -> list
     query = client.table("ticker_news").select("*").eq("ticker", ticker).lte("created_at", until)
     if since:
         query = query.gt("created_at", since)
-    return query.execute().data
+    return run(query, idempotent=True, operation="get_ticker_news_since").data
 
 
 def bulk_update_feed_last_classified_at(feed_ids: list[str], run_cutoff: str) -> None:
@@ -577,7 +647,7 @@ def bulk_update_feed_last_classified_at(feed_ids: list[str], run_cutoff: str) ->
     if not feed_ids:
         return
     client = get_client()
-    client.table("feeds").update({"last_classified_at": run_cutoff}).in_("id", feed_ids).execute()
+    run(client.table("feeds").update({"last_classified_at": run_cutoff}).in_("id", feed_ids), idempotent=True, operation="bulk_update_feed_last_classified_at")
 
 
 def delete_feed_items(feed_ids: list[str]) -> None:
@@ -586,7 +656,7 @@ def delete_feed_items(feed_ids: list[str]) -> None:
     if not feed_ids:
         return
     client = get_client()
-    client.table("custom_feed_items").delete().in_("feed_id", feed_ids).execute()
+    run(client.table("custom_feed_items").delete().in_("feed_id", feed_ids), idempotent=True, operation="delete_feed_items")
 
 
 def reset_feed_watermarks(feed_ids: list[str]) -> None:
@@ -597,7 +667,7 @@ def reset_feed_watermarks(feed_ids: list[str]) -> None:
     if not feed_ids:
         return
     client = get_client()
-    client.table("feeds").update({"last_classified_at": None}).in_("id", feed_ids).execute()
+    run(client.table("feeds").update({"last_classified_at": None}).in_("id", feed_ids), idempotent=True, operation="reset_feed_watermarks")
 
 
 def clear_feeds_needs_rematch(feed_ids: list[str]) -> None:
@@ -606,7 +676,7 @@ def clear_feeds_needs_rematch(feed_ids: list[str]) -> None:
     if not feed_ids:
         return
     client = get_client()
-    client.table("feeds").update({"needs_rematch": False}).in_("id", feed_ids).execute()
+    run(client.table("feeds").update({"needs_rematch": False}).in_("id", feed_ids), idempotent=True, operation="clear_feeds_needs_rematch")
 
 
 def insert_common_feed_item(
@@ -617,7 +687,7 @@ def insert_common_feed_item(
     content_embedding: list[float],
 ) -> None:
     client = get_client()
-    client.table("common_feed_items").upsert(
+    run(client.table("common_feed_items").upsert(
         {
             "common_feed_template_id": common_feed_template_id,
             "ticker": ticker,
@@ -628,7 +698,7 @@ def insert_common_feed_item(
         },
         on_conflict="common_feed_template_id,ticker,source_url",
         ignore_duplicates=True,
-    ).execute()
+    ), idempotent=True, operation="insert_common_feed_item")
 
 
 def insert_document(
@@ -640,7 +710,7 @@ def insert_document(
 ) -> dict:
     client = get_client()
     result = (
-        client.table("documents")
+        run(client.table("documents")
         .insert(
             {
                 "ticker": ticker,
@@ -650,20 +720,19 @@ def insert_document(
                 "uploaded_by": uploaded_by,
                 "status": "processing",
             }
-        )
-        .execute()
+        ), idempotent=False, operation="insert_document")
     )
     return result.data[0]
 
 
 def update_document_storage_path(document_id: str, storage_path: str) -> None:
     client = get_client()
-    client.table("documents").update({"storage_path": storage_path}).eq("id", document_id).execute()
+    run(client.table("documents").update({"storage_path": storage_path}).eq("id", document_id), idempotent=True, operation="update_document_storage_path")
 
 
 def update_document_status(document_id: str, status: str, error: Optional[str] = None) -> None:
     client = get_client()
-    client.table("documents").update({"status": status, "error": error}).eq("id", document_id).execute()
+    run(client.table("documents").update({"status": status, "error": error}).eq("id", document_id), idempotent=True, operation="update_document_status")
 
 
 def insert_document_chunks(
@@ -682,17 +751,16 @@ def insert_document_chunks(
         }
         for i, (chunk, embedding) in enumerate(zip(chunks, embeddings))
     ]
-    client.table("document_chunks").insert(rows).execute()
+    run(client.table("document_chunks").insert(rows), idempotent=False, operation="insert_document_chunks")
 
 
 def get_documents_for_ticker(ticker: str) -> list[dict]:
     client = get_client()
     return (
-        client.table("documents")
+        run(client.table("documents")
         .select("*")
         .eq("ticker", ticker)
-        .order("created_at", desc=True)
-        .execute()
+        .order("created_at", desc=True), idempotent=True, operation="get_documents_for_ticker")
         .data
     )
 
@@ -701,7 +769,7 @@ def get_document_chunk_counts(ticker: str) -> dict[str, int]:
     """Calls the get_document_chunk_counts() Postgres function (see schema.sql) - one
     aggregate query instead of counting per-document one at a time."""
     client = get_client()
-    result = client.rpc("get_document_chunk_counts", {"doc_ticker": ticker}).execute()
+    result = run(client.rpc("get_document_chunk_counts", {"doc_ticker": ticker}), idempotent=True, operation="get_document_chunk_counts")
     return {row["document_id"]: row["chunk_count"] for row in result.data}
 
 
@@ -712,10 +780,10 @@ def match_document_chunks_for_embedding(
     cosine-similarity search over admin-uploaded report chunks for this ticker, used by
     search_financial_reports_tool. Returns chunks ordered by similarity, highest first."""
     client = get_client()
-    result = client.rpc(
+    result = run(client.rpc(
         "match_document_chunks",
         {"query_embedding": embedding, "match_ticker": ticker, "match_count": match_count},
-    ).execute()
+    ), idempotent=True, operation="match_document_chunks_for_embedding")
     return result.data
 
 
@@ -740,10 +808,10 @@ def match_ticker_news_for_embedding(
     }
     if news_since is not None:
         rpc_args["news_since"] = news_since
-    result = client.rpc(
+    result = run(client.rpc(
         "match_ticker_news",
         rpc_args,
-    ).execute()
+    ), idempotent=True, operation="match_ticker_news_for_embedding")
     return result.data
 
 
@@ -753,23 +821,23 @@ def upsert_companies(rows: list[dict]) -> None:
     if not rows:
         return
     client = get_client()
-    client.table("companies").upsert(rows, on_conflict="ticker").execute()
+    run(client.table("companies").upsert(rows, on_conflict="ticker"), idempotent=True, operation="upsert_companies")
 
 
 def get_company(ticker: str) -> Optional[dict]:
     """Looked up by the chat agent's ticker-validation guardrail
     (agent/guardrails/tickers.py) before trusting an LLM-proposed ticker."""
     client = get_client()
-    result = client.table("companies").select("*").eq("ticker", ticker).limit(1).execute()
+    result = run(client.table("companies").select("*").eq("ticker", ticker).limit(1), idempotent=True, operation="get_company")
     return result.data[0] if result.data else None
 
 
 def insert_watchlist_ticker(user_id: str, ticker: str, company_name: str | None) -> dict:
     """Adds a ticker to one user's watchlist; ownership comes from the verified JWT."""
     client = get_client()
-    result = client.table("watchlist_stocks").insert(
+    result = run(client.table("watchlist_stocks").insert(
         {"user_id": user_id, "ticker": ticker, "company_name": company_name}
-    ).execute()
+    ), idempotent=False, operation="insert_watchlist_ticker")
     return result.data[0]
 
 
@@ -779,7 +847,7 @@ def get_company_sector(ticker: str) -> Optional[dict]:
     companies row exists yet OR sector_fetched_at is null (never successfully attempted) -
     callers should treat both cases identically: no peer lookup possible this run."""
     client = get_client()
-    result = client.table("companies").select("*").eq("ticker", ticker).limit(1).execute()
+    result = run(client.table("companies").select("*").eq("ticker", ticker).limit(1), idempotent=True, operation="get_company_sector")
     row = result.data[0] if result.data else None
     return row if row and row.get("sector_fetched_at") else None
 
@@ -791,7 +859,7 @@ def upsert_company_sector(
     creates the row if scripts/seed_companies.py never seeded this ticker (true for any
     watchlisted ticker outside the top-200 seed)."""
     client = get_client()
-    client.table("companies").upsert(
+    run(client.table("companies").upsert(
         {
             "ticker": ticker,
             "company_name": company_name,
@@ -800,7 +868,7 @@ def upsert_company_sector(
             "sector_fetched_at": fetched_at,
         },
         on_conflict="ticker",
-    ).execute()
+    ), idempotent=True, operation="upsert_company_sector")
 
 
 def get_peer_tickers(industry: str, exclude_ticker: str, limit: int = 4) -> list[str]:
@@ -809,13 +877,12 @@ def get_peer_tickers(industry: str, exclude_ticker: str, limit: int = 4) -> list
     shows up here once ensure_company_sector_cached has run for it too."""
     client = get_client()
     result = (
-        client.table("companies")
+        run(client.table("companies")
         .select("ticker")
         .eq("industry", industry)
         .eq("is_asx200", True)
         .neq("ticker", exclude_ticker)
-        .limit(limit)
-        .execute()
+        .limit(limit), idempotent=True, operation="get_peer_tickers")
     )
     return [r["ticker"] for r in result.data]
 
@@ -826,11 +893,10 @@ def count_recent_requests(user_id: str, since: str) -> int:
     config.RATE_LIMIT_MAX_REQUESTS."""
     client = get_client()
     result = (
-        client.table("api_request_log")
+        run(client.table("api_request_log")
         .select("id", count="exact")
         .eq("user_id", user_id)
-        .gte("created_at", since)
-        .execute()
+        .gte("created_at", since), idempotent=True, operation="count_recent_requests")
     )
     return result.count or 0
 
@@ -839,7 +905,7 @@ def log_ask_request(user_id: str) -> None:
     """Records one accepted /api/ask call - what count_recent_requests() above counts
     on the next request from this user."""
     client = get_client()
-    client.table("api_request_log").insert({"user_id": user_id}).execute()
+    run(client.table("api_request_log").insert({"user_id": user_id}), idempotent=False, operation="log_ask_request")
 
 
 def sum_recent_token_usage(user_id: str, since: str) -> int:
@@ -850,11 +916,10 @@ def sum_recent_token_usage(user_id: str, since: str) -> int:
     same demo-grade scale as count_recent_requests() above."""
     client = get_client()
     result = (
-        client.table("llm_token_usage_log")
+        run(client.table("llm_token_usage_log")
         .select("tokens")
         .eq("user_id", user_id)
-        .gte("created_at", since)
-        .execute()
+        .gte("created_at", since), idempotent=True, operation="sum_recent_token_usage")
     )
     return sum(row["tokens"] for row in result.data) if result.data else 0
 
@@ -863,7 +928,7 @@ def log_token_usage(user_id: str, tokens: int) -> None:
     """Records the total tokens one /api/ask request spent across every Groq call it
     made - what sum_recent_token_usage() above sums on this user's next request."""
     client = get_client()
-    client.table("llm_token_usage_log").insert({"user_id": user_id, "tokens": tokens}).execute()
+    run(client.table("llm_token_usage_log").insert({"user_id": user_id, "tokens": tokens}), idempotent=False, operation="log_token_usage")
 
 
 def get_classified_ticker_news_sample(limit: int) -> list[dict]:
@@ -873,12 +938,11 @@ def get_classified_ticker_news_sample(limit: int) -> list[dict]:
     candidate feed match is computed)."""
     client = get_client()
     return (
-        client.table("ticker_news")
+        run(client.table("ticker_news")
         .select("*")
         .not_.is_("common_classified_at", "null")
         .order("created_at", desc=True)
-        .limit(limit)
-        .execute()
+        .limit(limit), idempotent=True, operation="get_classified_ticker_news_sample")
         .data
     )
 
@@ -896,7 +960,7 @@ def insert_eval_run(eval_type: str, summary: dict, fixture_version: Optional[str
     row = {"eval_type": eval_type, "summary": summary}
     if fixture_version is not None:
         row["fixture_version"] = fixture_version
-    result = client.table("eval_runs").insert(row).execute()
+    result = run(client.table("eval_runs").insert(row), idempotent=False, operation="insert_eval_run")
     return result.data[0]
 
 
@@ -907,7 +971,7 @@ def get_recent_eval_runs(eval_type: Optional[str] = None, limit: int = 20) -> li
     query = client.table("eval_runs").select("*")
     if eval_type:
         query = query.eq("eval_type", eval_type)
-    return query.order("created_at", desc=True).limit(limit).execute().data
+    return run(query.order("created_at", desc=True).limit(limit), idempotent=True, operation="get_recent_eval_runs").data
 
 
 def get_sampled_source_ids(surface_type: str, source_ids: list[str]) -> set[str]:
@@ -920,11 +984,10 @@ def get_sampled_source_ids(surface_type: str, source_ids: list[str]) -> set[str]
         return set()
     client = get_client()
     rows = (
-        client.table("quality_samples")
+        run(client.table("quality_samples")
         .select("source_id")
         .eq("surface_type", surface_type)
-        .in_("source_id", source_ids)
-        .execute()
+        .in_("source_id", source_ids), idempotent=True, operation="get_sampled_source_ids")
         .data
     )
     return {row["source_id"] for row in rows}
@@ -939,9 +1002,8 @@ def insert_quality_samples(rows: list[dict]) -> list[dict]:
         return []
     client = get_client()
     result = (
-        client.table("quality_samples")
-        .upsert(rows, on_conflict="surface_type,source_id", ignore_duplicates=True)
-        .execute()
+        run(client.table("quality_samples")
+        .upsert(rows, on_conflict="surface_type,source_id", ignore_duplicates=True), idempotent=True, operation="insert_quality_samples")
     )
     return result.data
 
@@ -975,7 +1037,7 @@ def get_quality_samples(
         query = query.not_.is_("reviewed_at", "null")
     elif reviewed is False:
         query = query.is_("reviewed_at", "null")
-    return query.order("created_at", desc=True).limit(limit).execute().data
+    return run(query.order("created_at", desc=True).limit(limit), idempotent=True, operation="get_quality_samples").data
 
 
 def mark_quality_sample_reviewed(sample_id: str, reviewer_user_id: str) -> dict:
@@ -983,10 +1045,9 @@ def mark_quality_sample_reviewed(sample_id: str, reviewer_user_id: str) -> dict:
     distinguish "still needs triage" from "already actioned" across repeated visits."""
     client = get_client()
     result = (
-        client.table("quality_samples")
+        run(client.table("quality_samples")
         .update({"reviewed_at": datetime.now(timezone.utc).isoformat(), "reviewed_by": reviewer_user_id})
-        .eq("id", sample_id)
-        .execute()
+        .eq("id", sample_id), idempotent=True, operation="mark_quality_sample_reviewed")
     )
     return result.data[0]
 
@@ -998,11 +1059,10 @@ def get_sampled_guardrail_source_ids(guardrail_type: str, source_ids: list[str])
         return set()
     client = get_client()
     rows = (
-        client.table("guardrail_samples")
+        run(client.table("guardrail_samples")
         .select("source_id")
         .eq("guardrail_type", guardrail_type)
-        .in_("source_id", source_ids)
-        .execute()
+        .in_("source_id", source_ids), idempotent=True, operation="get_sampled_guardrail_source_ids")
         .data
     )
     return {row["source_id"] for row in rows}
@@ -1015,9 +1075,8 @@ def insert_guardrail_samples(rows: list[dict]) -> list[dict]:
         return []
     client = get_client()
     result = (
-        client.table("guardrail_samples")
-        .upsert(rows, on_conflict="guardrail_type,source_id", ignore_duplicates=True)
-        .execute()
+        run(client.table("guardrail_samples")
+        .upsert(rows, on_conflict="guardrail_type,source_id", ignore_duplicates=True), idempotent=True, operation="insert_guardrail_samples")
     )
     return result.data
 
@@ -1049,17 +1108,16 @@ def get_guardrail_samples(
         query = query.not_.is_("reviewed_at", "null")
     elif reviewed is False:
         query = query.is_("reviewed_at", "null")
-    return query.order("created_at", desc=True).limit(limit).execute().data
+    return run(query.order("created_at", desc=True).limit(limit), idempotent=True, operation="get_guardrail_samples").data
 
 
 def mark_guardrail_sample_reviewed(sample_id: str, reviewer_user_id: str) -> dict:
     """Records that an admin has looked at this flagged guardrail sample."""
     client = get_client()
     result = (
-        client.table("guardrail_samples")
+        run(client.table("guardrail_samples")
         .update({"reviewed_at": datetime.now(timezone.utc).isoformat(), "reviewed_by": reviewer_user_id})
-        .eq("id", sample_id)
-        .execute()
+        .eq("id", sample_id), idempotent=True, operation="mark_guardrail_sample_reviewed")
     )
     return result.data[0]
 
@@ -1071,11 +1129,10 @@ def get_sampled_classification_source_ids(classification_type: str, source_ids: 
         return set()
     client = get_client()
     rows = (
-        client.table("classification_samples")
+        run(client.table("classification_samples")
         .select("source_id")
         .eq("classification_type", classification_type)
-        .in_("source_id", source_ids)
-        .execute()
+        .in_("source_id", source_ids), idempotent=True, operation="get_sampled_classification_source_ids")
         .data
     )
     return {row["source_id"] for row in rows}
@@ -1089,9 +1146,8 @@ def insert_classification_samples(rows: list[dict]) -> list[dict]:
         return []
     client = get_client()
     result = (
-        client.table("classification_samples")
-        .upsert(rows, on_conflict="classification_type,source_id", ignore_duplicates=True)
-        .execute()
+        run(client.table("classification_samples")
+        .upsert(rows, on_conflict="classification_type,source_id", ignore_duplicates=True), idempotent=True, operation="insert_classification_samples")
     )
     return result.data
 
@@ -1124,17 +1180,16 @@ def get_classification_samples(
         query = query.not_.is_("reviewed_at", "null")
     elif reviewed is False:
         query = query.is_("reviewed_at", "null")
-    return query.order("created_at", desc=True).limit(limit).execute().data
+    return run(query.order("created_at", desc=True).limit(limit), idempotent=True, operation="get_classification_samples").data
 
 
 def mark_classification_sample_reviewed(sample_id: str, reviewer_user_id: str) -> dict:
     """Records that an admin has looked at this flagged classification sample."""
     client = get_client()
     result = (
-        client.table("classification_samples")
+        run(client.table("classification_samples")
         .update({"reviewed_at": datetime.now(timezone.utc).isoformat(), "reviewed_by": reviewer_user_id})
-        .eq("id", sample_id)
-        .execute()
+        .eq("id", sample_id), idempotent=True, operation="mark_classification_sample_reviewed")
     )
     return result.data[0]
 
@@ -1157,7 +1212,8 @@ def insert_request_trace(
     total_duration_ms: int,
     answer: Optional[str] = None,
     evidence: Optional[list[dict]] = None,
-) -> dict:
+    request_id: Optional[str] = None,
+) -> Optional[dict]:
     """One row per /api/ask request - see request_trace in schema.sql. Called once,
     from api/main.py::ask_endpoint's finally block, after graph.invoke() returns (or
     raises) - so this fires on every outcome (completed, declined, or error), not just
@@ -1165,11 +1221,13 @@ def insert_request_trace(
     request - what eval/run_live_sample_eval.py re-judges later; left None otherwise."""
     client = get_client()
     result = (
-        client.table("request_trace")
+        run(client.table("request_trace")
         .insert(
             {
                 "user_id": user_id,
                 "thread_id": thread_id,
+                # HTTP request id (X-Request-ID / log lines / LangSmith) - see api/request_id.py
+                "request_id": request_id,
                 "question": question,
                 "answer": answer,
                 "evidence": evidence,
@@ -1186,10 +1244,10 @@ def insert_request_trace(
                 "total_tokens": total_tokens,
                 "total_duration_ms": total_duration_ms,
             }
-        )
-        .execute()
+        ), essential=False, operation="insert_request_trace")
     )
-    return result.data[0]
+    # Best-effort (see run()): None if the write failed transiently - callers must allow for it.
+    return result.data[0] if result else None
 
 
 def insert_request_trace_steps(request_trace_id: str, steps: list[dict]) -> None:
@@ -1212,7 +1270,7 @@ def insert_request_trace_steps(request_trace_id: str, steps: list[dict]) -> None
         }
         for i, s in enumerate(steps)
     ]
-    client.table("request_trace_steps").insert(rows).execute()
+    run(client.table("request_trace_steps").insert(rows), essential=False, operation="insert_request_trace_steps")
 
 
 def insert_ops_alert(
@@ -1222,7 +1280,7 @@ def insert_ops_alert(
     threshold: float,
     actual_value: float,
     details: dict | None = None,
-) -> dict:
+) -> Optional[dict]:
     """One row per tripped ALERT_* threshold (see agent/guardrails/alerts.py) -
     persists what was previously only an ephemeral logger.warning when the matching
     hard guardrail aborted a request. request_trace_id is None for alert types raised
@@ -1232,7 +1290,7 @@ def insert_ops_alert(
     name, raw args) that doesn't fit threshold/actual_value."""
     client = get_client()
     result = (
-        client.table("ops_alerts")
+        run(client.table("ops_alerts")
         .insert(
             {
                 "request_trace_id": request_trace_id,
@@ -1242,10 +1300,10 @@ def insert_ops_alert(
                 "actual_value": actual_value,
                 "details": details or {},
             }
-        )
-        .execute()
+        ), essential=False, operation="insert_ops_alert")
     )
-    return result.data[0]
+    # Best-effort (see run()): None if the write failed transiently - callers must allow for it.
+    return result.data[0] if result else None
 
 
 def get_recent_ops_alerts(limit: int = 50, since: str | None = None, until: str | None = None) -> list[dict]:
@@ -1258,7 +1316,7 @@ def get_recent_ops_alerts(limit: int = 50, since: str | None = None, until: str 
         query = query.gte("created_at", since)
     if until:
         query = query.lte("created_at", until)
-    return query.order("created_at", desc=True).limit(limit).execute().data
+    return run(query.order("created_at", desc=True).limit(limit), idempotent=True, operation="get_recent_ops_alerts").data
 
 
 def get_efficiency_summary(
@@ -1283,7 +1341,7 @@ def get_efficiency_summary(
     query = query.gte("created_at", since_value)
     if until:
         query = query.lte("created_at", until)
-    rows = query.order("created_at", desc=True).limit(sample_limit).execute().data
+    rows = run(query.order("created_at", desc=True).limit(sample_limit), idempotent=True, operation="get_efficiency_summary").data
 
     def _percentiles(values: list[float]) -> dict:
         if not values:
@@ -1319,13 +1377,12 @@ def get_eligible_request_traces_for_sampling(hours: int = 24, limit: int = 500) 
     sample from the pool's real size via QUALITY_SAMPLE_RATE/CAP, not a fixed n)."""
     client = get_client()
     return (
-        client.table("request_trace")
+        run(client.table("request_trace")
         .select("id, question, answer, evidence, ticker, output_guardrail_llm_is_advice")
         .eq("category", "conduct_analysis")
         .eq("status", "completed")
         .gte("created_at", (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat())
-        .limit(limit)
-        .execute()
+        .limit(limit), idempotent=True, operation="get_eligible_request_traces_for_sampling")
         .data
     )
 
@@ -1339,11 +1396,10 @@ def get_recent_request_traces_for_input_guardrail_sampling(hours: int = 24, limi
     monitoring/guardrail_sampling.py's sample_input_guardrail."""
     client = get_client()
     return (
-        client.table("request_trace")
+        run(client.table("request_trace")
         .select("id, question, ticker, input_guardrail_llm_is_advice")
         .gte("created_at", (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat())
-        .limit(limit)
-        .execute()
+        .limit(limit), idempotent=True, operation="get_recent_request_traces_for_input_guardrail_sampling")
         .data
     )
 
@@ -1360,3 +1416,29 @@ def sample_recent_request_traces(n: int, hours: int = 24) -> list[dict]:
 
     rows = get_eligible_request_traces_for_sampling(hours)
     return random.sample(rows, min(n, len(rows)))
+
+
+def compute_site_stats() -> dict:
+    """The four public front-page numbers, calculated now by the compute_site_stats SQL
+    function (see scripts/migration_site_stats.sql for what each one counts)."""
+    client = get_client()
+    result = run(client.rpc("compute_site_stats"), idempotent=True, operation="compute_site_stats")
+    return result.data[0]
+
+
+def insert_site_stats(stats: dict) -> dict:
+    client = get_client()
+    result = run(client.table("site_stats").insert(stats), idempotent=False, operation="insert_site_stats")
+    return result.data[0]
+
+
+def get_latest_site_stats() -> Optional[dict]:
+    client = get_client()
+    result = run(
+        client.table("site_stats")
+        .select("computed_at, active_researchers, feeds_created, articles_matched, insights_generated")
+        .order("computed_at", desc=True)
+        .limit(1),
+        idempotent=True, operation="get_latest_site_stats",
+    )
+    return result.data[0] if result.data else None

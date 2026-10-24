@@ -31,6 +31,20 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 # write on behalf of a fixed test user rather than through a logged-in session. The
 # frontend uses the anon key instead (see frontend/.env.local.example) precisely so RLS
 # DOES apply there.
+DB_TIMEOUT = 10
+# Transient DB failures (timeouts, connection errors, PostgREST pool timeouts) are retried by
+# db/queries.py's run() - only for reads and idempotent writes, never plain INSERTs. Attempts
+# include the first try; backoff doubles each time (0.5 s, 1 s). Kept small: on the chat path
+# every retry is time the user waits, and a database that is really down won't recover in seconds.
+DB_RETRY_ATTEMPTS = 3
+DB_RETRY_BACKOFF_SECONDS = 0.5
+# Pipeline news-health check (agent/pipelines/orchestrator.py): a run is marked 'degraded'
+# when the newest article stored for any ticker was published longer ago than this - i.e. the
+# news source is answering but nothing new is arriving. Generous for a weekly job: a handful
+# of large ASX tickers always has news within a week.
+NEWS_STALE_AFTER_DAYS = 7
+LLM_TIMEOUT = 30
+LLM_API_RETRIES = 2
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 # Used by app/main.py to verify the Supabase-issued JWT the frontend sends on each
 # request, so the API can trust which user_id it's acting on behalf of. Found in
@@ -67,9 +81,10 @@ REACT_RECURSION_LIMIT = 15
 
 # Hard ceiling on total tokens (prompt+completion, summed across every Claude call in one
 # conduct_analysis request) before the ReAct loop is aborted mid-run with a graceful
-# decline and no partial answer. PLACEHOLDER - /api/admin/langsmith/summary currently
-# only exposes an average, not a p95/max; size this from real traffic once available.
-TOKEN_CEILING_PER_REQUEST = 20000
+# decline and no partial answer. Raised from 20000 after real Claude traces: a normal
+# analysis question used ~21000 tokens and was declined. Still a placeholder - size it from
+# the observed p95 once there's more traffic.
+TOKEN_CEILING_PER_REQUEST = 40000
 
 # Per-URL timeout and worker-pool size for the citation-reachability check that runs
 # before references are shown as clickable links.

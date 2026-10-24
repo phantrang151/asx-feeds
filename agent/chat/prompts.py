@@ -13,7 +13,9 @@ ROUTER_PROMPT = """You are a financial assistant.
                 includes: why something is happening (e.g. "why is Telstra's profit up?"), whether or
                 how much a company has been doing something over time (e.g. "has NAB been doing AI
                 transformation heavily for the past few years?"), strategy/competitor/management
-                questions, comparisons, trends, and any other question a bare headline list wouldn't
+                questions, comparisons, trends, questions about the user's own thesis, feeds or insights
+                (e.g. "what has changed in my NAB thesis based on the latest news?" - conduct_analysis even
+                though it says "latest news"), and any other question a bare headline list wouldn't
                 actually answer. If in doubt between the two, prefer 'conduct_analysis'.
                 'search_price' and 'read_report' are not implemented yet - do not return them.
 
@@ -41,8 +43,9 @@ ANALYSIS_PROMPT = (
     "than defaulting to a general 'what is happening and why' summary. The synthesis step "
     "writes the final answer.\n\n"
     "Only give your final answer once you have evidence from search_internal_news_tool, "
-    "search_news_tool, or search_financial_reports_tool that actually speaks to what was "
-    "asked. Use search_internal_peer_news_tool only for an explicit comparison or industry "
+    "search_news_tool, search_financial_reports_tool, or (for questions about the user's own "
+    "thesis) get_my_thesis_tool that actually speaks to what was asked. Use "
+    "search_internal_peer_news_tool only for an explicit comparison or industry "
     "context question - a manage_memory "
     "or search_memory call is bookkeeping, not research, and never counts toward that bar "
     "or as a reason to stop. If those research tools genuinely don't turn up anything "

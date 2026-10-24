@@ -1,0 +1,64 @@
+name: Weekly Pipeline
+
+# Every Sunday: fetch news, match it to feeds, generate insights, then refresh the front-page
+# statistics (scripts/run_weekly_job.py). GitHub runs scheduled workflows from the default
+# branch only, so this starts firing once it is merged to main.
+on:
+  schedule:
+    # Cron is in UTC: Saturday 20:00 UTC = Sunday 06:00 AEST (07:00 AEDT in daylight saving).
+    - cron: "0 20 * * 6"
+  workflow_dispatch: # "Run workflow" button, for a manual run
+
+concurrency:
+  group: weekly-pipeline
+  cancel-in-progress: false # never start a second run on top of one still writing
+
+jobs:
+  # Scheduled runs start on Sunday 1 Nov 2026 (Sydney) = the Saturday 31 Oct 20:00 UTC slot.
+  # Until then the stats are refreshed by hand. A manual "Run workflow" always runs.
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.check.outputs.run }}
+    steps:
+      - id: check
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$(date -u +%Y%m%d)" -ge 20261031 ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Scheduled runs start on 2026-10-31 UTC; skipping."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  run:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      # CPU-only torch first, same as the Dockerfile - the embeddings model never uses a GPU.
+      - name: Install dependencies
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
+
+      - name: Run pipeline and refresh site stats
+        run: python -m scripts.run_weekly_job
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          LANGCHAIN_TRACING_V2: ${{ secrets.LANGCHAIN_TRACING_V2 }}
+          LANGCHAIN_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
+          LANGCHAIN_PROJECT: ${{ secrets.LANGCHAIN_PROJECT }}
+          LANGCHAIN_ENDPOINT: ${{ secrets.LANGCHAIN_ENDPOINT }}

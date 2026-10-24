@@ -1,4 +1,3 @@
-import logging
 from functools import lru_cache
 
 from langchain_anthropic import ChatAnthropic
@@ -8,7 +7,7 @@ from langgraph.prebuilt import create_react_agent
 from langgraph.types import Command
 from langmem import create_manage_memory_tool, create_search_memory_tool
 
-from config import ANALYSIS_MODEL, ANTHROPIC_API_KEY, REACT_RECURSION_LIMIT, TOKEN_CEILING_PER_REQUEST
+from config import ANALYSIS_MODEL, ANTHROPIC_API_KEY, LLM_API_RETRIES, LLM_TIMEOUT, REACT_RECURSION_LIMIT, TOKEN_CEILING_PER_REQUEST
 from . import decline_messages
 from .prompts import ANALYSIS_PROMPT
 from .persistence import get_store
@@ -22,16 +21,18 @@ from agent.guardrails import check_output, research_guard
 from agent.guardrails.token_budget import TokenBudgetCallback, TokenBudgetExceededError
 from agent.shared.synthesize import synthesize_insight
 from tools.react_tools import (
+    get_my_thesis_tool,
     search_internal_news_tool,
     search_internal_peer_news_tool,
     search_news_tool,
     get_latest_price_tool,
     search_financial_reports_tool,
 )
+from tools.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
-_llm = ChatAnthropic(model=ANALYSIS_MODEL, api_key=ANTHROPIC_API_KEY)
+_llm = ChatAnthropic(model=ANALYSIS_MODEL, api_key=ANTHROPIC_API_KEY, timeout=LLM_TIMEOUT, max_retries=LLM_API_RETRIES)
 _store = get_store()
 
 
@@ -66,6 +67,12 @@ def _build_prompt(state, config, store):
         "search_financial_reports_tool until you've actually met the evidence bar above, "
         "then answer.\n"
         "</ Semantic memory >\n\n"
+        "If the question is about the user's OWN thesis, feeds or insights (e.g. 'what has "
+        "changed in my thesis', 'how are my feeds looking'), call get_my_thesis_tool first: "
+        "it returns their feeds and their latest vs previous insight snapshots. Answer from "
+        "that per-feed comparison - say plainly when a feed did not change or had too little "
+        "evidence in both snapshots, rather than inflating small differences - then continue "
+        "with the research order below for news newer than the latest snapshot.\n\n"
         "Research source order is mandatory: first call search_internal_news_tool for the "
         "target ticker. Use its cached company news if it answers the question. Only when "
         "that evidence is missing, stale, or insufficient, call search_financial_reports_tool "
@@ -98,6 +105,7 @@ def _make_react_agent(ticker: str):
     return create_react_agent(
         _llm,
         tools=[
+            get_my_thesis_tool,
             search_internal_news_tool,
             search_internal_peer_news_tool,
             search_news_tool,
@@ -255,9 +263,15 @@ def _extract_tool_evidence(messages) -> list[dict]:
     One entry per piece of evidence a tool call actually returned - used both as input to
     synthesize_insight and (after filtering out internal-memory tool calls, see above) as
     the user-facing reference list. Tools that return multiple citable items (news
-    articles, report chunks) attach their own list of {"content", "url"} dicts as an
-    artifact (see tools/react_tools.py) so each becomes its own entry; other tools only
+    articles, report chunks) attach their own list of {"content", "url", "excerpt"?} dicts
+    as an artifact (see tools/react_tools.py) so each becomes its own entry; other tools only
     return plain text, so those become one entry with no URL.
+
+    "excerpt" is carried through when a tool sends one: for report chunks, "content" is only
+    the filename (the citation label the frontend renders as link text) and "excerpt" is the
+    actual chunk text. Dropping it left synthesis, request_trace.evidence and the judges with
+    filenames only. Tools without an excerpt (news: "content" is already headline + snippet)
+    get None.
     """
     evidence = []
     for msg in messages:
@@ -268,7 +282,12 @@ def _extract_tool_evidence(messages) -> list[dict]:
             for item in items:
                 if item.get("visibility") == "internal":
                     continue
-                evidence.append({"source": msg.name, "content": item["content"], "url": item.get("url")})
+                evidence.append({
+                    "source": msg.name,
+                    "content": item["content"],
+                    "excerpt": item.get("excerpt"),
+                    "url": item.get("url"),
+                })
         else:
             evidence.append({"source": msg.name, "content": msg.content, "url": None})
     return evidence

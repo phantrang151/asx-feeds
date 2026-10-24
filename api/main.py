@@ -1,4 +1,3 @@
-import logging
 import time
 from datetime import datetime, timedelta, timezone
 from typing import Literal, Optional
@@ -6,7 +5,11 @@ from typing import Literal, Optional
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from anthropic import APIStatusError as AnthropicAPIStatusError
+from anthropic import (
+    APIStatusError as AnthropicAPIStatusError,
+    APIConnectionError,
+    APITimeoutError,
+)
 from langchain_core.messages import HumanMessage
 from pydantic import BaseModel, field_validator
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -39,13 +42,19 @@ from agent.guardrails.token_budget import DailyTokenBudgetExceededError
 from agent.guardrails.citations import filter_reachable_references
 from agent.guardrails.tracer import RequestTracer
 from agent.guardrails.alerts import evaluate_alerts
+from agent.shared.structured_output import StructuredOutputError
+from stats.site_stats import latest_site_stats
 from api.auth import get_user_id_from_token
 from api.admin import router as admin_router
+from api.request_id import REQUEST_ID_HEADER, add_request_id
+from db.errors import DatabaseUnavailableError
+from tools.logger import get_logger, request_id_var, setup_logging
 
-logger = logging.getLogger(__name__)
+setup_logging()  # the app's one logging configuration - see tools/logger.py
+
+logger = get_logger(__name__)
 
 app = FastAPI(title="ASX Agent API")
-
 
 class UnhandledExceptionMiddleware(BaseHTTPMiddleware):
     """
@@ -63,10 +72,17 @@ class UnhandledExceptionMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
         except Exception:
             logger.exception("Unhandled exception on %s %s", request.method, request.url.path)
-            return JSONResponse(status_code=500, content={"detail": "Internal server error"})
-
+            # request_id in the body too, so a user who sees only the error can quote it
+            return JSONResponse(status_code=500, content={"detail": "Internal server error",
+                                                          "request_id": request_id_var.get()})
 
 app.add_middleware(UnhandledExceptionMiddleware)
+
+
+# Registered after UnhandledExceptionMiddleware so it wraps it: a 500 that middleware turns
+# into a response still gets the X-Request-ID header (see api/request_id.py).
+app.middleware("http")(add_request_id)
+
 
 # Local Next.js dev server (:3000) and the deployed frontend on Azure Static Web Apps.
 app.add_middleware(
@@ -78,6 +94,9 @@ app.add_middleware(
     ],
     allow_methods=["*"],
     allow_headers=["*"],
+    # Without this the browser hides X-Request-ID from the frontend's JavaScript, even
+    # though it shows up in the network tab.
+    expose_headers=[REQUEST_ID_HEADER],
 )
 
 app.include_router(admin_router)
@@ -106,6 +125,63 @@ async def anthropic_error_handler(request: Request, exc: AnthropicAPIStatusError
         detail = "The AI model is temporarily unavailable - please try again shortly."
     return JSONResponse(status_code=503, content={"detail": detail})
 
+
+@app.exception_handler(APIConnectionError)
+async def anthropic_connection_error_handler(request: Request, exc: APIConnectionError):
+    if isinstance(exc, APITimeoutError):
+        detail = "The AI model is taking too long to respond. Please try again shortly."
+    else:
+        detail = "Unable to connect to the AI model. Please try again shortly."
+
+    logger.warning(
+        "Anthropic connection error on %s %s: %s",
+        request.method,
+        request.url.path,
+        type(exc).__name__,
+    )
+
+    return JSONResponse(
+        status_code=503,
+        content={"detail": detail},
+    )
+
+@app.exception_handler(DatabaseUnavailableError)
+async def database_unavailable_handler(request: Request, exc: DatabaseUnavailableError):
+    """
+    A transient database failure that db/queries.py's run() could not resolve (see that function
+    for the retry policy). Same placement as the LLM handlers above - registered by type, so the
+    response stays inside the middleware chain and keeps CORS and X-Request-ID. Non-transient
+    database errors are deliberately NOT handled here: they reach UnhandledExceptionMiddleware as
+    a 500, or a specific handler at the call site (e.g. the 409 for a duplicate watchlist ticker).
+
+    The message depends on whether the outcome is known: a failed plain INSERT may already have
+    committed before its reply was lost, so the user is told to check before retrying rather
+    than to retry immediately and risk a duplicate.
+    """
+    logger.warning("Database unavailable on %s %s: %s", request.method, request.url.path, exc)
+    if exc.outcome_uncertain:
+        detail = "We couldn't confirm whether your request was completed. Please check before trying again."
+    else:
+        detail = "The database is temporarily unavailable. Please try again shortly."
+    return JSONResponse(status_code=503, content={"detail": detail, "request_id": request_id_var.get()})
+
+
+
+@app.exception_handler(StructuredOutputError)
+async def structured_output_error_handler(request: Request, exc: StructuredOutputError):
+    """
+    An LLM call that must return structured output (router, output guardrail, ...) still
+    could not be parsed after invoke_structured_with_repair's repair and retry - not a
+    transient blip, so the raw output is logged in full for diagnosis. The user only gets a
+    plain "technical problem" message with the request ID to quote. For the output guardrail
+    this also means the answer is never shown unchecked (fails closed).
+    """
+    logger.error("Unparseable %s output on %s %s after %d attempt(s); raw args: %r",
+                 exc.schema_name, request.method, request.url.path, exc.attempts, exc.raw_args)
+    return JSONResponse(status_code=500, content={
+        "detail": "We ran into a technical problem while processing your request. Please try again shortly.",
+        "request_id": request_id_var.get(),
+    })
 
 class FeedCreateRequest(BaseModel):
     ticker: str
@@ -158,6 +234,19 @@ def _resynthesize_insight(user_id: str, ticker: str, action: str) -> None:
     except Exception:
         logger.exception("Insight re-synthesis failed after %s for %s/%s", action, user_id, ticker)
 
+
+
+@app.get("/api/public/site-stats")
+def site_stats_endpoint():
+    """
+    The front page's marketing numbers - no login needed. Serves the latest weekly snapshot
+    (see stats/site_stats.py) rather than counting on every visit. 404 until the weekly job
+    has run once, so the front page can hide the section instead of showing zeros.
+    """
+    stats = latest_site_stats()
+    if stats is None:
+        raise HTTPException(status_code=404, detail="Site statistics are not available yet.")
+    return stats
 
 @app.post("/api/tickers")
 def create_ticker_endpoint(req: TickerCreateRequest, authorization: str = Header(...)):
@@ -320,7 +409,13 @@ def ask_endpoint(req: AskRequest, authorization: str = Header(...)):
     # below regardless of how the request ends.
     tracer = RequestTracer()
     request_start = time.monotonic()
+    # Set by api/request_id.py's middleware; "-" only if this ever runs outside a request.
+    request_id = request_id_var.get()
+    request_id = None if request_id == "-" else request_id
     config = {
+        # LangChain copies metadata onto every traced run under this graph, so the request id
+        # in the X-Request-ID header and the log lines also finds this request in LangSmith.
+        "metadata": {"request_id": request_id},
         "configurable": {
             "thread_id": req.thread_id,
             "langgraph_user_id": user_id,
@@ -342,6 +437,18 @@ def ask_endpoint(req: AskRequest, authorization: str = Header(...)):
         status = "error"
         decline_reason = "daily_token_budget_exceeded"
         daily_budget_exceeded = True
+    except DatabaseUnavailableError:
+        # Known and transient: traced with its own reason (not mixed in with real bugs), then
+        # re-raised for database_unavailable_handler's 503.
+        status = "error"
+        decline_reason = "database_unavailable"
+        raise
+    except StructuredOutputError:
+        # Known: an LLM's structured output was unparseable even after repair and a retry.
+        # Traced with its own reason, then re-raised for structured_output_error_handler.
+        status = "error"
+        decline_reason = "structured_output_error"
+        raise
     except Exception:
         # Still recorded below (whatever the tracer captured before the crash) before
         # re-raising for UnhandledExceptionMiddleware to turn into the standard 500 -
@@ -351,13 +458,10 @@ def ask_endpoint(req: AskRequest, authorization: str = Header(...)):
         raise
     finally:
         total_duration_ms = round((time.monotonic() - request_start) * 1000)
-        # Logged regardless of outcome (success, in-graph decline, or the 429 above) so
-        # tokens actually spent before an abort still count against today's total - Groq
-        # already billed for them even if the request didn't finish.
-        if daily_cb.total_tokens:
-            log_token_usage(user_id, daily_cb.total_tokens)
-
+        # Written FIRST: the trace is best-effort (returns None if the database is down) but
+        # should survive even when the critical bookkeeping below fails.
         trace_row = insert_request_trace(
+            request_id=request_id,
             user_id=user_id,
             thread_id=req.thread_id,
             question=req.question,
@@ -378,20 +482,36 @@ def ask_endpoint(req: AskRequest, authorization: str = Header(...)):
             answer=response["messages"][-1].content if response and status == "completed" else None,
             evidence=response.get("evidence") if response and status == "completed" else None,
         )
-        insert_request_trace_steps(trace_row["id"], tracer.steps)
+        if trace_row:
+            insert_request_trace_steps(trace_row["id"], tracer.steps)
 
-        # Trailing-day total AFTER this request's own usage was just logged above - what
-        # this user's NEXT request would be checked against by enforce_daily_token_budget.
-        since = (datetime.now(timezone.utc) - timedelta(hours=TOKEN_CEILING_WINDOW_HOURS)).isoformat()
-        daily_tokens_after = sum_recent_token_usage(user_id, since)
-        alerts = evaluate_alerts(
-            request_tokens=daily_cb.total_tokens or None,
-            daily_tokens_after=daily_tokens_after or None,
-            step_count=tracer.step_count,
-            duration_ms=total_duration_ms,
-        )
-        for alert in alerts:
-            insert_ops_alert(trace_row["id"], user_id, **alert)
+        # Logged regardless of outcome (success, in-graph decline, or the 429 above) so
+        # tokens actually spent before an abort still count against today's total - the
+        # model provider already billed for them even if the request didn't finish.
+        # Critical bookkeeping, NOT best-effort: it enforces the daily budget, so a failure
+        # raises (-> 503) rather than silently letting usage go uncounted. Whether that should
+        # instead fall back to a replay log is an open product decision (strict quota vs.
+        # availability) - see docs/Observability Assessment.docx and the Exercise 7 notes.
+        if daily_cb.total_tokens:
+            log_token_usage(user_id, daily_cb.total_tokens)
+
+        # Operational alerts are best-effort too: a failed lookup here must not fail an answer
+        # that has already been produced.
+        try:
+            # Trailing-day total AFTER this request's own usage was just logged above - what
+            # this user's NEXT request would be checked against by enforce_daily_token_budget.
+            since = (datetime.now(timezone.utc) - timedelta(hours=TOKEN_CEILING_WINDOW_HOURS)).isoformat()
+            daily_tokens_after = sum_recent_token_usage(user_id, since)
+            alerts = evaluate_alerts(
+                request_tokens=daily_cb.total_tokens or None,
+                daily_tokens_after=daily_tokens_after or None,
+                step_count=tracer.step_count,
+                duration_ms=total_duration_ms,
+            )
+            for alert in alerts:
+                insert_ops_alert(trace_row["id"] if trace_row else None, user_id, **alert)
+        except DatabaseUnavailableError as e:
+            logger.error("Skipped operational alerts for this request: %s", e)
 
     if daily_budget_exceeded:
         raise HTTPException(status_code=429, detail=DAILY_BUDGET_MESSAGE)

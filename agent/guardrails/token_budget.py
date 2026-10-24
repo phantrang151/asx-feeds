@@ -1,4 +1,28 @@
+from asyncio import log
+
 from langchain_core.callbacks.base import BaseCallbackHandler
+from tools.logger import get_logger
+
+logger = get_logger(__name__)
+
+def total_tokens_from(response) -> int:
+    """Total tokens for one LLM call, from LangChain's provider-neutral usage_metadata
+    (Claude, OpenAI, Groq all fill it); falls back to the old Groq-style llm_output key."""
+    total = 0
+    for generations in response.generations:          # usually one list with one item
+        for gen in generations:
+            usage = getattr(getattr(gen, "message", None), "usage_metadata", None)
+            if usage:
+                total += usage.get("total_tokens", 0)
+    if total:
+        return total
+    else:
+        alternative_method_tokens = ((response.llm_output or {}).get("token_usage") or {}).get("total_tokens", None)
+        if alternative_method_tokens is not None:
+            return alternative_method_tokens
+        else:
+            logger.warning(f"Could not find total_tokens in response; returning 0")
+            return 0
 
 
 class TokenBudgetExceededError(RuntimeError):
@@ -32,8 +56,8 @@ class TokenBudgetCallback(BaseCallbackHandler):
         self.total_tokens = 0
 
     def on_llm_end(self, response, **kwargs) -> None:
-        usage = (response.llm_output or {}).get("token_usage") or {}
-        self.total_tokens += usage.get("total_tokens", 0)
+        usage = total_tokens_from(response)
+        self.total_tokens += usage
         if self.total_tokens > self.ceiling:
             raise self.exception_cls(self.total_tokens, self.ceiling)
 

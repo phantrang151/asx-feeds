@@ -35,6 +35,11 @@ export default function Dashboard() {
     }
   }, [user]);
 
+  // Sample chat questions use the newest ticker that has a feed (tickers are loaded newest
+  // first) - a thesis question about a ticker with no feeds has nothing to compare.
+  const sampleTicker =
+    (tickers.find((t) => feeds.some((f) => f.ticker === t.ticker)) || tickers[0] || {}).ticker || null;
+
   if (loading || !user) {
     return <p style={{ textAlign: 'center', marginTop: 80 }}>Loading...</p>;
   }
@@ -45,7 +50,7 @@ export default function Dashboard() {
       <main className="container">
         <section>
           <h2>Ask a question</h2>
-          <AskQuestion />
+          <AskQuestion sampleTicker={sampleTicker} />
         </section>
 
         <div className="dashboard-grid">

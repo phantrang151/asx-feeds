@@ -46,6 +46,10 @@ class InsightState(TypedDict):
     # the bare feed name alone (the same name can carry a different description per
     # company - see decide_feed_sources, which already does this).
     feed_descriptions: dict[str, str]
+    # feed_name -> that feed's feeds.id, set once by planner_node - written into each
+    # ticker_insights.feed_summaries entry so a feed can be matched across snapshots even
+    # after a rename (see get_my_thesis_tool).
+    feed_ids: dict[str, str]
     # feed_name -> decide_feed_sources' verdict on needs_reports/needs_peer_news, set once
     # by planner_node
     source_decisions: dict[str, FeedSourceDecision]

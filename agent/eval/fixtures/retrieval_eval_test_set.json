@@ -1,0 +1,246 @@
+[
+  {
+    "id": "q1",
+    "ticker": "CBA.AX",
+    "question": "How is CBA using AI to improve software engineering productivity?",
+    "answerable": true,
+    "gold_article_ids": [
+      "d1b0bef8-6caa-4a64-88c9-3a0aa08b588b",
+      "b68a2d6d-73de-419c-b598-7ce0a1052836",
+      "6b7cca15-b540-451a-8034-b1fc4704f805"
+    ],
+    "gold_facts": [
+      "About 80% of CBA's engineers use AI agents.",
+      "The AI agents have tripled code output.",
+      "The AI agents have helped resolve over 15,000 security issues.",
+      "CBA's chief AI officer, Ranil Boteju, is scaling A$400m in AI value with humans in the loop.",
+      "CBA appointed a new CIO and CTO to boost its technology and AI strategy."
+    ]
+  },
+  {
+    "id": "q2",
+    "ticker": "CBA.AX",
+    "question": "What technology leadership changes has CBA made to support its AI strategy?",
+    "answerable": true,
+    "gold_article_ids": [
+      "b68a2d6d-73de-419c-b598-7ce0a1052836",
+      "d1b0bef8-6caa-4a64-88c9-3a0aa08b588b"
+    ],
+    "gold_facts": [
+      "CBA appointed a new CIO and CTO to boost its technology and AI strategy.",
+      "Ranil Boteju is CBA's chief AI officer."
+    ]
+  },
+  {
+    "id": "q3",
+    "ticker": "CBA.AX",
+    "question": "How is CBA modernising its payment services?",
+    "answerable": true,
+    "gold_article_ids": [
+      "413c847a-f31f-48e9-8aa3-215b13213f26",
+      "99d3c240-a69d-471e-9754-bd53d542c01f",
+      "b1b83951-4c53-41ff-a55f-9a52d2b6570d"
+    ],
+    "gold_facts": [
+      "CBA unveiled a payout platform called PaidIt ahead of its exit from cheques.",
+      "PaidIt combines recipient verification, communications and payment delivery in one system.",
+      "A coalition of global banks warns AI shopping agents could expose card details and weaken payment security.",
+      "NatWest, Bank of America and four other banks warn AI commerce tools are outpacing fraud protections."
+    ]
+  },
+  {
+    "id": "q4",
+    "ticker": "CBA.AX",
+    "question": "What are the risks associated with AI-powered shopping and payment agents?",
+    "answerable": true,
+    "gold_article_ids": [
+      "99d3c240-a69d-471e-9754-bd53d542c01f",
+      "b1b83951-4c53-41ff-a55f-9a52d2b6570d"
+    ],
+    "gold_facts": [
+      "AI shopping agents could increase the risk of scams and fraud.",
+      "AI shopping agents could lead to data privacy breaches.",
+      "AI shopping agents could expose card details.",
+      "AI shopping agents could weaken payment security.",
+      "NatWest, Bank of America and four other banks say AI commerce tools are advancing faster than industry safeguards."
+    ]
+  },
+  {
+    "id": "q5",
+    "ticker": "CBA.AX",
+    "question": "What challenges are Australian banks facing in mortgage lending?",
+    "answerable": true,
+    "gold_article_ids": [
+      "686cdb0c-4e0e-4c16-82e8-cc5fb13cd2ca",
+      "3197f837-7d31-4fd0-9208-cca4c823c4f2",
+      "5471b7ec-a7a3-4b6f-9ed9-1077daa933df",
+      "f6a03202-fdda-4b58-97b6-a48e3659827b"
+    ],
+    "gold_facts": [
+      "Mortgage demand has plummeted, a downturn in a lucrative business for Australia's biggest banks.",
+      "Investors are questioning the rich valuations of Australia's biggest banks.",
+      "CBA and NAB joined ANZ in forecasting another rate hike this year after a hot inflation print.",
+      "Speculative investors are betting on an RBA rate hike in November as inflation stays above target."
+    ]
+  },
+  {
+    "id": "q6",
+    "ticker": "CBA.AX",
+    "question": "What are the latest expectations for Australian interest rates?",
+    "answerable": true,
+    "gold_article_ids": [
+      "3197f837-7d31-4fd0-9208-cca4c823c4f2",
+      "5471b7ec-a7a3-4b6f-9ed9-1077daa933df",
+      "f6a03202-fdda-4b58-97b6-a48e3659827b",
+      "686cdb0c-4e0e-4c16-82e8-cc5fb13cd2ca",
+      "6192bccf-9d89-4bdf-b571-47e3e02b311d",
+      "c385b2b8-f8e0-4278-99be-f30dbd1d2167",
+      "8c255177-b931-4783-a1bf-9e2dacfa1b3c"
+    ],
+    "gold_facts": [
+      "CBA and NAB joined ANZ in forecasting another rate hike this year.",
+      "The forecasts followed a hot inflation print.",
+      "Speculative investors increasingly bet the RBA will raise rates in November.",
+      "Inflation remains above the RBA's target.",
+      "Higher global interest rate expectations have pushed up funding costs.",
+      "Bond yields across major markets reflect expectations of tighter central bank policy."
+    ]
+  },
+  {
+    "id": "q7",
+    "ticker": "CBA.AX",
+    "question": "What is CBA doing to expand investment opportunities for retail customers?",
+    "answerable": true,
+    "gold_article_ids": [
+      "c4a7e0e3-afd4-4f96-a328-a4fc62d9dce2"
+    ],
+    "gold_facts": [
+      "CommSec plans more U.S. IPO listings for its clients after record SpaceX demand.",
+      "CommSec received 28,000 applications for the SpaceX IPO from its nearly three million clients."
+    ]
+  },
+  {
+    "id": "q8",
+    "ticker": "CBA.AX",
+    "question": "How is AI affecting employment at Commonwealth Bank?",
+    "answerable": true,
+    "gold_article_ids": [
+      "6b7cca15-b540-451a-8034-b1fc4704f805",
+      "273b4c77-4742-4732-8603-9f737578c99c",
+      "69dbc761-0547-45ff-9908-81fbc4ec506d",
+      "d1b0bef8-6caa-4a64-88c9-3a0aa08b588b"
+    ],
+    "gold_facts": [
+      "AI is replacing customer service jobs at CBA (as at Microsoft and Uber).",
+      "Some companies are rehiring workers laid off for AI as automation falls short.",
+      "About 80% of CBA's engineers use AI agents, tripling code output.",
+      "Goldman Sachs warns AI is still wiping out 11,000 jobs per month."
+    ]
+  },
+  {
+    "id": "q9",
+    "ticker": "CBA.AX",
+    "question": "What is CBA's latest dividend payout ratio?",
+    "answerable": true,
+    "gold_article_ids": [
+      "8c255177-b931-4783-a1bf-9e2dacfa1b3c",
+      "6192bccf-9d89-4bdf-b571-47e3e02b311d",
+      "c385b2b8-f8e0-4278-99be-f30dbd1d2167",
+      "f6a03202-fdda-4b58-97b6-a48e3659827b"
+    ],
+    "gold_facts": [
+      "Commonwealth Bank is featured as a dividend share for reliable income in a 3%+ yield screener.",
+      "Australian dividend stocks with yields above 5% and well-covered payouts are highlighted for income investors.",
+      "A Simply Wall St article refers to a profit uptick at CBA."
+    ]
+  },
+  {
+    "id": "q10",
+    "ticker": "CBA.AX",
+    "question": "What was CBA's exact net profit for FY2025?",
+    "answerable": true,
+    "gold_article_ids": [
+      "f6a03202-fdda-4b58-97b6-a48e3659827b"
+    ],
+    "gold_facts": [
+      "A Simply Wall St article refers to a profit uptick at CBA."
+    ]
+  },
+  {
+    "id": "q11",
+    "ticker": "CBA.AX",
+    "question": "Has CBA faced any recent regulatory action or penalties from ASIC, APRA or AUSTRAC?",
+    "answerable": false,
+    "gold_article_ids": [],
+    "gold_facts": []
+  },
+  {
+    "id": "q12",
+    "ticker": "CBA.AX",
+    "question": "What are CBA's climate commitments, such as net-zero targets or limits on fossil-fuel lending?",
+    "answerable": false,
+    "gold_article_ids": [],
+    "gold_facts": []
+  },
+  {
+    "id": "h1",
+    "ticker": "CBA.AX",
+    "question": "What new payout platform has CBA introduced to replace cheque-based payments?",
+    "answerable": true,
+    "gold_article_ids": [
+      "413c847a-f31f-48e9-8aa3-215b13213f26"
+    ],
+    "gold_facts": [
+      "CBA unveiled a payout platform called PaidIt.",
+      "PaidIt was launched ahead of CBA's exit from cheques.",
+      "PaidIt combines recipient verification, communications and payment delivery in one system."
+    ]
+  },
+  {
+    "id": "h2",
+    "ticker": "CBA.AX",
+    "question": "How has CBA supported archTIS with a A$4 million financing facility?",
+    "answerable": true,
+    "gold_article_ids": [
+      "a8b21a0e-aa2c-42e8-8cfb-c7479fd1d8e3"
+    ],
+    "gold_facts": [
+      "archTIS extended the maturity date of a A$4 million CBA lending facility.",
+      "The facility gives archTIS access to non-dilutive working capital.",
+      "The facility supports contract execution and growth.",
+      "archTIS is responding to growing demand for its data security products."
+    ]
+  },
+  {
+    "id": "h3",
+    "ticker": "CBA.AX",
+    "question": "What changes has CBA made to its CIO and CTO positions?",
+    "answerable": true,
+    "gold_article_ids": [
+      "b68a2d6d-73de-419c-b598-7ce0a1052836",
+      "d1b0bef8-6caa-4a64-88c9-3a0aa08b588b"
+    ],
+    "gold_facts": [
+      "CBA appointed a new CIO and CTO.",
+      "The appointments are meant to boost CBA's technology and AI strategy."
+    ]
+  },
+  {
+    "id": "h4",
+    "ticker": "CBA.AX",
+    "question": "How is CBA generating A$400 million in value from its AI initiatives?",
+    "answerable": true,
+    "gold_article_ids": [
+      "d1b0bef8-6caa-4a64-88c9-3a0aa08b588b",
+      "b68a2d6d-73de-419c-b598-7ce0a1052836",
+      "6b7cca15-b540-451a-8034-b1fc4704f805"
+    ],
+    "gold_facts": [
+      "Ranil Boteju, CBA's chief AI officer, discussed scaling A$400m in AI value with humans in the loop.",
+      "About 80% of CBA's engineers use AI agents to triple code output.",
+      "The AI agents helped resolve over 15,000 security issues.",
+      "AI is replacing customer service jobs at CBA.",
+      "CBA appointed a new CIO and CTO to boost its technology and AI strategy."
+    ]
+  }
+]

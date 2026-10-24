@@ -31,7 +31,6 @@ never persisted (request_trace.answer is only set on status='completed'), by des
 this catches false negatives (missed violations), not false positives.
 """
 
-import logging
 import math
 import random
 
@@ -47,8 +46,9 @@ from db.queries import (
 from agent.guardrails.advice_check import keyword_scan, keyword_scan_advice_seeking
 from agent.chat.nodes import classify_request
 from agent.eval.judge import eval_judge_advice_seeking, eval_judge_advice_check
+from tools.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def _sample_size(eligible_n: int, rate: float = QUALITY_SAMPLE_RATE, cap: int = QUALITY_SAMPLE_CAP) -> int:

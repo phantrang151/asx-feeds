@@ -1,0 +1,10 @@
+{
+  "configs": [
+    {"name": "semantic_k10", "method": "semantic", "k": 10},
+    {"name": "hybrid_k10", "method": "hybrid_rrf", "k": 10}
+  ],
+  "semantic_threshold": 0.4,
+  "rrf_constant": 60,
+  "candidate_pool": 50,
+  "news_window_days": 183
+}
