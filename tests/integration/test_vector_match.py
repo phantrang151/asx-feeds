@@ -50,7 +50,11 @@ def test_closer_embedding_ranks_first_and_excluded_tickers_never_appear(
             },
         ])
 
-        matches = match_ticker_news_for_embedding([test_ticker, peer_ticker], embedding, match_count=10)
+        # similarity_threshold=0: this test is about ranking and ticker exclusion, not the
+        # cutoff - the "far" article is only ~0.16 similar, below the 0.6 default.
+        matches = match_ticker_news_for_embedding(
+            [test_ticker, peer_ticker], embedding, match_count=10, similarity_threshold=0.0
+        )
 
         assert [m["ticker"] for m in matches] == [test_ticker, peer_ticker]
         assert matches[0]["similarity"] > matches[1]["similarity"]

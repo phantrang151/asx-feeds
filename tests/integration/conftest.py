@@ -36,8 +36,18 @@ def test_ticker():
 
 
 @pytest.fixture
-def test_user_id():
-    return str(uuid.uuid4())
+def test_user_id(client):
+    """A real, throwaway auth user. feeds.user_id (and other user-owned tables) reference
+    auth.users, so a made-up UUID is rejected by the foreign key. Created through the admin
+    API with the service-role key; deleting it afterwards cascades to the rows it owns."""
+    user = client.auth.admin.create_user({
+        "email": f"integration-{uuid.uuid4().hex[:12]}@example.com",
+        "password": uuid.uuid4().hex,
+        "email_confirm": True,
+    })
+    user_id = user.user.id
+    yield user_id
+    client.auth.admin.delete_user(user_id)
 
 
 @pytest.fixture

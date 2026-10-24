@@ -19,8 +19,12 @@ jobs:
           python-version: "3.11"
           cache: "pip"
 
+      # The annotate-failures plugin turns each failing test into a GitHub annotation, so the
+      # failure shows on the PR page instead of only in the raw log.
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          pip install -r requirements.txt
+          pip install pytest-github-actions-annotate-failures
 
       - name: Run unit tests
         run: pytest --ignore=tests/integration -m "not slow" -v
@@ -38,7 +42,9 @@ jobs:
           cache: "pip"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          pip install -r requirements.txt
+          pip install pytest-github-actions-annotate-failures
 
       - name: Start local Supabase stack
         uses: supabase/setup-cli@v1
@@ -49,13 +55,17 @@ jobs:
 
       # Captures the local stack's own URL/keys at runtime rather than hardcoding
       # them - avoids depending on the CLI's default local dev credentials staying the
-      # same across versions.
+      # same across versions. `supabase status -o env` prints KEY="value", and $GITHUB_ENV
+      # keeps quotes as part of the value - so they are stripped here, otherwise
+      # SUPABASE_DB_URL is literally "postgresql://..." (quotes included) and the schema step
+      # can't connect.
       - name: Export local Supabase connection details
         run: |
           supabase status -o env | sed \
-            -e 's/^API_URL/SUPABASE_URL/' \
-            -e 's/^SERVICE_ROLE_KEY/SUPABASE_KEY/' \
-            -e 's/^DB_URL/SUPABASE_DB_URL/' \
+            -e 's/^API_URL=/SUPABASE_URL=/' \
+            -e 's/^SERVICE_ROLE_KEY=/SUPABASE_KEY=/' \
+            -e 's/^DB_URL=/SUPABASE_DB_URL=/' \
+            -e 's/="\(.*\)"$/=\1/' \
             >> "$GITHUB_ENV"
 
       - name: Apply schema
