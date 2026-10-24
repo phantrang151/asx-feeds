@@ -85,6 +85,10 @@ create table if not exists ticker_news (
   publisher text,
   source_url text,
   published_at timestamptz,
+  -- Declared here as well as by the `alter table ... add column if not exists snippet` further
+  -- down: match_ticker_news below is a SQL function, so Postgres checks the column exists when
+  -- the function is created - on a fresh database the later ALTER would be too late.
+  snippet text,
   content_embedding vector(384) not null,
   -- Set once this row has been evaluated against common_feed_templates, whether or not
   -- it matched - so a below-threshold article isn't re-evaluated on every run.
