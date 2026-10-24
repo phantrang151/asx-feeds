@@ -32,4 +32,12 @@ def apply_schema():
 
 
 if __name__ == "__main__":
-    apply_schema()
+    try:
+        apply_schema()
+    except Exception as e:
+        # In GitHub Actions, print the error as an annotation so it shows on the PR page -
+        # otherwise a CI failure here only says "Process completed with exit code 1".
+        if os.environ.get("GITHUB_ACTIONS") == "true":
+            message = f"{type(e).__name__}: {e}".replace("%", "%25").replace("\r", "").replace("\n", "%0A")
+            print(f"::error title=Apply schema failed::{message}")
+        raise
