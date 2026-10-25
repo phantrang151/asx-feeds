@@ -8,17 +8,29 @@ export default function SignUp() {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
     setError('');
     setMessage('');
 
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    // emailRedirectTo sends the confirmation link back to whichever site the user signed up on;
+    // Supabase only honours it if the URL is in the project's Redirect URLs allow-list.
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: `${window.location.origin}/dashboard` },
+    });
+    setSubmitting(false);
 
     if (error) {
-      setError(error.message);
+      // Some auth errors arrive with an empty body, which supabase-js surfaces as the message "{}".
+      const text = error.message && error.message !== '{}' ? error.message : '';
+      setError(text || 'Sign up failed. Please try again in a moment.');
       return;
     }
 
@@ -49,7 +61,9 @@ export default function SignUp() {
             minLength={6}
           />
         </label>
-        <button type="submit">Sign up</button>
+        <button type="submit" disabled={submitting}>
+          {submitting ? 'Signing up…' : 'Sign up'}
+        </button>
       </form>
       {message && <p className="info">{message}</p>}
       {error && <p className="error">{error}</p>}
