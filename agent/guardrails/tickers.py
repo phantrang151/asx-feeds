@@ -6,6 +6,13 @@ from tools.companies import ticker_exists_live
 _ASX_TICKER_PATTERN = re.compile(r"^[A-Z0-9]{1,10}\.AX$")
 
 
+def normalize_asx_ticker(ticker: str) -> str:
+    """Uppercases user input and adds the Yahoo Finance .AX suffix when it's missing, so
+    "cba" and "CBA.AX" both become "CBA.AX"."""
+    ticker = ticker.strip().upper()
+    return ticker if ticker.endswith(".AX") else f"{ticker}.AX"
+
+
 def validate_ticker(ticker: str) -> bool:
     """True if `ticker` resolves against the companies table OR (fallback, for a real
     but smaller/less-known ASX company outside the top-200 seed) a live yfinance

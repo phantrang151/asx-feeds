@@ -40,7 +40,7 @@ export default function TickerForm({ onAdded }) {
   return (
     <form onSubmit={handleSubmit} className="inline-form">
       <input
-        placeholder="Ticker (e.g. TLS.AX)"
+        placeholder="Ticker (e.g. TLS)"
         value={ticker}
         onChange={(e) => setTicker(e.target.value)}
         required

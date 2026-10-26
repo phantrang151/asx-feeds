@@ -36,7 +36,7 @@ from db.storage import ensure_documents_bucket
 from agent.chat.graph import graph
 from agent.pipelines.insight_graph import synthesize_insight_for
 from agent.guardrails.rate_limit import enforce_rate_limit
-from agent.guardrails.tickers import validate_ticker
+from agent.guardrails.tickers import normalize_asx_ticker, validate_ticker
 from agent.guardrails.daily_token_budget import enforce_daily_token_budget, DAILY_BUDGET_MESSAGE
 from agent.guardrails.token_budget import DailyTokenBudgetExceededError
 from agent.guardrails.citations import filter_reachable_references
@@ -252,7 +252,7 @@ def site_stats_endpoint():
 def create_ticker_endpoint(req: TickerCreateRequest, authorization: str = Header(...)):
     """Validates an ASX ticker against the company cache or live market data before saving it."""
     user_id = get_user_id_from_token(authorization)
-    ticker = req.ticker.strip().upper()
+    ticker = normalize_asx_ticker(req.ticker)
     if not validate_ticker(ticker):
         raise HTTPException(status_code=422, detail="Ticker was not found as a valid ASX-listed symbol.")
 
