@@ -1,10 +1,11 @@
 name: Test
 
+# Runs on every PR, and is also called by the deploy workflows (workflow_call) so a push to
+# main only deploys after these jobs pass - there's no separate push trigger here, or the tests
+# would run twice on main.
 on:
   pull_request:
-  push:
-    branches:
-      - main
+  workflow_call:
 
 jobs:
   unit-tests:
@@ -46,10 +47,12 @@ jobs:
           pip install -r requirements.txt
           pip install pytest-github-actions-annotate-failures
 
+      # Pinned, not `latest`: a new CLI release can change behaviour (e.g. its env output) and
+      # break CI with no code change. Bump deliberately.
       - name: Start local Supabase stack
         uses: supabase/setup-cli@v1
         with:
-          version: latest
+          version: 2.122.0
 
       - run: supabase start
 
@@ -73,3 +76,34 @@ jobs:
 
       - name: Run integration tests
         run: pytest tests/integration -v
+
+  frontend-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Jest tests
+        run: npx jest --ci
+
+      # Same static export the frontend deploy runs. Placeholder values: the build only needs
+      # these set, and this job never deploys anything.
+      - name: Check the site builds
+        run: npx next build
+        env:
+          NEXT_PUBLIC_API_URL: https://example.invalid
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder

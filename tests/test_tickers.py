@@ -3,7 +3,7 @@ tools.companies.ticker_exists_live are mocked, no real network/DB calls."""
 
 from unittest.mock import patch
 
-from agent.guardrails.tickers import validate_ticker
+from agent.guardrails.tickers import normalize_asx_ticker, validate_ticker
 
 
 def test_validate_ticker_true_when_in_companies_table():
@@ -25,3 +25,13 @@ def test_validate_ticker_false_when_both_miss():
     with patch("agent.guardrails.tickers.get_company", return_value=None), \
          patch("agent.guardrails.tickers.ticker_exists_live", return_value=False):
         assert validate_ticker("XYZQ.AX") is False
+
+
+def test_normalize_asx_ticker_adds_missing_suffix():
+    assert normalize_asx_ticker("CBA") == "CBA.AX"
+    assert normalize_asx_ticker(" cba ") == "CBA.AX"
+
+
+def test_normalize_asx_ticker_keeps_existing_suffix():
+    assert normalize_asx_ticker("CBA.AX") == "CBA.AX"
+    assert normalize_asx_ticker("cba.ax") == "CBA.AX"

@@ -9,7 +9,13 @@ on:
       - '.github/workflows/deploy-frontend.yml'
 
 jobs:
+  # The full test suite (test.yml, reused) - the deploy below only starts if every test job
+  # passes, so a commit with failing tests is never deployed.
+  tests:
+    uses: ./.github/workflows/test.yml
+
   deploy:
+    needs: tests
     runs-on: ubuntu-latest
     defaults:
       run:
