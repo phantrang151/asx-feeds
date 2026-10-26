@@ -100,8 +100,16 @@ test('sample questions use the given ticker and fill the box without asking', ()
   expect(global.fetch).not.toHaveBeenCalled(); // filled in for editing, not sent
 });
 
-test('no sample questions until the user has a ticker', () => {
+test('without a ticker, starter questions are shown instead of thesis questions', () => {
+  global.fetch = jest.fn();
   render(<AskQuestion />);
   expect(screen.queryByRole('button', { name: /investment thesis/ })).toBeNull();
   expect(screen.getByText(/Add a ticker and a feed/)).toBeInTheDocument();
+
+  const chip = screen.getByRole('button', { name: /latest news on CBA\.AX/ });
+  expect(screen.getAllByRole('button', { name: /\.AX/ })).toHaveLength(3);
+
+  fireEvent.click(chip);
+  expect(screen.getByPlaceholderText(/Ask a question/)).toHaveValue('What is the latest news on CBA.AX?');
+  expect(global.fetch).not.toHaveBeenCalled();
 });

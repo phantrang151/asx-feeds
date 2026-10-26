@@ -48,6 +48,14 @@ function sampleQuestions(ticker) {
   ];
 }
 
+// For users with no tickers yet: no thesis to ask about, so plain news and results lookups
+// (the chat's search_news and conduct_analysis routes) on well-known ASX names.
+const STARTER_QUESTIONS = [
+  { category: 'Latest news', question: 'What is the latest news on CBA.AX?' },
+  { category: 'Company results', question: "How did ANZ.AX's profit change in its latest results?" },
+  { category: 'Risks', question: 'What are the main risks facing BHP.AX right now?' },
+];
+
 export default function AskQuestion({ sampleTicker = null }) {
   const inputRef = useRef(null);
   const [threadId] = useState(() => crypto.randomUUID());
@@ -126,33 +134,28 @@ export default function AskQuestion({ sampleTicker = null }) {
           <AnswerBlock question={current.question} answer={current.answer} references={current.references} />
         ) : (
           <div className="qa-samples">
-            {sampleTicker ? (
-              <>
-                <p className="qa-placeholder">Ask something above, or try one of these about your thesis:</p>
-                <div className="qa-sample-list">
-                  {sampleQuestions(sampleTicker).map(({ category, question: q }) => (
-                    <button
-                      key={q}
-                      type="button"
-                      className="qa-sample"
-                      onClick={() => {
-                        // Fill in rather than send, so the question can be edited first.
-                        setQuestion(q);
-                        inputRef.current?.focus();
-                      }}
-                    >
-                      <span className="qa-sample-category">{category}</span>
-                      <span className="qa-sample-question">{q}</span>
-                    </button>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <p className="qa-placeholder">
-                Ask something above - the answer will show up here. Add a ticker and a feed below to ask
-                about your own thesis.
-              </p>
-            )}
+            <p className="qa-placeholder">
+              {sampleTicker
+                ? 'Ask something above, or try one of these about your thesis:'
+                : 'Ask something above, or try one of these. Add a ticker and a feed below to ask about your own thesis.'}
+            </p>
+            <div className="qa-sample-list">
+              {(sampleTicker ? sampleQuestions(sampleTicker) : STARTER_QUESTIONS).map(({ category, question: q }) => (
+                <button
+                  key={q}
+                  type="button"
+                  className="qa-sample"
+                  onClick={() => {
+                    // Fill in rather than send, so the question can be edited first.
+                    setQuestion(q);
+                    inputRef.current?.focus();
+                  }}
+                >
+                  <span className="qa-sample-category">{category}</span>
+                  <span className="qa-sample-question">{q}</span>
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>
