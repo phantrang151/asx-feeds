@@ -2,6 +2,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabaseClient';
 import styles from '../styles/Landing.module.css';
 
 // One step per product screen. On desktop the active step's screen is shown beside the list;
@@ -40,9 +41,9 @@ const STEPS = [
   },
 ];
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-
-// Front-page numbers from GET /api/public/site-stats - a weekly snapshot (stats/site_stats.py),
+// Front-page numbers: the latest weekly snapshot (stats/site_stats.py), read straight from the
+// site_stats table rather than through the backend, which scales to zero and took ~5s to wake
+// up. The table is publicly readable (scripts/migration_site_stats_public_read.sql). It's a snapshot,
 // so the label says "updated weekly" rather than "live". feeds_created is deliberately not
 // shown: a count of feeds says little about what the product does for anyone.
 const HERO_STATS = [
@@ -51,14 +52,19 @@ const HERO_STATS = [
   { key: 'active_researchers', label: 'active researchers', one: 'active researcher' },
 ];
 
-// Hidden entirely when the snapshot can't be loaded (404 before the first weekly run, or the
-// API is down) - placeholders that never fill in would look broken.
+// Hidden entirely when the snapshot can't be loaded (no row before the first weekly run, or
+// Supabase is unreachable) - placeholders that never fill in would look broken.
 function HeroStats() {
   const [stats, setStats] = useState(undefined); // undefined = loading, null = unavailable
   useEffect(() => {
     let cancelled = false;
-    fetch(`${API_URL}/api/public/site-stats`)
-      .then((res) => (res.ok ? res.json() : null))
+    supabase
+      .from('site_stats')
+      .select('active_researchers, feeds_created, articles_matched, insights_generated')
+      .order('computed_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data, error }) => (error ? null : data))
       .catch(() => null)
       .then((data) => {
         if (!cancelled) setStats(data);

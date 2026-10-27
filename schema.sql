@@ -916,9 +916,14 @@ create table if not exists site_stats (
 );
 create index if not exists site_stats_computed_at_idx on site_stats (computed_at desc);
 
--- Same posture as pipeline_runs: RLS on with no policies, so only the backend's service_role
--- key reads or writes it. The public endpoint exposes the four numbers, never the table.
+-- RLS on, with read-only access for everyone: the front page reads the latest snapshot
+-- straight from Supabase (a public, always-on read, unlike the backend, which scales to zero
+-- and took ~5s to wake up). The rows hold only the four public counts. Writes stay
+-- service_role only - there is no insert/update/delete policy.
 alter table site_stats enable row level security;
+drop policy if exists "public read site stats" on site_stats;
+create policy "public read site stats" on site_stats for select to anon, authenticated using (true);
+grant select on site_stats to anon, authenticated;
 
 -- active_researchers: distinct users who asked a question, created a feed or added a ticker
 --   in the last 30 days.
