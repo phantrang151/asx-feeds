@@ -44,6 +44,9 @@ export default function SignIn() {
       </form>
       {error && <p className="error">{error}</p>}
       <p>
+        <Link href="/forgot-password">Forgot your password?</Link>
+      </p>
+      <p>
         Don&apos;t have an account? <Link href="/signup">Sign up</Link>
       </p>
     </div>
